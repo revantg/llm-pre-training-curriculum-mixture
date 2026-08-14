@@ -1,0 +1,17 @@
+% \section{Conclusion}
+% \label{sec:conclusion}
+% Summarise consensus: small, high-quality, late passes punch above compute weight.
+% Highlight emerging trend: “mid-training” as an industry standard pipeline step.
+% Stress need for reproducible ablations and open benchmarks.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+% This survey reframed \emph{mid-training} for large language models. We argued that effective mid-training requires \emph{jointly} manipulating three levers: (i) \emph{data distribution refinement} to concentrate scarce, capability-dense tokens where they matter most; (ii) \emph{optimization cooling} via carefully designed learning-rate (and optimizer) schedules that stabilize convergence; and (iii) \emph{context-length extension} strategies that expand an LLM’s usable window without sacrificing stability or perplexity. By treating these components as interdependent rather than isolated tweaks, practitioners can unlock significant capability gains under a modest compute budget.
+
+% We synthesized empirical recipes and theoretical intuitions behind data valuation, curriculum-like token allocation, and schedule design, and we unified recent long-context techniques under a frequency-remapping view of positional encodings. Alongside practical guidelines, we highlighted gaps: the lack of formal objectives for mid-training, limited understanding of why certain recipes generalize, and the absence of standardized, contamination-aware benchmarks to measure incremental gains.
+
+% % \paragraph{Takeaway.} 
+% Mid-training is no longer a footnote in training logs; it is a strategic phase where careful engineering meets principled design. We hope this survey provides both a conceptual scaffold and a practical playbook, accelerating the transition of mid-training from ad-hoc recipes to a disciplined methodology for building more capable, stable, and compute-efficient LLMs.
+
+This paper presents a first-of-its-kind survey of LLM mid-training approaches. We introduce a taxonomy that categorizes existing methods into three key domains: data distribution, learning rate scheduling, and long-context extension. We summarize the main insights in each domain, providing a structured reference for researchers and practitioners. We also compile common evaluation benchmarks and reported gains, enabling a comparative view of how mid-training improves model performance. Finally, we identify open challenges and propose future research avenues, positioning mid-training as a central stage for shaping the next generation of large language models.

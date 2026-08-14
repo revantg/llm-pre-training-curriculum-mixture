@@ -1,0 +1,245 @@
+\section{Evaluation}
+\label{sec:evaluation}
+
+\subsection{Standard Benchmarks}
+\label{subsec:standard-benchmarks}
+At the mid-training stage, model evaluation continues to rely predominantly on widely adopted standard benchmarks rather than task-specific or newly curated datasets. These benchmarks cover a broad spectrum of capabilities, including general knowledge and comprehension, reasoning and problem solving, mathematics and scientific knowledge, coding and software engineering, multilingual understanding, and long-context processing. Such coverage ensures comparability with prior work while highlighting progress across diverse domains. In our study, we report results on \textbf{15 representative benchmarks}, summarized in Table~\ref{tab:std-benchmarks}, which collectively reflect the core skill areas emphasized in large-scale LLM evaluation.
+
+% \begin{table*}[h]
+%   \centering
+%   \caption{Pre-training benchmarks by category.}
+%   \label{tab:std-benchmarks}
+%   \begin{tabular}{p{2.2cm}p{11cm}}
+%     \toprule
+%     \textbf{Task Category} & \textbf{Benchmarks} \\
+%     \midrule
+%     General & MMLU~\cite{hendrycks2021measuringmassivemultitasklanguage} (5-shot),
+%         MMLU-Pro~\cite{wang2024mmluprorobustchallengingmultitask} (5-shot, CoT),
+%         ARC ~\cite{clark2018thinksolvedquestionanswering} (0-shot), 
+%         HellaSwag~\cite{zellers2019hellaswagmachinereallyfinish} (0-shot),
+%         BBH~\cite{suzgun2022challengingbigbenchtaskschainofthought} (3-shot, CoT), 
+%         WinoGrande~\cite{sakaguchi2019winograndeadversarialwinogradschema} (0-shot),
+%         PIQA~\cite{bisk2019piqareasoningphysicalcommonsense} (0-shot) \\[2pt]
+%     \midrule
+%     Math \& STEM & GPQA~\cite{rein2023gpqagraduatelevelgoogleproofqa} (5-shot, CoT),
+%         MATH~\cite{hendrycks2021measuringmathematicalproblemsolving} (4-shot, CoT),
+%         GSM8K~\cite{cobbe2021gsm8k} (4-shot, CoT) \\[2pt]
+%     \midrule
+%     Coding & HumanEval~\cite{chen2021evaluating} (0-shot), 
+%         MBPP~\cite{austin2021programsynthesislargelanguage} (3-shot),  
+%         MultiPL-E~\cite{cassano2022multiplescalableextensibleapproach} (0-shot; Python, C++, Java, PHP, TypeScript, C\#, Bash, JavaScript) \\[2pt]
+%     \midrule
+%     Multilingual & MGSM~\cite{shi2022languagemodelsmultilingualchainofthought} (8-shot, CoT),
+%         Flores-101~\cite{goyal2021flores101evaluationbenchmarklowresource} (5-shot) \\[2pt]
+%     \midrule
+%     Long context & LongBench~\cite{bai2024longbenchbilingualmultitaskbenchmark}, 
+%         Ruler~\cite{hsieh2024rulerwhatsrealcontext} \\[2pt]
+%     \bottomrule
+%   \end{tabular}
+% \end{table*}
+
+% \subsubsection{Experimental setup.}
+% For each benchmark, we compute scores for various pre-trained models of comparable sizes.
+% Where possible, we recompute numbers with our own pipeline for those models.  
+% To ensure a fair comparison, we then select the best score between the score that we computed and the reported number for that model with comparable or more conservative settings.  
+% The evaluation results of some popular models are shown in Table \ref{tab:pre-trained model evaluation of general tasks} and \ref{tab:pre-trained model evaluation of Math & STEM, Code, Multilingual, and Long Context tasks}.
+
+% \begin{table*}[h]
+%   \centering
+%   \caption{General tasks evaluation of pre-trained models.}
+%   \label{tab:pre-trained model evaluation of general tasks}
+%   \begin{tabular}{lcccccccccc}
+%     \toprule
+%     & \multicolumn{2}{c}{Architecture} & \multicolumn{8}{c}{General Tasks} \\
+%     & Total & Act & MMLU & MMLU-Pro & Arc-e & ARC-c & HellaSwag & BBH & WinoGrande & PIQA \\
+%     \hline
+%     Nemotron4-15B  & 15B  & 15B  & 64.2 &   -  & 80.9 & 55.5 & 82.4 & 58.7 & 78.0 &   -  \\
+%     Gemma-7B       & 7B   & 7B   & 64.3 &   -  & 81.5 & 53.2 & 81.2 & 55.1 & 72.3 & 81.2 \\
+%     InternLM2-7B   & 7B   & 7B   & 64.0 &   -  &   -  &   -  &   -  & 55.5 &   -  &   -  \\
+%     InternLM2-20B  & 20B  & 20B  & 64.0 &   -  &   -  &   -  &   -  & 72.1 &   -  &   -  \\
+%     MiniCPM-1.2B   & 1.2B & 1.2B & 49.6 &   -  & 80.9 & 66.8 & 54.7 & 34.7 &   -  &   -  \\
+%     MiniCPM-2.4B   & 2.4B & 2.4B & 53.5 &   -  & 85.4 & 68.0 & 68.3 & 36.9 &   -  &   -  \\
+%     Phi3-mini      & 3.8B & 3.8B & 68.8 &   -  & 94.6 & 84.9 & 76.7 & 71.7 & 70.8 & 84.2 \\
+%     Phi3-small     & 7B   & 7B   & 75.7 &   -  & 97.0 & 90.7 & 77.0 & 79.7 & 81.5 & 86.9 \\
+%     Phi3-medium    & 14B  & 14B  & 78.0 &   -  & 91.6 & 91.0 & 82.4 & 81.4 & 81.5 & 87.9 \\
+%     Deepseek-v2    & 236B & 21B  & 78.5 &   -  & 97.6 & 92.4 & 84.2 & 78.9 & 84.9 & 83.7 \\
+%     Zamba-7B       & 7B   & 7B   & 57.2 &   -  & 74.5 & 46.5 & 80.2 &   -  & 76.4 & 81.4 \\
+%     MAP-Neo-7B     & 7B   & 7B   & 54.1 &   -  &   -  & 68.1 & 70.7 &   -  & 59.8 & 76.6 \\
+%     Nemotron4-340B & 340B & 340B & 81.1 &   -  &   -  & 94.2 & 90.5 & 85.4 & 89.5 &   -  \\
+%     Llama3-8B      & 8B   & 8B   & 66.7 & 37.1 &   -  & 79.7 &   -  & 64.2 & 75.7 & 85.0 \\
+%     Llama3-70B     & 70B  & 70B  & 79.5 & 53.8 &   -  & 92.9 &   -  & 81.6 & 83.5 & 83.8 \\
+%     Llama3-405B    & 405B & 405B & 85.2 & 61.6 &   -  & 96.1 &   -  & 85.9 & 82.2 & 85.6 \\
+%     Gemma2-2B      & 2B   & 2B   & 52.2 &   -  &   -  & 55.7 & 72.9 & 41.9 & 71.3 & 78.4 \\
+%     Gemma2-9B      & 9B   & 9B   & 71.3 &   -  &   -  & 68.4 & 81.9 & 68.2 & 80.6 & 81.7 \\
+%     Gemma2-27B     & 27B  & 27B  & 75.2 &   -  &   -  & 71.4 & 86.4 & 74.9 & 83.7 & 83.2 \\
+%     Hunyuan-Large  & 389B & 52B  & 88.4 & 60.2 &   -  & 95.0 & 86.8 & 86.3 & 88.7 & 88.3 \\
+%     Qwen2.5-14B    & 14B  & 14B  & 79.7 & 51.2 &   -  & 67.3 & 84.3 & 78.2 & 81.0 &   -  \\
+%     Qwen2.5-72B    & 72B  & 72B  & 86.1 & 58.1 &   -  & 72.4 & 87.6 & 86.3 & 83.9 &   -  \\
+%     Qwen2.5-Plus   & 271B & 37B  & 85.4 & 64.0 &   -  & 70.9 & 89.2 & 85.8 & 85.5 &   -  \\
+%     DeepSeek-v3    & 671B & 37B  & 87.2 & 59.8 & 87.6 & 75.2 & 88.9 & 87.5 & 84.9 & 84.7 \\
+%     OLMo2-7B       & 7B   & 7B   & 63.7 & 31.0 &   -  & 79.8 & 83.8 &   -  & 77.2 &   -  \\
+%     OLMo2-13B      & 13B  & 13B  & 67.5 & 35.1 &   -  & 83.5 & 86.4 &   -  & 81.5 &   -  \\
+%     MiniMax-01     & 456B & 46B  & 88.5 & 75.7 &   -  &   -  &   -  &   -  &   -  &   -  \\
+%     SmolLM2        & 1.7B & 1.7B &   -  & 19.4 & 60.5 &   -  & 68.7 &   -  & 59.4 & 77.6 \\
+%     Gemma3-27B     & 27B  & 27B  & 78.7 & 52.9 &   -  &   -  & 84.1 & 80.0 & 71.9 & 83.3 \\
+%     Llama4-Scount  & 109B & 17B  & 78.3 & 56.1 &   -  &   -  & 81.9 & 82.4 & 71.4 & 88.9 \\
+%     Qwen3-235B     & 235B & 22B  & 87.8 & 68.2 &   -  &   -  &   -  & 88.9 &   -  &   -  \\
+%     MiMo-7B        & 7B   & 7B   & 71.2 & 41.9 & 85.2 & 62.3 & 80.0 & 75.2 & 78.0 & 79.4 \\
+%     PanguProMoE    & 72B  & 16B  & 87.4 & 63.5 &   -  &   -  & 93.5 & 81.2 & 75.6 & 89.3 \\
+%     BitCPM4        & 1B   & 1B   & 59.2 &   -  &   -  &   -  &   -  & 57.6 &   -  &   -  \\
+%     SmolLM3        & 3B   & 3B   &   -  & 19.6 & 65.6 &   -  & 76.2 &   -  &   -  &   -  \\
+%     \hline
+%   \end{tabular}
+% \end{table*}
+
+% \begin{table*}[h]
+%   \centering
+%   \caption{Math \& STEM, Code, Multilingual, and Long Context tasks evaluation of pre-trained models.}
+%   \label{tab:pre-trained model evaluation of Math & STEM, Code, Multilingual, and Long Context tasks}
+%   \begin{tabular}{lcccccccccc}
+%     \toprule
+%     & \multicolumn{2}{c}{Architecture} & \multicolumn{3}{c}{Math \& STEM} & \multicolumn{3}{c}{Code} & \multicolumn{2}{c}{Multilingual} \\
+%     & Total & Act & GPQA & MATH & GSM8K & HumanEval & MBPP & MultiPL-E & MGSM & FLORES \\
+%     \hline
+%     Nemotron4-15B  & 15B  & 15B  &   -  &   -  & 46.0 & 31.6 & 40.6 &   -  &   -  &   -  \\
+%     Gemma-7B       & 7B   & 7B   &   -  & 24.3 & 46.4 & 32.3 & 44.4 &   -  &   -  &   -  \\
+%     InternLM2-7B   & 7B   & 7B   &   -  & 8.9  & 36.0 & 56.1 & 51.8 &   -  &   -  & 5.1  \\
+%     InternLM2-20B  & 20B  & 20B  &   -  & 13.6 & 54.3 & 48.8 & 63.0 &   -  &   -  & 6.0  \\
+%     MiniCPM-1.2B   & 1.2B & 1.2B &   -  & 10.6 & 31.8 & 44.5 & 32.8 &   -  &   -  &   -  \\
+%     MiniCPM-2.4B   & 2.4B & 2.4B &   -  & 10.2 & 53.8 & 50.0 & 47.3 &   -  &   -  &   -  \\
+%     Phi3-mini      & 3.8B & 3.8B & 32.8 & 41.3 & 82.5 & 58.5 & 70.0 &   -  & 47.9 &   -  \\
+%     Phi3-small     & 7B   & 7B   & 34.3 & 34.6 & 89.6 & 61.0 & 71.7 &   -  & 58.7 &   -  \\
+%     Phi3-medium    & 14B  & 14B  &   -  & 53.1 & 91.0 & 62.2 & 75.2 &   -  & 31.8 &   -  \\
+%     Deepseek-v2    & 236B & 21B  &   -  & 43.6 & 79.2 & 48.8 & 66.6 &   -  &   -  &   -  \\
+%     Zamba-7B       & 7B   & 7B   &   -  &   -  &   -  &   -  &   -  &   -  &   -  &   -  \\
+%     MAP-Neo-7B     & 7B   & 7B   &   -  & 20.7 & 53.7 & 23.8 & 34.9 &   -  &   -  &   -  \\
+%     Nemotron4-340B & 340B & 340B &   -  &   -  &   -  & 57.3 &   -  &   -  &   -  &   -  \\
+%     Llama3-8B      & 8B   & 8B   & 32.8 & 20.3 & 57.2 & 72.6 & 60.8 &   -  & 68.9 &   -  \\
+%     Llama3-70B     & 70B  & 70B  & 46.7 & 41.4 & 83.7 & 80.5 & 75.4 &   -  & 86.9 & 38.0 \\
+%     Llama3-405B    & 405B & 405B & 51.1 & 53.8 & 89.0 & 89.0 & 82.3 &   -  & 91.6 &   -  \\
+%     Gemma2-2B      & 2B   & 2B   &   -  & 16.0 & 24.3 & 20.1 & 30.2 &   -  &   -  &   -  \\
+%     Gemma2-9B      & 9B   & 9B   &   -  & 36.6 & 68.6 & 40.2 & 52.4 &   -  &   -  &   -  \\
+%     Gemma2-27B     & 27B  & 27B  &   -  & 42.3 & 74.0 & 51.8 & 62.6 &   -  &   -  &   -  \\
+%     Hunyuan-Large  & 389B & 52B  &   -  & 69.8 & 92.8 & 71.4 & 72.6 &   -  &   -  &   -  \\
+%     Qwen2.5-14B    & 14B  & 14B  & 32.8 & 55.6 & 90.2 & 56.7 & 76.7 & 53.5 &   -  & 36.2 \\
+%     Qwen2.5-72B    & 72B  & 72B  & 45.9 & 62.1 & 91.6 & 59.1 & 84.7 & 60.5 & 76.7 & 39.0 \\
+%     Qwen2.5-Plus   & 271B & 37B  & 43.9 & 64.4 & 93.0 & 59.1 & 79.7 & 61.0 &   -  & 40.4 \\
+%     DeepSeek-v3    & 671B & 37B  & 41.9 & 62.6 & 87.6 & 65.2 & 75.4 & 63.8 & 82.7 &   -  \\
+%     OLMo2-7B       & 7B   & 7B   &   -  &   -  & 67.5 &   -  &   -  &   -  &   -  &   -  \\
+%     OLMo2-13B      & 13B  & 13B  &   -  &   -  & 75.1 &   -  &   -  &   -  &   -  &   -  \\
+%     MiniMax-01     & 456B & 46B  & 54.4 & 77.4 & 94.8 & 86.9 &   -  &   -  &   -  &   -  \\
+%     SmolLM2        & 1.7B & 1.7B &   -  & 11.6 & 31.1 & 22.6 &   -  &   -  &   -  &   -  \\
+%     Gemma3-27B     & 27B  & 27B  & 26.3 & 51.8 & 81.2 &   -  & 68.4 & 45.0 & 73.7 &   -  \\
+%     Llama4-Scount  & 109B & 17B  & 40.4 & 51.7 & 85.4 &   -  & 68.6 & 47.4 & 79.9 &   -  \\
+%     Qwen3-235B     & 235B & 22B  & 47.5 & 71.8 & 94.4 &   -  & 81.4 & 65.9 & 83.5 &   -  \\
+%     MiMo-7B        & 7B   & 7B   & 25.8 & 37.4 & 75.2 & 51.8 & 69.2 &   -  &   -  &   -  \\
+%     PanguProMoE    & 72B  & 16B  &   -  & 55.9 & 86.5 & 63.7 &   -  &   -  &   -  &   -  \\
+%     BitCPM4        & 1B   & 1B   &   -  &   -  & 60.8 & 37.2 & 61.5 &   -  &   -  &   -  \\
+%     SmolLM3        & 3B   & 3B   &   -  & 46.1 &   -  &   -  &   -  &   -  &   -  & 56.3 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table*}
+
+
+% \subsubsection{Significance estimates.}
+% Benchmark scores are estimates of a model’s true performance. These estimates have variance because benchmark sets are finite samples drawn from some underlying distribution. We follow \cite{madaan2024quantifyingvarianceevaluationbenchmarks} and report this variance via 95\% confidence intervals (CIs), assuming that benchmark scores are Gaussian-distributed. While this assumption is imperfect (scores are bounded), preliminary bootstrap experiments suggest CIs (for discrete metrics) are a good approximation:
+% \begin{equation}
+%   \mathrm{CI}(S) \;=\; 1.96 \times
+%   \sqrt{\frac{S \,\bigl(1 - S\bigr)}{N}},
+%   \label{eq:ci}
+% \end{equation}
+% where $S$ is the observed benchmark score (e.g.\ accuracy or EM) and $N$ is the sample size of the benchmark.  
+% We omit CIs for benchmark scores that are not simple averages.  
+% Because subsampling is not the only source of variation, the CIs in Eq.~\eqref{eq:ci} lower-bound the actual variation in the capability estimate.
+
+
+\subsection{Mid-Training Uplift}
+The mid-training strategy has consistently been shown to enhance LLM performance, making it a central component of modern training practice. In this section, we summarize reported gains from a range of prominent models (see Table~\ref{tab:annealing uplift summary}). Our review suggests that the improvements attributed to mid-training fall into several major dimensions: including \textbf{(A)} Advanced Reasoning \& Adaptability, \textbf{(B)} Scalable Efficiency, \textbf{(C)} Reliable Foundations. To facilitate understanding, the table also categorizes these benefits by model, providing a structured comparison of how mid-training contributes across different training regimes.
+
+% \begin{table*}[h]
+%   \centering
+%   \caption{Mid-Training uplift summary.}
+%   \label{tab:annealing uplift summary}
+%   \begin{tabular}{p{1.6cm}p{7.6cm}p{8cm}}
+%     \toprule
+%     \textbf{Model} & \textbf{Quantified Metric Uplift} & \textbf{Qualitative Impact / Purpose of Strategy} \\
+%     \midrule
+%     InternLM2     & Achieves substantial performance improvements in coding, reasoning, question answering, examinations, and long-context modeling. & \textbf{[Advanced Reasoning \& Adaptability]} Leveraging enriched datasets for coding, reasoning, QA, and exams, the model outperforms predecessors across 6 dimensions and 30 benchmarks, notably in long-context modeling and subjective evaluation. \\
+%     \midrule
+%     MiniCPM4      & Achieves comparable performance to Qwen3 using 22\% of tokens (8T vs 36T). MiniCPM4-0.5B surpasses Llama3.2-1B, Gemma3-1B. MiniCPM4-8B outperforms Gemma3-12B, Phi4-14B. & \textbf{[Scalable Efficiency]} Reduces training costs, improves performance \& efficiency, enables predictable scaling, critical for low-bit LLMs. \\
+%     \midrule
+%     DeepSeek-v2   & Achieves 88.9\% pass ratio on MiniF2F-test. Solves 47/658 PutnamBench problems. Pass rate can be improved significantly with CoT reasoning. & \textbf{[Advanced Reasoning \& Adaptability]} Overall training significantly enhances formal theorem proving capabilities. \\
+%     \midrule
+%     Zamba         & Base model (Phase 1) achieves Llama2 performance with 1T tokens (Llama2 uses 2T). Overall performance approaches leading ~7B transformers. & \textbf{[Advanced Reasoning \& Adaptability]} Improves adaptation, mitigates forgetting, enables fast adaptation from high-quality data, contributes to data efficiency. \\
+%     \midrule
+%     MAP-Neo       & Achieves rapid improvements and stabilization of code metrics during the decay phase, and enhances professional response generation. & \textbf{[Reliable Foundations]} Rectifies tokenizer flaws, enhances code generation, targeted remediation of specific deficiencies. \\
+%     \midrule
+%     Nemotron4     & Achieves a better learning from the data and a significant improvement in overall model quality. & \textbf{[Reliable Foundations]} Refines model, effectively integrates new data, contributes to overall polish and robustness. \\
+%     \midrule
+%     Llama3        & Annealing improved Llama 3 8B on GSM8k by 24.0\% and MATH by 6.4\%, but a negligible uplift for 405B model. & \textbf{[Scalable Efficiency]} Boosts performance for smaller models, ensures training stability, efficient method to judge value of domain-specific datasets. \\
+%     \midrule
+%     Gemma2        & Gemma2-9B shows up to 10\% improvement in some benchmarks compared to previous versions. & \textbf{[Scalable Efficiency]} Significantly improves model quality for smaller models, simulates training beyond available tokens, provides richer gradients. \\
+%     \midrule
+%     Hunyuan-Large & Achieves substantial improvements in downstream task performance and generalization ability. & \textbf{[Reliable Foundations]} Optimizes entire alignment pipeline, front-loads instruction-following, shapes model behavior, improves robustness. \\
+%     \midrule
+%     Yi-Lightning  & Achieves model capabilities enhancing and context length extending. & \textbf{[Scalable Efficiency]} Enables efficient training, deployment, inference, and high practical efficacy. Builds capabilities progressively from broad to specialized. \\
+%     \midrule
+%     DeepSeek-v3   & Achieves a remarkably stable training without irrecoverable loss spikes or rollbacks. & \textbf{[Scalable Efficiency]} Ensures robust and cost-effective training process, prevents costly failures, critical for large-scale training. \\
+%     \midrule
+%     OLMo2         & Mid-training improves 7B by 10.6 pts, 13B by 10.3 pts (avg performance). Specific uplifts on Arc Challenge (+7.2/3.3), MMLU (+3.9/4.1), GSM8K (+43.4/37.8), DROP (+20.1/21.1) for 7B and 13B respectively. & \textbf{[Reliable Foundations]} Dramatically improves performance across diverse benchmarks, enhances robustness, reduces experimentation cost. \\
+%     \midrule
+%     Phi-4         & Substantially surpasses teacher model on STEM-focused QA. Meets or exceeds Llama-3.1-405B on reasoning. Scores well above its weight-class on competition math. & \textbf{[Advanced Reasoning \& Adaptability]} Enables emergent reasoning capabilities, improves on teacher models, stabilizes learning during context extension. \\
+%     \midrule
+%     PanguProMoE   & Annealing phase can still bring about a large improvement in model performance, stabilize convergence, and reduce catastrophic forgetting. & \textbf{[Reliable Foundations]} Ensures robust generalization and effective specialization, systematically acquires diverse skills, prevents knowledge degradation. \\
+%     \midrule
+%     SmolLM3       & Achieves SOTA at 3B scale, and competitive performance with 4B models. Linear Blend retains robust chain-of-thought and instruction alignment while recovering top-tier performance on 128 K-token tasks. & \textbf{[Scalable Efficiency]} Maximizes performance from limited parameters, ensures robustness across capabilities, enables long-context robustness. \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table*}
+
+% The following part shows each model is grouped under a broad category (e.g., Efficiency, Reasoning, Alignment), with a specific focus tag that highlights its main innovation or improvement. 
+% \begin{itemize}
+%   \item \textbf{Efficiency}
+%   \begin{itemize}
+%     \item MiniCPM4: [Efficiency: Low-Bit Scaling \& Cost Reduction]
+%     \item Yi-Lightning: [Efficiency: Practical Training \& Deployment]
+%     \item DeepSeek-v3: [Efficiency: Cost-Efficient Large-Scale Training]
+%     \item SmolLM3: [Efficiency: Parameter-Efficient Robustness \& Long-Context]
+%   \end{itemize}
+
+%   \item \textbf{Capabilities \& Reasoning}
+%   \begin{itemize}
+%     \item InternLM2: [Capabilities: Broad Capability Uplift \& Long-Context]
+%     \item DeepSeek-v2: [Reasoning: Formal Theorem Proving]
+%     \item Phi-4: [Reasoning: Emergent Reasoning \& Context Stabilization]
+%   \end{itemize}
+
+%   \item \textbf{Adaptation \& Data Handling}
+%   \begin{itemize}
+%     \item Zamba: [Adaptation: Data Efficiency \& Forgetting Mitigation]
+%     \item MAP-Neod: [Infrastructure: Tokenizer Remediation \& Code Generation]
+%   \end{itemize}
+
+%   \item \textbf{Refinement \& Robustness}
+%   \begin{itemize}
+%     \item Nemotron4: [Refinement: Data Integration \& Robustness]
+%     \item OLMo2: [Robustness: Benchmark Strength \& Experiment Cost Reduction]
+%   \end{itemize}
+
+%   \item \textbf{Scaling \& Small-Model Performance}
+%   \begin{itemize}
+%     \item Llama3: [Scaling: Small-Model Stability \& Dataset Evaluation]
+%     \item Gemma2: [Scaling: Small-Model Quality \& Gradient Enrichment]
+%   \end{itemize}
+
+%   \item \textbf{Alignment \& Behavior Shaping}
+%   \begin{itemize}
+%     \item Hunyuan-Large: [Alignment: Instruction Optimization \& Robustness]
+%   \end{itemize}
+
+%   \item \textbf{Architecture: Mixture-of-Experts}
+%   \begin{itemize}
+%     \item PanguProMoE: [Architecture: MoE Generalization \& Specialization]
+%   \end{itemize}
+% \end{itemize}
+

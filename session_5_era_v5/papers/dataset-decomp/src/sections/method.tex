@@ -1,0 +1,46 @@
+\section{Method}
+\subsection{Dataset decomposition}\label{sec:dd}
+Given a dataset $\mathcal{D}$ of tokenized documents $\{d_1, d_2, \ldots, d_n\}$, the goal of dataset decomposition (DD) is to reorganize $\mathcal{D}$ as a union of buckets, $\cup_i \mathcal{D}_i$, such that: (1) each bucket $\mathcal{D}_i$ consists of sequences of tokens with length $l_i$; (2) each sequence $s \in \mathcal{D}_i$ is a subsequence of one document $d \in \mathcal{D}$; and (3) each token in $\mathcal{D}$ appears in exactly one $\mathcal{D}_i$. This decomposition produces sequences that each belong to a unique document, ensuring no cross-document attention within a sequence during training. Additionally, all sequences in a given bucket $\mathcal{D}_i$ have the same length $l_i$, enabling efficient batching.
+
+Dataset decomposition as defined above is not unique. We propose a specific decomposition, with $l_i = 2^i$, to optimally maintain the original document sequence length distribution while also enabling efficient batch pretraining, as explained in \cref{sec:vsl}. We apply decomposition at the document level, which makes it very easy to integrate the method into any existing data preparation pipeline (a stage before model training) and is scalable to large datasets. For a tokenized document $d \in \mathcal{D}$ with length $l$, where $l=2^{i_1} + 2^{i_2} + \ldots + 2^{i_k}$ represents its binary decomposition, we break $d$ into $k$ adjacent sequences $s_1, \ldots, s_k$, with lengths of $2^{i_1}, \ldots, 2^{i_k}$, respectively. Each sequence $s_j$ of length $2^{i_j}$ is then assigned to bucket $\mathcal{D}_{i_j}$. \cref{fig:dd-schematics} shows a schematic representation of this method.
+
+With our proposed dataset decomposition approach, each bucket $\mathcal{D}_i$ contains sequences extracted from an original document $d$ such that the length of $d$ is at least $2^i$. In \cref{fig:buckets_dist}, we show the distribution of RefinedWeb dataset tokens over different buckets, where $\mathcal{D}_9$ (corresponding to sequences with length 512) has the maximum tokens. We also highlight the original document lengths from which tokens are extracted. Most tokens in a bucket $\mathcal{D}_i$ are extracted from documents with length $l$ such that $2^i \le l < 2^{i+1}$, and some tokens are rolled over from documents with length $l \ge 2^{i+1}$. This demonstrates the efficacy of the method in retaining original document length, especially for long documents, which are scarce.
+
+In \cref{fig:length_dist}, we show the distribution of original document lengths and chunks within 2048 and 8192 target sequence lengths formed by the concat-and-chunk approach. We also present the length distribution using the bin-packing approximate algorithm introduced by a concurrent work~\citep{ding2024fewer}. Additionally, in \cref{fig:position_dist}, we show the distribution of context length (the number of tokens from the same document a token can attend to during pretraining) when using baselines with a target sequence length of 8192 and DD. See \cref{sec:avg_definition} for additional discussion on sequence length statistics.
+
+In contrast to the concat-and-chunk approach, which results in a static dataset, DD enables us to use sequence length distribution as prior knowledge and optimize the best mixture for the target task. In \cref{sec:length_corr}, we show the bias of each target evaluation toward a sequence length and the effect of concatenation and chunking on model performance. In \cref{sec:mixture}, we study the effect of different sequence mixtures for LLM pretraining, a less-studied topic in LLM pretraining.
+
+
+
+\subsection{Variable sequence length training}\label{sec:vsl}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.3\linewidth}
+        \includegraphics[width=\textwidth]{figures/sequence_length_distribution.pdf}
+        \caption{}
+        \label{fig:length_dist}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.37\linewidth}
+        \includegraphics[width=\textwidth]{figures/bucket_distribution.pdf}
+    \caption{}
+    \label{fig:buckets_dist}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.3\linewidth}
+        \includegraphics[width=\textwidth]{figures/position_distribution.pdf}
+    \caption{}
+    \label{fig:position_dist}
+    \end{subfigure}
+    \caption{For the RefinedWeb dataset~\citep{refinedweb}: {\bf (a)} Distribution of chunk lengths using different dataset preparation methods. Peaks show the percentage of chunks for each method with the same length as the target sequence length. {\bf (b)} Distribution of tokens over $\mathcal{D}_i$'s in DD. Color/pattern shows the $\lfloor \log_2 l \rfloor$, where $l$ is the length of the original document each token is extracted from. {\bf (c)} Probability distribution of context length (number of tokens from the same document a token can attend to) observed during training for the concat-and-chunk baseline with target sequence length $8192$ and DD with $\ge 256$ mixture defined in \cref{tab:mixture}.
+}
+\label{fig:dataset_distributions}
+\end{figure}
+
+Following the setup in \cref{sec:dd}, we assume a set of $k$ buckets such that $\mathcal{D}_i$, containing sequences with length $2^i$, are available. Let $b$ be the target batch size -- the number of tokens used per optimization step. In variable sequence length (VSL) training, at every step of optimization, we first sample $i$ from available choices, then pick $b / 2^i$ sequences from bucket $\mathcal{D}_i$. Since $\mathcal{D}_i$ consists of sequences with length $2^i$, the number of seen tokens per optimization step remains $b$, independent of the choice of $i$. Training LLMs with the VSL algorithm comes with several advantages.
+
+
+First, since the total number of seen tokens per optimization step does not change, VSL does not alter optimization dynamics, and the same hyperparameters as the baseline can be utilized (see \cref{sec:experiments}).
+
+Second, in \cref{sec:benchmark}, we show that the time to complete one optimization step (forward+backward) for a fixed $b$ (tokens per step) varies by sequence length due to the quadratic cost of attention~\citep{vaswani2017attention}. With VSL training, the cost of every optimization step depends on the bucket $\mathcal{D}_i$ sampled for that step (and hence the sequence length). Thus, the more expensive steps (corresponding to long sequences) are compensated with less expensive steps (corresponding to short sequences).
+
+Finally, the sampling component in VSL (which $\mathcal{D}_i$ to choose at every optimization step) enables different curricula of sequence lengths. In \cref{sec:curriculum}, we show the significance of such curricula on model stability and generalization accuracy.

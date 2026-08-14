@@ -1,0 +1,265 @@
+\section{Learning Rate Scheduler}
+\label{sec:lrsched}
+% In this section, we review the literature on learning rate schedulers. We begin with an overview of theoretical motivations and hypotheses surrounding learning rate schedulers in the pretraining of LLMs, highlighting their role in shaping optimization dynamics and generalization. We then introduce common types learning rate schedulers, and discuss by surveying the specific scheduling strategies adopted in recent state-of-the-art LLMs.
+In this section, we review the literature on learning rate (LR) schedulers. We begin with key factors affected LR scheduling design, then we introduce common types of LR schedulers and the LR schedulers in recent LLMs. We also summarize some valuable key insights for selecting appropriate LR scheduler.
+
+\subsection{Key factors affected LR Scheduling}
+
+{LR schedulers are critical components in optimizing LLMs, as they directly affect optimization stability, convergence speed and generalization performance. 
+LR scheduling are largely affected by several factors:
+\begin{itemize}[leftmargin=*]
+    \item \textit{Warmup setting:} The warmup phase mitigates optimization instability during the early iterations, while the decay phase governs convergence dynamics, typically using cosine decay. Recent analyses \cite{kalra2024warmup} further emphasize the effectiveness of properly setting warmup parameters in stabilizing training and preventing divergence in training Transformer models. Gilmer et al. \cite{gilmer2022loss} empirically show that warm-up reduces loss sharpness and improves optimization conditioning, enabling larger LR.
+    \item \textit{Decay strategy:} The decay stage of LR schedulers have also been widely studied. You et al. \cite{you1908does} investigate the role of LR decay in modern neural networks, showing that a large initial LR suppresses the memorization of noisy data, while a gradual decay facilitates the learning of complex patterns.
+    \item \textit{Batch size:} Increasing the batch size lowers the variance of stochastic gradient estimates, which in turn supports the use of higher learning rates. Empirical results by Goyal et al.~\cite{goyal2017accurate} demonstrate that, in large mini-batch regimes, employing a cautious initial rate with a properly tuned warm-up phase alleviates optimization difficulties.
+\end{itemize}
+% Interestingly, according to Kaplan et al.\cite{kaplan2020scaling}, the final performance of language models is largely insensitive to the choice of learning rate scheduler, provided that the total learning rate budget is sufficiently large. In contrast, Hoffmann et al.\cite{hoffmann2022training} provided empirical evidence that learning rate schedulers significantly affect optimization outcomes, demonstrating that the choice of decay strategy can have a substantial impact on final model performance.
+While these factors provide practical guidance for designing effective schedulers, the broader question of how much LR scheduling truly matters remains debated. Kaplan et al.~\cite{kaplan2020scaling} argued that the final performance of language models is largely insensitive to the specific scheduler, so long as the total LR budget is sufficiently large. In contrast, Hoffmann et al.~\cite{hoffmann2022training} presented empirical evidence that the choice of decay strategy substantially influences optimization dynamics and final model quality, suggesting that scheduler design can have non-trivial consequences in large-scale training.}
+
+\subsection{Common Learning Rate Scheduler Types}
+
+{The design of LR schedules in LLM training has evolved substantially over time. The original Transformer~\cite{vaswani2017attention} introduced a short warm-up phase followed by an inverse square root decay, whose advantage was that it did not require prior knowledge of the total number of training steps. As models and datasets scaled up, however, cosine decay schedules~\cite{loshchilov2016sgdr} became widely adopted in LLM pretraining due to their empirical effectiveness, as seen in GPT-3~\cite{brown2020language}, Gopher~\cite{rae2021scaling}, and Chinchilla~\cite{hoffmann2022training}.}
+
+{Subsequent work questioned whether cosine annealing represents the optimal choice. Defazio et al.~\cite{defazio2023optimal} demonstrated that linear decay consistently outperforms cosine and other schedulers across optimization methods, while Bergsma et al.~\cite{bergsma2025straight} reported similar findings when training LLMs with AdamW. More recently, Ibrahim et al.~\cite{ibrahim2024simple} proposed an “infinite” LR schedule, which eliminates the need for fixed token budgets and repeated warmups by employing a four-phase strategy, thus supporting continual training with reduced forgetting. Despite these advances, many modern LLMs continue to adopt the 10x cosine variant introduced by~\cite{kalra2024warmup}, given its slight empirical advantage over standard cosine decay.}
+
+{Across these developments, most training pipelines converge on a composite structure: a linear warm-up phase, which gradually increases the LR to mitigate instability, followed by a decay phase whose form—cosine, linear, or multi-stage—varies across models. In multi-phase or annealing-style training paradigms, stage-wise schedulers such as WSD apply distinct decay behaviors at different stages to better align with the evolving data distribution and optimization objectives. By modulating the LR in tandem with training phases, these approaches facilitate a smooth transition from rapid exploration in early stages to fine-grained convergence later, thereby enhancing both optimization efficiency and generalization performance.}
+
+
+{In the following, we provide a detailed overview of mainstream decay-phase LR schedulers. Figure~\ref{fig:lrs} provides a unified visualization of commonly used LR schedules (linear, cosine, exponential, cyclical, and WSD), to highlight their characteristic dynamics over training steps. To facilitate a clear comparison, all LR schedulers are set up with the same warmup steps, peak LR, total training steps, and initial and final learning rates of zero.
+}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{2_lrs.png}
+    \caption{Comparison of different LR schedulers.}
+    \label{fig:lrs}
+\end{figure}
+
+\subsubsection{Linear Scheduler}
+
+The linear LR scheduler was originally proposed in \cite{goyal2017accurate} and has since been widely adopted in large-scale model training.
+
+In the decay phase, the LR decreases linearly from a peak value \(\eta_{peak}\) to a final value \(\eta_{end}\) over \(S_{\text{dc}}\) steps:
+\begin{equation}
+\eta_t = \eta_{peak} - (\eta_{peak} - \eta_{end}) \cdot \frac{t}{S_{\text{dc}}}, \quad 0 \leq t \leq S_{\text{dc}}.
+\end{equation}
+
+This linear decay schedule enables a smooth transition from rapid exploration in early training to more stable convergence in later stages. Its simplicity and effectiveness make it a common choice in both academic and industrial settings.
+
+
+
+\subsubsection{Cosine Scheduler}
+The cosine LR scheduler typically consists of a linear warmup phase followed by a cosine decay, gradually decreases the LR following a cosine curve after it reaches its maximum after warmup phase.
+The decay function is given by
+\[
+\eta_t = \eta_{end} + \frac{1}{2}(\eta_{peak} - \eta_{end}) \left(1 + \cos\left(\frac{\pi t}{S_{\text{dc}}}\right)\right), \quad 0 \leq t \leq S_{\text{dc}},
+\]
+where \(\eta_{peak}\) and \(\eta_{end}\) denote the peak and final learning rates, respectively.
+
+A key hyperparameter is the decay length \(S_{\text{dc}}\) at which cosine decay decreases to the minimum for the first time, often set equal to the total number of training steps \(S_{\text{total}}\) when training length is predetermined. Prior studies~\cite{hu2024minicpm, kaplan2020scaling, hoffmann2022training} have shown that both \(S_{\text{dc}} < S_{\text{total}}\) and \(S_{\text{dc}} > S_{\text{total}}\) lead to suboptimal performance. In particular, setting \(S_{\text{dc}} = S_{\text{total}}\) improves training efficiency, as it avoids prematurely decaying the LR or keeping it high for too long. Possible explanation for the effectiveness of cosine LR schedulers with \(S_{\text{dc}} = S_{\text{total}}\) lies in the balance between an extended high LR phase due to cosine decay, which may aid in global exploration, and a full decay phase, which could promote stable convergence dynamics. Consequently, the intermediate checkpoints tend to be suboptimal, complicating the continual pretraining of an existing language model.
+
+
+\subsubsection{Exponential Scheduler}
+
+The exponential LR scheduler~\cite{li2019exponential} gradually decreases the LR by multiplying it with a fixed decay factor at each step, enabling smooth and continuous reduction throughout training. It is defined as:
+\[
+\eta_t =  \eta_{init} \cdot e^{-kt}
+\]
+where \(\eta_{init}\) is the initial LR, and \(k\) is a decay constant that controls the rate of exponential decay.
+
+Its simplicity and continuous decay pattern make it suitable for tasks with stable long-term optimization needs. However, it offers less control and interpretability over scheduling stages and may decay too quickly without careful tuning.
+
+\subsubsection{Knee Scheduler}
+
+The Knee scheduler~\cite{iyer2023wide} is an explore–exploit LR strategy, inspired by the wide-minima density hypothesis, which hypothesizes that narrow minima are significantly higher than wide minima in the loss landscape of deep neural networks.  It comprises two distinct phases: an initial exploration phase, during which the model is trained with a constant high LR for a sufficient duration to increase the likelihood of converging near a wide minimum; and a subsequent exploitation phase, wherein the LR linearly decays to zero without requiring any additional hyperparameters.
+
+
+\subsubsection{Cyclical Scheduler}
+
+The cyclical scheduler~\cite{smith2017cyclical} cyclically vary between predefined boundary values in a cyclic manner rather than decaying monotonically. The cyclical LR at training step \( t \) is defined as
+\begin{align}
+\eta_t &= \eta_{init} + (\eta_{peak} - \eta_{init}) \cdot \nonumber \\
+&\quad \max\left(0,\ 1 - \left| \frac{t}{s} - 2 \left\lfloor 1 + \frac{t}{2s} \right\rfloor + 1 \right| \right)
+\end{align}
+where \( \eta_{init} \) and \( \eta_{peak} \) are the minimum and maximum LR, \( s \) is the half-cycle length (i.e., the number of steps from \( \eta_{init} \) to \( \eta_{peak} \)), and \( \lfloor \cdot \rfloor \) denotes the floor function, which returns the greatest integer less than or equal to its input. Its adaptive nature eliminates the need for extensive experimentation to identify optimal learning rates and schedules, while often achieving near-optimal accuracy in fewer iterations. 
+
+
+\subsubsection{WSD Scheduler}
+MiniCPM~\cite{hu2024minicpm} proposes Warmup-Stable-Decay (WSD) LR scheduler that divide the training stage into three phases: the warmup stage, the stable training stage, and the decay stage. The function form of WSD is:
+
+\[
+WSD(T; s) = 
+\begin{cases}
+\frac{s}{W} \eta, & s < W \\
+\eta, & W \leq s \leq T \\
+f(s - T)\eta, & T < s < S
+\end{cases}
+\]
+
+where $0<f(s-T)\leq1$ is a decreasing function about $s$, $\eta$ is the maximum LR. The WSD scheduler adopts a three-phase structure designed together with two-phase pretraining. It enables efficient convergence by achieving rapid loss reduction in the final decay stage using only 10\% of total tokens, and is particularly effective when high-quality data is introduced mid-training. Compared to cosine schedulers, which require a predetermined total number of steps to achieve optimal decay, WSD achieves comparable performance without this constraint. Its stage-wise design supports resuming from intermediate checkpoints for efficient decay, making it highly flexible for continual pretraining.
+
+
+\subsubsection{Power Scheduler}
+
+The Power scheduler~\cite{shen2024power} extends from the WSD scheduler and, building on Maximum Update Parameterization ($\mu P$), enables zero-shot LR transfer across different hyperparameters by uncovering a power-law relationship that governs the optimal LR. It is defined as
+\begin{equation}
+\eta_{\text{power}}(n) = \min\left(\eta_{peak},\; \beta \cdot a n^b\right),
+\end{equation}
+where $\beta$ is the batch size, $n$ is the number of trained tokens, $a$ and $b$ are the power-law coefficients (amplitude and decay exponent, respectively), and $\eta_{peak}$ is the upper bound on the LR. The final PowerLR scheduler, combined with a warmup and decay stage, is defined as follows:
+
+\begin{equation}
+\small
+\eta_n = 
+\begin{cases}
+\frac{n}{N_{\text{}}} \cdot \eta_{\text{power}}(N_{\text{}}) & n < N_{\text{}}, \\
+\eta_{\text{power}}(n) & N_{\text{}} \leq n \leq N - N_{\text{decay}}, \\
+f(n) \cdot \eta_{\text{power}}(N - N_{\text{decay}}) & n > N - N_{\text{decay}}.
+\end{cases}
+\label{eq:power}
+\end{equation}
+
+The generality of Power scheduler is substantiated by extensive empirical results reported in~\cite{shen2024power}, which confirm its effectiveness across varying hyperparameter scales and model configurations.
+
+
+\subsubsection{Multi-step Scheduler}
+DeepSeek~\cite{bi2024deepseek} replaces the commonly used cosine scheduler with a multi-step LR schedule featuring a linear warmup phase, followed by two discrete decay steps triggered at specific token ratios. Two discrete LR drops are applied at the stage boundaries, enabling efficient continual training by allowing earlier phases to be reused across different training scales.
+
+% \paragraph{Section Summary.} Learning rate schedulers play a pivotal role in shaping training dynamics. Traditional schedulers like linear and exponential offer simplicity, while modern variants such as cosine, WSD, and Power schedulers provide more flexible, phase-aware control. Each scheduler type offers trade-offs between stability, generalization, and adaptability for continual training or large-scale pretraining.
+
+% Widely adopted learning rate schedulers, such as linear, cosine, or exponential schedulers, are primarily designed to smoothly adjust the learning rate over training. More recent LLMs adopt multi-phase strategies that partition training into distinct stages, with each phase governed by its own scheduling policy. Notably, both the WSD scheduler and the multi-step scheduler in DeepSeek follow this principle, differing primarily in how they define and utilize these stages.
+
+
+\subsection{Learning Rate Schedulers in Recent LLMs}
+
+\begin{table*}[ht]
+\centering
+\caption{Overview of LR Schedulers in representative LLMs.}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lllllc}
+\toprule
+\textbf{Model} & \textbf{LR Decay Scheduler} & \textbf{LR Path} & \textbf{Optimizer} & \textbf{Staged Training} \\
+\midrule
+GPT-3 (175B)         & Cosine      & (0) $\xrightarrow{\text{}}$ {6e-4} $\rightarrow$ {6e-5} & Adam & \ding{55} \\
+Gopher (280B)    & Cosine      & {1e-7} $\xrightarrow{\text{}}$ {4e-5} $\rightarrow$ {4e-6} & Adam    & \ding{55}  \\
+Chinchilla (70B)   & Cosine      & {1e-7} $\xrightarrow{\text{}}$ {1.25e-4} $\rightarrow$ {1.25e-5} & AdamW    & \ding{55}  \\
+PaLM (540B) & Inverse square root & {1e-2} (constant) $\rightarrow$ {1.98e-5} & Adafactor &  \ding{55} \\
+OPT (175B) & Linear (restart\textsuperscript{\dag}) & 0 $\xrightarrow{\text{}}$ {1.2e-4} $\rightarrow$ {1.2e-5} & AdamW & \ding{55} \\
+LLaMA (65.2B)  & Cosine       & (0) $\xrightarrow{\text{}}$ {1.5e-4} $\rightarrow$ {1.5e-5} & AdamW    & \ding{55} \\
+LLaMA 2 (70B)  & Cosine       & (0) $\xrightarrow{\text{}}$ {1.5e-4} $\rightarrow$ {1.5e-5} & AdamW    & \ding{55}   \\
+Jais (13B)  & Linear       & 0 $\xrightarrow{\text{}}$ {1.2e-2} $\rightarrow$ {1.2e-3} & AdamW  &  \ding{55} \\
+Qwen (14B)  & Cosine       & 0 $\xrightarrow{\text{}}$ {3e-4} $\rightarrow$ {3e-5} & AdamW    & \ding{55} \\
+Falcon (40B)   & Cosine       & (0) $\xrightarrow{\text{}}$ {1.85e-4} $\rightarrow$ {1.85e-5} & AdamW    & \ding{55}   \\
+DeepSeek (67B)  & Multi-stage       & (0) $\xrightarrow{\text{}}$ {3.2e-4} $\rightarrow$ {1e-4} $\rightarrow$ {3.2e-5} & AdamW    & \ding{51} \\
+OLMo 1.7 (7B)   & Cosine  $\rightarrow$ Linear       & (0) $\xrightarrow{\text{}}$ {3e-4} $\rightarrow$ {3e-5} & AdamW & \ding{51} \\
+InternLM2 (20B)  & Cosine & (0) $\xrightarrow{\text{}}$ {3e-4} $\rightarrow$ {3e-5}  & AdamW    & \ding{51} \\
+MiniCPM (2.4B)  & WSD & (0) $\xrightarrow{\text{}}$ 0.01 $\rightarrow$ $0.01  \cdot f(s - T)$ & Adam    & \ding{51} \\
+DeepSeek V2 (67B)  & Multi-stage & 0 $\xrightarrow{\text{}}$ {2.4e-4} $\rightarrow$ {7.6e-5} $\rightarrow$ {2.4e-5}  & AdamW & \ding{51} \\
+Zamba (7B) & Cosine $\rightarrow$ Exponential &  {1.5e-4} $\rightarrow$ {7.5e-5} (cosine); {1.1e-4} $\rightarrow$ {1e-7} (exponential) & Zero-1 distributed &  \ding{51} \\
+MAP-Neo (7B) & Two-stage & {2e-5} $\xrightarrow{\text{warmup}}$ {2e-4} $\rightarrow$ {2e-5} (cosine); {2e-4} $\rightarrow$ {1e-4} (exponential) & AdamW & \ding{51}  \\
+AFM (3B) & Two-stage & (0) $\xrightarrow{\text{}}$ 0.01 $\rightarrow$ {5e-5} (cosine); (0) $\rightarrow$ {3e-4} $\rightarrow$ {3e-7} & AdamW & \ding{51} \\
+LLaMA 3 (405B)   & Cosine $\rightarrow$ Linear & (0) $\xrightarrow{\text{}}$ {8e-5} $\rightarrow$ {8e-7} (cosine) $\rightarrow$ 0 (linear) & AdamW    & \ding{51} \\
+Hunyuan-Large (52B out of 389B MoE)   & Three phases & (0) $\xrightarrow{\text{}}$ $\eta_{max}$ $\rightarrow$ $\frac{1}{10}\eta_{max}$ (gradual decay) & AdamW    & \ding{51}   \\
+Open-Coder (8B)  & WSD & (0) $\xrightarrow{\text{}}$ {3e-4} $\rightarrow$ {1e-5} & - & \ding{51}  \\
+Yi-Lightning   & Three-stage & (0) $\xrightarrow{\text{}}$ $\eta_{\max} \rightarrow 0.5\,\eta_{\max} \rightarrow \eta_{\min}$ & - & \ding{51} \\
+Granite 3.0 (8B)  & Power & (0) $\xrightarrow{\text{}}$ 0.02 $\rightarrow$ $4\beta \cdot f(n, N, N_{\text{decay}}) \cdot (N - N_{\text{decay}})^{-0.51}$ & AdamW & \ding{51} \\
+Phi-4 (14B)  & Linear & 0 $\xrightarrow{\text{}}$ {3e-4} $\rightarrow$ (0) &  - &  \ding{51}  \\
+YuLan-Mini (2.42B)  & WSD & 0 $\xrightarrow{\text{}}$ {1e-2} $\rightarrow$ {5.22e-5} (1-sqrt) &  AdamW & \ding{51}   \\
+DeepSeek V3 (37B out of 671B MoE)  & Multi-stage & 0 $\xrightarrow{\text{}}$ {2.2e-4} $\xrightarrow{\text{constant}}$ {2.2e-5} (cosine) $\xrightarrow{\text{constant}}$ {7.3e-6} (constant) &  AdamW & \ding{51}   \\
+OLMo 2 (13B)  & Cosine $\rightarrow$ Linear & 0 $\xrightarrow{\text{}}$ {9e-4} $\rightarrow$ {9e-5} (cosine) $\rightarrow$ 0 (linear) & AdamW & \ding{51}  \\
+MiniMax-Text-01 (45.9B out of 456B MoE)  & Multi-stage & (0) $\xrightarrow{\text{}}$ {2e-4} $\xrightarrow{\text{constant}}$ {1.3e-4} $\xrightarrow{\text{constant}}$ {3e-5} (exponential) $\rightarrow$ 0 (linear) & AdamW & \ding{51}  \\
+SmolLM2 (1.7B)  & WSD & 0 $\xrightarrow{\text{}}$ {5e-4} $\rightarrow$ 0 & AdamW & \ding{51} & \\
+xGen-small (9B)  & Revised power~\cite{shen2024power} & - & (Optax lib) & \ding{51}  \\
+MiMo (7B) & Multi-stage & 0 $\xrightarrow{\text{}}$ {1.07e-4} $\xrightarrow{\text{constant}}$ {3e-5} (cosine) $\xrightarrow{\text{constant}}$ {1e-5} (cosine) & AdamW & \ding{51}  \\
+Pangu Pro MoE (3B)  & Cosine & {3e-4} $\rightarrow$ {1e-7} & AdamW & \ding{51}  \\
+MiniCPM4 (8B)  & WSD & N.A. & - & \ding{51}  \\
+Hunyuan A13B  & Multi-stage & 0 $\xrightarrow{\text{}}$ {3e-4} $\rightarrow$ {3e-5} (cosine) $\rightarrow$ {8e-6} (rapid cosine) & - & \ding{51}  \\
+SmolLM3   & WSD & (0) $\xrightarrow{\text{}}$ {2e-4} $\rightarrow$ 0 & AdamW & \ding{51}  \\
+\bottomrule
+\end{tabular}
+}
+
+\vspace{1mm}  % 表格和注释之间留空
+\noindent
+\begin{minipage}{\linewidth}
+\textbf{Note:}
+The “Staged Training” column indicates distinct pre-training phases prior to supervised fine-tuning, such as data distribution shifts or long-context adaptation. Restart\textsuperscript{\dag} means that LR restarts resume from the checkpointed value. Unless otherwise specified, both the initial and final learning rates are assumed to be zero and denoted as $(0)$. The decay function is defined as \( f(s - T) = 0.5^{\frac{s - S}{5000}} \), where \( S \) denotes the total number of training steps and \( s \) is the current step.
+\end{minipage}
+
+\label{tab:lr-schedulers}
+
+\end{table*}
+
+
+The emergence of LLMs marks a major milestone in the development of NLP. This shift was initiated by the introduction of the Transformer architecture~\cite{vaswani2017attention}, which enabled the development of early large-scale pre-trained models such as BERT~\cite{devlin2019bert} and GPT~\cite{brown2020language}. These early works laid the foundation for scaling both model size and training tokens. The release of GPT-3~\cite{brown2020language} further demonstrated the power of large-scale pre-training, revealing emergent capabilities that arise from the substantial  increase in model parameters and training tokens. Since then, numerous LLMs, including Gopher~\cite{rae2021scaling}, Megatron-Turing~\cite{adler2024nemotron}, Chinchilla~\cite{hoffmann2022training}, PaLM~\cite{chowdhery2023palm}, OPT~\cite{zhang2022opt}, and BLOOM~\cite{workshop2022bloom}, have been released, advancing the frontiers of model scaling, training efficiency, and downstream task performance. In this section, we provide a comprehensive review of the LR schedulers adopted in pre-training phase of the representative LLMs. Furthermore, the mid-training stage plays a critical role in smoothing the transition of learning dynamics and maintaining training stability between pre-training and supervised fine-tuning. We analyze the LR scheduling strategies of LLMs that explicitly incorporate an annealing phase.
+
+With the rapid increase in model size, careful tuning of hyperparameters, including the LR scheduler and batch size, is essential for maintaining training stability and achieving convergence under a limited computational budget. Several works~\cite{mccandlish2018empirical}\cite{kreps2022all}\cite{brown2020language} found that training larger models benefits from the use of larger batch sizes combined with smaller learning rates, contributing to more stable and efficient optimization. The LR scheduler in \textit{GPT-3}~\cite{brown2020language} employs a linear warm-up and followed by a cosine decay, reducing to 10\% of the initial rate, followed by continued training at this reduced level. Consequently, the paradigm shift to focusing heavily on model scaling and pre-training strategies.
+\textit{Gopher}~\cite{rae2021scaling} scales transformer-based models up to 280 billion parameters, achieving strong performance across a range of benchmarks. It utilizes the Adam optimizer with a warm-up that increases the LR from $10^{-7}$ to a peak value, followed by cosine decay by a factor of 10. 
+Building on this, \textit{Chinchilla}~\cite{hoffmann2022training} investigates the optimal scaling between model size and training tokens under a fixed FLOPs budget, concluding that model size and tokens should scale proportionally. The hypothesis that aligning the cosine decay schedule length with the total number of training tokens improves performance is empirically validated, and is thus adopted in \textit{Chinchilla}. Besides, they empirically show that AdamW outperforms Adam in large-scale training, and therefore adopt AdamW as the optimizer for \textit{Chinchilla}.
+PaLM~\cite{chowdhery2023palm} adopts Adafactor~\cite{shazeer2018adafactor} with a fixed LR in the early phase, followed by an inverse square root decay with respect to the training step, and incorporates dynamic weight decay along with empirically tuned hyperparameters to ensure stability in large-scale training.
+\textit{LLaMA}~\cite{touvron2023llama, touvron2023llama2, dubey2024llama} form a family of open-weight transformer-based language models developed by Meta, with parameter scales ranging from 7B to 405B across versions. LLaMA 1 and 2 use the AdamW optimizer and a LR schedule consisting of a linear warm-up followed by cosine decay to 10\% of the peak LR. LLaMA 3 extends this recipe into a three-stage process, using a longer linear warm-up and cosine decay to 1\% of the peak LR during the initial pre-training phase, followed by a final annealing phase that linearly decays the LR to zero over the final 40 million tokens. % llama4 moe [TODO] add?
+Similarly, Qwen~\cite{bai2023qwen} uses a cosine LR schedule with a specified peak LR followed by a decay to 10\% of the peak LR. In Qwen 2.5~\cite{qwen2025qwen25technicalreport}, the authors further explore scaling laws to optimize hyperparameters across both dense and Mixture-of-Experts (MoE) models, enabling efficient training and performance parity. The pretraining process is restructured into three stages, general stage, reasoning stage and long context stage, with accelerated LR decay during the reasoning stage to facilitate more effective optimization in Qwen 3~\cite{yang2025qwen3}.
+\textit{Nemotron-4}~\cite{parmar2024nemotron, adler2024nemotron} introduces an additional continued training phase, employing two distinct data distributions and a steeper LR decay slope over absolute magnitude to help the model transition smoothly from pre-training corpus and better learn newly emphasized corpus.
+\textit{DeepSeek}~\cite{bi2024deepseek} and \textit{DeepSeek-V2}~\cite{liu2024deepseek} employ a warmup-and-step-decay LR schedule, consisting of a 2K-step linear warm-up followed by discrete drops at fixed training milestones, a design that facilitates continual training reuse while achieving performance comparable to that of cosine decay. \textit{DeepSeek-V3}~\cite{liu2024deepseekv3} extends this scheduling strategy by introducing a plateau phase followed by cosine decay after the warm-up, and subsequently transitions into a long-context extension stage.
+Meanwhile, \cite{hu2024minicpm} put forward the Warmup-Stable-Decay (WSD) LR scheduler, which closely resembles that of \textit{DeepSeek} and is likewise tailored for continual training, enabling effective reuse of intermediate model checkpoints. Their experiments show that, during the decay stage, the loss rapidly drops as the LR decreases, reaching or even falling below that of the Cosine schedule at step $T = S$. 
+The Power scheduler~\cite{shen2024power}, developed through further research based on WSD and $\mu$P, introduces a new LR schedule that combines a linear warmup phase, a slow power-law decay, and a fast exponential decay. Granite 3.0~\cite{granite2024granite} adopts the Power scheduler to train its lightweight foundation models. % TODO
+
+Beyond the mainstream LLMs discussed above, a variety of LR schedulers have been explored in LLM. Among them, the \textit{cosine LR scheduler} is the most widely adopted~\cite{kaplan2020scaling, hoffmann2022training, rae2021scaling, gunter2024apple, cai2024internlm2, touvron2023llama, touvron2023llama2, dubey2024llama, brown2020language, olmo20242, tang2025pangu, bai2023qwen, almazrouei2023falcon}, where the LR increases linearly during the warm-up phase and then decays following a cosine curve.
+Another commonly used approach is the linear LR scheduler, where the LR increases linearly during warm-up and then decreases linearly to zero or a minimal value over the which linearly increases the LR during warm-up and then decays it linearly to zero or a small constant, is another widely adopted strategy~\cite{zhang2022opt, abdin2024phi, bergsma2025straight, defazio2023optimal}.
+\cite{glorioso2024zamba, ibrahim2024simple, hu2024minicpm} find it better to rewarm the LR followed by a rapid exponential (instead of linear) decay.
+However, some studies suggest that linear decay may not always be optimal. \cite{glorioso2024zamba, ibrahim2024simple, hu2024minicpm} argue that exponential decay leads to better performance than linear decay.
+In addition, the inverse square root LR scheduler, typically combined with the Adafactor optimizer, has been adopted by several models, including \textit{T5}~\cite{raffel2020exploring}, \textit{PaLM}~\cite{chowdhery2023palm}, and \textit{OpenMoE}~\cite{xue2024openmoe}.
+
+In addition to those continuous decay strategies, some models have adopted variants of the multi-step LR scheduler. \textit{DeepSeek} employs discrete LR drops at fixed milestones, while \textit{MiniCPM} integrates the WSD scheduler; both strategies facilitates checkpoint reuse and support continual training. Empirical results from both models show that the multi-step LR scheduler performs comparably to cosine decay during pretraining. With the introduction of the annealing stage, the WSD strategy has been adopted in several recent works~\cite{hu2024yulan, allal2025smollm2, huang2024opencoder}, owing to its flexibility in accommodating multi-stage pretraining.
+\textit{MAP-Neo}, extending from \textit{MiniCPM}, employs a two-stage scheduler combining warm-up and cosine decay, followed by a subsequent exponential decay phase. Similarly, an increasing number of models~\cite{sun2024hunyuan,li2025minimax,wake2024yi,nijkamp2025xgen}, incorporate multiple pretraining stages, typically involving distribution shifts and/or sequence length extensions, and accordingly adopt multi-phase LR strategies with distinct designs. A recent trend emphasizes the use of an explicit annealing phase, which has shown effectiveness in improving optimization. Models that explicitly adopt such an annealing stage~\cite{} typically employ multi-stage LR schedules, such as those used in \cite{hu2024minicpm} and \cite{bi2024deepseek}.
+Table~\ref{tab:lr-schedulers} provides a comparative summary of LR schedulers and optimizer settings, as explicitly reported for representative LLMs in official sources.
+% gemini 1 2 没写lrs optimizer或者pertaining stage的训练细节
+
+
+
+% \begin{table*}[t]
+% \centering
+% \footnotesize
+% \begin{tabularx}{\textwidth}{@{} l X c c @{}}
+% \toprule
+% \textbf{Model} & \textbf{Learning Rate Scheduling} & \textbf{Annealing} & \textbf{Scale} \\
+% \midrule
+% Qwen & Cosine learning rate schedule with a specified peak learning rate for each model size. The learning rate is decayed to 10\% of the peak. AdamW optimizer. & no & LLM \\
+% % Qwen 2.5 & --- & no & LLM \\
+% Qwen 3 & Three-stage process. Accelerated LR decay during Reasoning Stage (S2). & no & LLM \\
+% MiniCPM & Warmup-Stable-Decay (WSD). After more training ($S'$), can anneal to match Cosine LRS at Cosine($S'$). & yes & SLM \\
+% Gemma & Similar to ZeRO-3. & no & SLM \\
+% % Gemma 3 & --- & --- & --- \\
+% LLaMA 3 405B & AdamW with peak LR $8 \times 10^{-5}$, linear warm-up (8k steps), cosine decay to $8 \times 10^{-7}$ over 1.2M steps. & yes & LLM \\
+% LLaMA 4 & MetaP to set per-layer learning rates and initialization scales. & mid-training & LLM \\
+% AFM & Linear warm-up (5k steps), cosine decay to 0.005 of peak. & no & SLM \\
+% xGen-small & Revised power schedule with extended flat phase, followed by slow decay and fast annealing decay on high-quality data. & yes & SLM \\
+% DeepSeek V3 & Linear ramp to $2.2\times10^{-4}$ (2k steps), constant till 10T, cosine decay to $2.2\times10^{-5}$ over 4.3T, final 500B split into $2.2\times10^{-5}$ (333B) and $7.3\times10^{-6}$ (167B). & no & LLM \\
+% SmolLM2 & AdamW with $(\beta,\beta_2) = (0.9,0.95)$, WSD: 2k-step warmup, stable at $5.0\times10^{-4}$, optional decay over 10\% of total steps. & yes & SLM \\
+% MiniMax-Text-01 & Linear warm-up (500 steps) to $2\times10^{-4}$, constant training for 7.2T, then exponential decay to $3\times10^{-5}$ over 1T tokens. & no & LLM \\
+% % GRANITE 3.0 & --- & --- & --- \\
+% Phi-4 & Linear warm-up and decay. Peak LR 0.0003, weight decay 0.1, batch size 5760. & no (midtraining stage) & LLM \\
+% Nemotron-4 15B & LR decay schedule at training end improves quality. & no & LLM \\
+% Nemotron-4 340B & LR decay slope prioritized over magnitude to aid transition from pretraining to final stage. & no & LLM \\
+% Zamba & Cosine decay from $1.5\times10^{-4}$ to $7.5\times10^{-5}$, then exponential decay. Annealing follows infinite LR schedules. & yes & LLM \\
+% \bottomrule
+% \end{tabularx}
+% \caption{Learning rate scheduling and annealing strategies across language models. Scale indicates model size class, e.g., LLM = Large Language Model, SLM = Small Language Model.}
+% \label{tab:lrs-table}
+% \end{table*}
+
+
+\subsection{Key Insights}
+
+\noindent\textbf{Linear warm-up with cosine/linear decay is widely used but largely heuristic.}
+This scheme is the most common choice in LLM training due to its empirical stability, even though its design is guided more by practice than theory. While several alternatives, such as the infinite LR schedule~\cite{ibrahim2024simple}, have been proposed to relax assumptions like fixed token budgets and repeated warm-ups, they often lack robustness across architectures and tasks. Consequently, cosine and linear decay remain the prevailing strategies, reflecting both their demonstrated empirical reliability and the broader reliance on heuristic tuning in the field.
+
+\noindent\textbf{Warm-up helps stability.}
+Warm-up phases are known to alleviate gradient instability and loss sharpness in early training~\cite{goyal2017accurate, gilmer2022loss, kalra2024warmup}, thereby facilitating the use of larger peak learning rates. However, the optimal duration and scaling of warm-up still lack theoretical justification and vary significantly across model scales and optimizers.
+
+\noindent\textbf{Decay strategies remain unsettled and system-dependent.}
+The design of the decay phase in LR schedules is far from resolved. Although cosine annealing has been widely adopted in LLM training~\cite{brown2020language, rae2021scaling, hoffmann2022training}, recent empirical analyses suggest that linear decay can yield superior convergence and generalization in certain settings~\cite{defazio2023optimal, bergsma2025straight}. Beyond these comparisons, the effectiveness of a decay strategy interacts intricately with factors such as batch size, model scale, and optimizer dynamics, leading to system-dependent behaviors that are not yet theoretically characterized.
+
+\noindent\textbf{Scaling laws help LR selection.}
+Empirical scaling laws provide practical guidance for choosing learning rates across model sizes and training regimes, though they remain incomplete and sensitive to model-specific factors. Kaplan et al.~\cite{kaplan2020scaling} uses scaling law to show that the optimal LR depends on the target loss: smaller values are needed near convergence for stability, whereas larger rates can be effective in short, compute-limited runs. Their analysis also indicated that larger models require smaller learning rates, while smaller models tolerate more aggressive ones. More recently, Li et al.~\cite{li2025predictable} proposed a universal scaling law for hyperparameter selection in LLM pretraining, finding that a fixed final LR leads to more stable convergence.
+
+\noindent\textbf{Current evidence highlights both the critical role and the unresolved uncertainties of LR scheduling.}
+Conflicting empirical results, for example, the claim that final performance is insensitive to schedule shape under sufficient LR budget~\cite{kaplan2020scaling}, versus evidence of significant variance across decay types~\cite{hoffmann2022training, defazio2023optimal}, highlight the lack of consensus and reproducible benchmarks in this space.

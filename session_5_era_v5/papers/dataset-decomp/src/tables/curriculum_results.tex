@@ -1,0 +1,59 @@
+\centering
+    \resizebox{0.99\columnwidth}{!}
+    {
+    \begin{tabular}{c|cccccc|C{1cm}|ccccc|cccc}
+    \toprule[1.5pt]
+    \multirow{2}{*}{\bf Name}&
+    \multicolumn{6}{c|}{\bf Sampling Odds}&
+    \multirow{2}{1cm}{\centering \bf
+    Num. Cycles}&
+    \multicolumn{5}{c|}{\bf Regular}& \multicolumn{4}{c}{\bf MDQA}\\
+    % \cline{2-9}\cline{15-17}
+    &$\mathcal{D}_{8}$&$\mathcal{D}_{9}$&$\mathcal{D}_{10}$&$\mathcal{D}_{11}$&$\mathcal{D}_{12}$&$\mathcal{D}_{13}$&
+    &{\bf CSR}& {\bf LU}& {\bf RC}& {\bf WK}&{\bf Avg.}&{\bf 10}&{\bf 20}&{\bf 30}&{\bf Avg.}\\
+    \midrule[1pt]
+    Uniform&1&1&1&1&1&1&1&62.2&\underline{65.2}&43.4&44.0&\cellcolor{gray!25}53.8&27.3&22.0&19.6&\cellcolor{gray!25}23.0\\
+
+    \midrule
+    \multirow{2}{*}{Grow-Linear}&
+    \multirow{2}{*}{6}&
+    \multirow{2}{*}{5}&
+    \multirow{2}{*}{4}&
+    \multirow{2}{*}{3}&
+    \multirow{2}{*}{2}&
+    \multirow{2}{*}{1}&
+    1&60.9&64.2&\underline{46.6}&42.9&\cellcolor{gray!25}53.6&\underline{30.9}&\underline{26.0}&\underline{23.9}&\cellcolor{gray!25}26.9\\
+    &&&&&&&8&62.7&65.0&45.4&{\bf44.7}&\cellcolor{gray!25}\underline{54.5}&30.1&25.3&22.8&\cellcolor{gray!25}26.1\\
+
+    \midrule
+    \multirow{2}{*}{Grow-P2}&
+    \multirow{2}{*}{32}&
+    \multirow{2}{*}{16}&
+    \multirow{2}{*}{8}&
+    \multirow{2}{*}{4}&
+    \multirow{2}{*}{2}&
+    \multirow{2}{*}{1}&
+    1&60.9&64.3&46.5&44.1&\cellcolor{gray!25}54.0&29.6&25.0&23.1&\cellcolor{gray!25}25.9\\
+    &&&&&&&8&\underline{62.8}&65.2&45.3&44.2&\cellcolor{gray!25}54.4&{\bf 32.3}&{\bf 26.9}&{\bf 24.6}&\cellcolor{gray!25}{\bf 28.0}\\
+
+    \midrule
+    \multirow{2}{*}{Grow-P100}&
+    \multirow{2}{*}{$100^5$}&
+    \multirow{2}{*}{$100^4$}&
+    \multirow{2}{*}{$100^3$}&
+    \multirow{2}{*}{$100^2$}&
+    \multirow{2}{*}{100}&
+    \multirow{2}{*}{1}&
+    1&60.8&65.0&{\bf47.3}&43.4&\cellcolor{gray!25}54.1&30.6&{\bf 26.9}&23.5&\cellcolor{gray!25}\underline{27.0}\\
+    &&&&&&&8&{\bf 63.2}&{\bf 65.4}&46.3&\underline{44.6}&\cellcolor{gray!25}{\bf 54.9}&30.2&23.2&18.9&\cellcolor{gray!25}24.1\\
+
+    \midrule
+    Shrink-P100&1&$100$&$100^2$&$100^3$&$100^4$&$100^5$&1&60.0&62.2&37.6&40.7&\cellcolor{gray!25}50.3&24.5&18.7&15.6&\cellcolor{gray!25}19.6\\
+    
+    
+    \bottomrule[1pt]
+    \end{tabular}
+    }
+    \vspace{1mm}
+    \caption{Effect of {\bf length-based curriculum}. All models are OpenLM-1B and have seen a total of $96 \times 2^{30}$ tokens, with exactly $2^{34}$ tokens from each $\mathcal{D}_i$ for $i=8,\ldots,13$. We use RoPE with a base frequency of 100k and the same default hyperparameters.}
+    \label{tab:curriculum}

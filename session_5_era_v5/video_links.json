@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "studio",
+    "html": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/xIAkYcE9Los?si=kQ8O9FjoQbBM6imA\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+    "url": "https://www.youtube.com/watch?v=xIAkYcE9Los",
+    "videoId": "xIAkYcE9Los"
+  },
+  {
+    "kind": "gmeet",
+    "html": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/u2AY2CJEA4g?si=UsghD3MoKulN0Qct\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+    "url": "https://www.youtube.com/watch?v=u2AY2CJEA4g",
+    "videoId": "u2AY2CJEA4g"
+  }
+]

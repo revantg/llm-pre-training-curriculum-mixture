@@ -1,0 +1,55 @@
+\section{Introduction}
+
+\begin{figure}[t]
+	\centering
+	\begin{subfigure}[t]{0.45\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figures/teaser/data_scaling_410m.pdf}
+		\caption{Data Efficiency}
+		\label{fig:data-scaling}
+	\end{subfigure}
+	\hspace{4mm}
+	\begin{subfigure}[t]{0.45\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figures/teaser/gpuh_scaling_410m.pdf}
+		\caption{Computational Efficiency}
+		\label{fig:compute-scaling}
+	\end{subfigure}
+	\caption{\revisionred{Scaling the training of the OpenLM-410M model to 1.1 trillion tokens on the RefinedWeb dataset. Note that each point on the figure represents a separate training from scratch (not different checkpoints of a single run). For the largest run, some tokens are seen more than once (the dataset has approximately 525 billion tokens). For dataset decomposition, we use the Grow-P2 curriculum with 8 cycles. Maximum context length is 8192 and all hyper-parameters are the same for DD and the baseline. {\bf (a)} Regular metrics average when training with the baseline method and the proposed method. We observe more than $4\times$ data efficiency compared to the baseline. Also, even at 1.1 trillion tokens, DD has a +2.4 accuracy improvement compared to the baseline (which has a plateauing accuracy curve even on a logarithmic x-axis). (b) Comparison of model average accuracy versus training cost (GPU-hours). DD reaches the best accuracy of the baseline more than $6\times$ faster. This is the combined effect of DD accuracy and speed gains.}}
+	\label{fig:teaser}
+\end{figure}
+
+Large language models (LLMs) are often pretrained autoregressively (i.e., predicting the next token given a context) on large text corpora sourced from the web. Examples include The Pile~\citep{PILE}, RefinedWeb~\citep{refinedweb}, RedPajama~\citep{redpajama}, and DOLMA~\citep{dolma}. Each of these datasets comprises multiple documents, ranging from Wikipedia articles to books and code repositories. While the individual lengths of the documents vary from a few words (e.g., a message) to hundreds of thousands of words (e.g., a book), the training infrastructure often supports only a limited sequence length in a batch. To facilitate efficient training, document chunking is necessary. In this paper, we investigate the influence of document chunking, propose alternative strategies, and evaluate the proposed strategies with careful experiments.
+
+Recent works~\citep{ott2019fairseq,liu2019roberta,llama1,llama2} popularized the \emph{concat-and-chunk} approach to convert text datasets with variable document lengths into sequences with a fixed target length. In this approach, during a data preparation stage before training, we first randomly shuffle and concatenate all tokenized documents. Consecutive concatenated documents are separated by a special token \verb|<EOT>|, allowing the model to detect document boundaries. We then chunk the concatenated sequence into subsequences with a \emph{target sequence length}. For example, $2048$ and $4096$ for the Llama-1 and Llama-2 models, respectively. The model is then pretrained on batches of sequences with fixed length.
+
+
+The concat-and-chunk approach has several shortcomings. First, randomly concatenating documents can lead to the model attending to a context from an unrelated document to predict the next token. While well-trained models learn to avoid cross-document attention, this is not explicitly enforced, leading to potential spurious modeling. Second, the cross-document attention spends unnecessary computation on attending to unrelated tokens that do not facilitate learning. This is especially crucial due to the quadratic complexity of the attention mechanism.
+\revisionred{Even with an implementation of attention that supports cross-document attention masking, the computational cost for each optimization step would be bottlenecked by the longest document in the global batch, leading to significant under-utilization of devices with shorter documents.} Third, even if a document is shorter than the target sequence length, it may still be broken into two chunks when they are at the boundary of two sequences. This results in significantly smaller average chunk lengths compared to the original document length average (see \cref{fig:length_dist}), which hinders the model's capability.
+
+Recent and concurrent works on LLM training try to improve the concat-and-chunk approach: 
+\revisionred{document-masking is possible with recent implementation of attention~\citep{xFormers2022} as adopted in some recent pre-training recipes~\citep{llama3},}
+ best-fit packing~\citep{ding2024fewer} to reduce document chunking, and concatenating semantically related documents instead of randomly~\cite{shi2023context}. However, none of them address all three issues mentioned above together.
+
+In this work, we introduce \emph{dataset decomposition} (DD), a novel approach to decompose data based on their length and train with \emph{variable sequence length} (VSL) \revisionred{and length-based curriculum} to address the above issues. \revisionred{We obtain significant both significant accuracy improvement and straining speed-up as shown in \cref{fig:teaser}}. DD decomposes a given dataset containing documents of variable lengths into a union of datasets/buckets, each with sequences of a fixed length. Specifically, a dataset $\mathcal{D}$ is decomposed into buckets $\cup_i \mathcal{D}_i$, where each bucket $\mathcal{D}_i$ contains sequences of length $2^i$, each extracted from a unique document. During training with VSL, at every step of the optimization process, we sample $i$ (based on a curriculum) to form a batch with $b/2^i$ sequences from the bucket $\mathcal{D}_i$, which keeps the total number of tokens in a batch constant \revisionred{ ($2^i\times b/2^i=b$),} regardless of which $\mathcal{D}_i$ is sampled.
+
+This approach gives us several advantages and resolves the aforementioned issues of the concat-and-chunk method. First, DD is simple and has negligible computational overhead during the data preparation stage, making it easy to scale to large datasets. Second, tokens in each sequence are ensured to be from the same document by construction, which avoids cross-document attention. Furthermore, we have access to the sequence length distribution (an auxiliary prior knowledge) which can be used to create different mixtures/curricula for training. Finally, our VSL training strategy accelerates training time: the latency for one optimization step is less when sampling from $\mathcal{D}_i$ with smaller $i$ (due to attention's quadratic complexity).
+Following is a summary of our contributions:
+\begin{itemize}[leftmargin=*]
+   \item We introduce DD, a method to efficiently decompose a dataset of variable-length documents into a union of buckets with fixed-length sequences. DD enables efficient and robust training via VSL and length-based curriculum.
+   \item We perform large-scale experimentation using different models, datasets, and evaluation tasks to demonstrate the efficacy of the proposed method. We show (see \cref{fig:teaser}) significant gains in data efficiency \revisionred{($> 4\times$)} and compute efficiency (11\% to 45\%), resulting in combined LLM pretraining acceleration of up to \revisionred{$6\times$} (time to reach certain accuracy compared to baseline).
+   \item Through careful experimentation, we study the importance of sequence length distribution and mixture during pretraining for different natural language and long-context tasks. We show the effect of concatenation and chunking operations to synthetically alter sequence length (\cref{sec:length_corr}).
+\end{itemize}
+
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/dataset_decomposition_visualizaton-crop.pdf}
+    \caption{Each cell in the figure represents a token. {\bf Left:} Original documents with variable lengths. {\bf Middle:} Concat-and-chunk baseline to form sequences with a fixed target length (here $= 4$). {\bf Right:} Dataset decomposition method with $\mathcal{D}_1$, $\mathcal{D}_2$, and $\mathcal{D}_3$ buckets .
+}
+    \label{fig:dd-schematics}
+\end{figure}
+
+
+
+

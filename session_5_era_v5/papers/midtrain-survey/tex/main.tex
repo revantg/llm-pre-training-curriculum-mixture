@@ -1,0 +1,89 @@
+% \documentclass[lettersize,10pt,journal,compsoc]{IEEEtran}
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{array}          % 扩展列格式
+\usepackage{booktabs}       % \toprule \midrule
+\usepackage{multirow}       % 跨行单元格（如需）
+
+% % subfig 若表格需要子表，可按需载入
+% \usepackage[caption=false,font=footnotesize,labelfont=sf,textfont=sf]{subfig}
+% \usepackage{caption} % put this after \usepackage{subfig}
+% \captionsetup[figure]{justification=centering}
+% \usepackage{tabularx}
+% \usepackage{amssymb}
+% \usepackage{pifont}
+% \usepackage{adjustbox}
+% \usepackage{enumitem}
+% \usepackage{soul}
+
+\usepackage[caption=false,font=footnotesize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{caption} % 必须在 subfig 后
+\captionsetup[figure]{justification=centering}
+\usepackage{tabularx}
+\usepackage{pifont}
+\usepackage{adjustbox}
+\usepackage{enumitem}
+\usepackage{soul}
+
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\usepackage{tikz}
+\usepackage{url} 
+\usetikzlibrary{positioning, arrows.meta, shapes, fit, calc}
+\usepackage{hyperref}
+
+\title{Mid-Training of Large Language Models: A Survey}
+
+% \author{Mo \\ 2025-09}
+\author{Kaixiang Mo, Yuxin Shi, Weiwei Weng, Zhiqiang Zhou, Shuman Liu, Haibo Zhang$^\dagger$, Anxiang Zeng$^\dagger$
+        % <-this % stops a space
+\thanks{All authors are with Shopee. E-mails: \{kaixiang.mo, yuxin.shi, weiwei.weng, zhiqiang.zhou, shuman.liu, peter.wu\}@shopee.com, zeng0118@ntu.edu.sg}% <-this % stops a space
+\thanks{$^\dagger$Corresponding author: peter.wu@shopee.com, zeng0118@ntu.edu.sg}
+\thanks{This work has been submitted to the IEEE for possible publication.}}
+
+
+% The paper headers
+\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2021}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+% \IEEEpubid{0000--0000/00\$00.00~\copyright~2021 IEEE}
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark.
+
+\begin{document}
+
+\maketitle
+% —— IEEEtran BST control (must come **before** the first \cite) ——
+% See corresponding @IEEEtranBSTCTL entry in main.bib
+\bstctlcite{BSTcontrol}
+
+
+
+\begin{abstract}
+Large language models (LLMs) are typically developed through large-scale pre-training followed by task-specific fine-tuning. Recent advances highlight the importance of an intermediate mid-training stage, where models undergo multiple annealing-style phases that refine data quality, adapts optimization schedules, and extend context length. This stage mitigates diminishing returns from noisy tokens, stabilizes convergence, and expands model capability in late training. Its effectiveness can be explained through gradient noise scale, the information bottleneck, and curriculum learning, which together promote generalization and abstraction. Despite widespread use in state-of-the-art systems, there has been no prior survey of mid-training as a unified paradigm. 
+% This paper provides the first comprehensive review of strategies across three domains—data refinement, learning rate scheduling, and context extension—while discussing open challenges and future directions for both research and industry. 
+We introduce the first taxonomy of LLM mid-training spanning data distribution, learning-rate scheduling, and long-context extension. We distill practical insights, compile evaluation benchmarks, and report gains to enable structured comparisons across models. We also identify open challenges and propose avenues for future research and practice.
+
+%Mid-Training is an important procedure to improve the performance and extend the context length of the pre-trained model. However, there is no comprehensive updated survey about mid-training. In this paper, we present a comprehensive survey on recent advances in mid-training for large language models. This survey is organized into three key aspects of annealing, data distribution, learning rate schedule \& theory for annealing, and long context extension. This survey provides an organized view of the literature on mid-training, which serves as a valuable resource for industry and academia. 
+\end{abstract}
+% \clearpage
+% \tableofcontents
+% \clearpage
+\input{1_introduction}
+\input{2_data}
+\input{3_lr_scheduler}
+\input{4_long_context}
+\input{5_evaluation}
+\input{6_related_work}
+\input{7_conclusion}
+% \bibliographystyle{IEEEtran}
+% \bibliography{main}
+\input{main.bbl}
+% \clearpage
+% \appendix
+% \input{CompassLLM/content/8_appendix}
+\end{document}

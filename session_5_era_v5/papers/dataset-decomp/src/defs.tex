@@ -1,0 +1,147 @@
+\def\RR{{\mathbb R}}
+\def\EE{{\mathbb E}\,}
+\DeclareMathOperator*{\argmin}{{arg\,min}}
+\DeclareMathOperator*{\argmax}{{arg\,max}}
+\newcommand{\E}{{\mathbb{E}}}
+\newcommand{\V}{{\mathbb{V}}}
+\newcommand{\C}{{\mathbb{C}}}
+\newcommand{\R}{{\mathbb{R}}}
+\newcommand{\N}{{\mathcal{N}}}
+\newcommand{\BO}{{\mathcal{O}}}
+\newcommand{\I}{{\mathbb{I}}}
+\newcommand{\U}{{\mathbb{U}}}
+
+\newcommand{\D}{{\mathcal{D}}}
+
+\newcommand{\comment}[1]{}
+
+\def\xx{{\boldsymbol x}}
+\def\ii{{\boldsymbol i}}
+\def\ee{{\boldsymbol e}}
+\def\ddelta{{\boldsymbol \delta}}
+\def\bbeta{{\boldsymbol \beta}}
+%\def\tt{{\boldsymbol t}}
+\def\kk{{\boldsymbol k}}
+\def\dd{{\boldsymbol d}}
+\def\XX{{\boldsymbol X}}
+\def\YY{{\boldsymbol Y}}
+\def\ZZ{{\boldsymbol Z}}
+\def\aa{{\boldsymbol a}}
+\def\bb{{\boldsymbol b}}
+\def\rr{{\boldsymbol r}}
+\def\cc{{\boldsymbol c}}
+\def\hh{{\boldsymbol h}}
+\def\pp{{\boldsymbol p}}
+\def\qq{{\boldsymbol q}}
+\def\WW{{\boldsymbol W}}
+\def\KK{{\boldsymbol K}}
+\def\II{{\boldsymbol I}}
+\def\yy{{\boldsymbol y}}
+\def\vv{{\boldsymbol v}}
+\def\uu{{\boldsymbol u}}
+\def\ww{{\boldsymbol w}}
+\def\zz{{\boldsymbol z}}
+\def\SS{{\boldsymbol S}}
+\def\BB{{\boldsymbol B}}
+\def\AA{{\boldsymbol A}}
+\def\CC{{\boldsymbol C}}
+\def\bF{{\boldsymbol F}}
+\def\MM{{\boldsymbol M}}
+\def\DD{{\boldsymbol D}}
+\def\PP{{\boldsymbol P}}
+\def\bR{{\boldsymbol R}}
+\def\TT{{\boldsymbol T}}
+\def\bphi{{\boldsymbol \phi}}
+\def\QQ{{\boldsymbol Q}}
+\def\VV{{\boldsymbol V}}
+\def\UU{{\boldsymbol U}}
+\def\HH{{\boldsymbol H}}
+
+\def\vx{{\bm{x}}}
+
+\definecolor{colorYes}{RGB}{51,160,44}
+\definecolor{colorNo}{RGB}{228,26,28} %
+
+
+\newcommand{\cmark}{\textcolor{colorYes}{\ding{51}}}%
+\newcommand{\xmark}{\textcolor{colorNo}{\ding{55}}}%
+
+\newcommand{\imagenet}{ImageNet}
+\newcommand{\flickr}{Flickr30k}
+\newcommand{\CIFAR}{CIFAR-100}
+\newcommand{\Flowers}{Flowers-102}
+\newcommand{\Food}{Food-101}
+%\newcommand{\INp}{IN$^+$}
+\newcommand{\INp}{ImageNet$^+$}
+\newcommand{\CIFARp}{CIFAR-100$^+$}
+\newcommand{\Flowersp}{Flowers-102$^+$}
+\newcommand{\Foodp}{Food-101$^+$}
+
+%%%%%
+%\def\ourmethod{\texttt{MobileCLIP}}
+%\def\ourdataset{\texttt{DataComp}$^+$}
+\def\ourmethod{{MobileCLIP}}
+\def\ourdataset{{DataCompDR}}
+\def\ourdatasetOneB{{DataCompDR-1B}}
+\def\ourdatasetTM{{DataCompDR-12M}}
+\def\datacomp{{DataComp}}
+\def\datacompOneB{{DataComp-1B}}
+\def\datacompTM{{DataComp-12M}}
+\def\ourimage{{MCi}}
+\def\ourimagezero{{MCi0}}
+\def\ourimageone{{MCi1}}
+\def\ourimagetwo{{MCi2}}
+\def\ourtextblock{{Text-RepMixer}}
+\def\ourtext{{MCt}}
+\def\ourtextzero{{MCt}}
+\def\ourtextone{{MCt1}}
+\def\ourmodel{{MobileCLIP}}
+\def\ourmodelB{{MobileCLIP-B}}
+\def\ourmodelSTwo{{MobileCLIP-S2}} %\ourimagetwo{} - Base
+\def\ourmodelSOne{{MobileCLIP-S1}} %\ourimageone{}- Base
+\def\ourmodelSZero{{MobileCLIP-S0}} %\ourimagezero{}-\ourtextzero{}
+
+\newcommand{\LTotal}{{\mathcal{L}_{\text{Total}}}}
+\newcommand{\LKD}{{\mathcal{L}_{\text{Distill}}}}
+\newcommand{\LKDIT}{{\mathcal{L}_{\text{Distill}}^{\text{I2T}}}}
+\newcommand{\LKDTI}{{\mathcal{L}_{\text{Distill}}^{\text{T2I}}}}
+\newcommand{\LClipIT}{{\mathcal{L}_{\text{CLIP}}^{\text{I2T}}}}
+\newcommand{\LClipTI}{{\mathcal{L}_{\text{CLIP}}^{\text{T2I}}}}
+\newcommand{\LClip}{{\mathcal{L}_{\text{CLIP}}}}
+\newcommand{\Similarity}{{\mathcal{S}}}
+\newcommand{\TeacherImgk}{{\psi_{\text{img}}^{(k)}}}
+\newcommand{\TeacherTxtk}{{\psi_{\text{txt}}^{(k)}}}
+\newcommand{\FeatStudentImg}{{\varPhi_{\text{img}}}}
+\newcommand{\FeatStudentTxt}{{\varPhi_{\text{txt}}}}
+\newcommand{\FeatStudentSyn}{{\varPhi_{\text{syn}}}}
+\newcommand{\FeatTeacherImgk}{{\Psi_{\text{img}}^{(k)}}}
+\newcommand{\FeatTeacherTxtk}{{\Psi_{\text{txt}}^{(k)}}}
+\newcommand{\FeatTeacherSynk}{{\Psi_{\text{syn}}^{(k)}}}
+%\newcommand{\StudentImg}{{\II}_\text{s}}
+%\newcommand{\StudentTxt}{{\TT}_\text{s}}
+%\newcommand{\StudentSyn}{{\SS}_\text{s}}
+%\newcommand{\TeacherImg}{{\II}_\text{t}}
+%\newcommand{\TeacherTxt}{{\TT}_\text{t}}
+%\newcommand{\TeacherSyn}{{\SS}_\text{t}}
+%\newcommand{\image}{{\xx}_{\text{img}}}
+%\newcommand{\gttext}{{\xx}_{\text{text}}}
+%\newcommand{\syntext}{{\xx}_{\text{syn-text}}}
+\newcommand{\image}{{\xx}_{\text{img}}}
+\newcommand{\gttext}{{\xx}_{\text{txt}}}
+\newcommand{\syntext}{{\xx}_{\text{syn}}}
+\newcommand{\imagei}{{\xx}_{\text{img}}^{(i)}}
+\newcommand{\gttexti}{{\xx}_{\text{txt}}^{(i)}}
+%\newcommand{\Image}{{\II}}
+%\newcommand{\Gttext}{{\TT}}
+%\newcommand{\Syntext}{{\TT}_{\text{syn}}}
+\newcommand{\paramsij}{{\aa}^{(i,j)}}
+\newcommand{\augimageij}{{\hat{\xx}}_{\text{img}}^{(i,j)}}
+\newcommand{\syntextis}{{\xx}_{\text{syn}}^{(i,s)}}
+\newcommand{\FeatTeacherImgik}{{\psi_{\text{img}}^{(i,k)}}}
+\newcommand{\FeatTeacherImgijk}{{\psi_{\text{img}}^{(i,j,k)}}}
+\newcommand{\FeatTeacherTxtik}{{\psi_{\text{txt}}^{(i,k)}}}
+\newcommand{\FeatTeacherSynisk}{{\psi_{\text{syn}}^{(i,s,k)}}}
+
+
+\def\imagenetval{{IN-val}}
+\def\flickrval{{Flickr30k}}

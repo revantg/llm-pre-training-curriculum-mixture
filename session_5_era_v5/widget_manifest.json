@@ -1,0 +1,74 @@
+[
+  {
+    "source": "/widgets/widget_1_mixture_composer.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_1_mixture_composer.html",
+    "file": "widgets/widget_1_mixture_composer.html",
+    "bytes": 29978,
+    "sha256": "7fb108c38e7f76556b80b9d06ebc11ae7a33bafb2727fec1d1fac245fbae3d7f",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_2_benchmark_explainer.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_2_benchmark_explainer.html",
+    "file": "widgets/widget_2_benchmark_explainer.html",
+    "bytes": 36527,
+    "sha256": "4324f49d87e462e3ae98ea700fbb491d82860caf5bd39c9c8889efa3b2a3dd7e",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_9_dataset_inventory.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_9_dataset_inventory.html",
+    "file": "widgets/widget_9_dataset_inventory.html",
+    "bytes": 33378,
+    "sha256": "7efd0ad77fb0a9b854ac2c7c2e29d3394555509b14d6937bd30c1bf4dd5de83a",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_4_training_stages.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_4_training_stages.html",
+    "file": "widgets/widget_4_training_stages.html",
+    "bytes": 25245,
+    "sha256": "2bf6cecc21dd0fa77c5933a17e2c875607c0b47bdc0a73bdc6e6ef7595eafd48",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_5_agentic_trajectory.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_5_agentic_trajectory.html",
+    "file": "widgets/widget_5_agentic_trajectory.html",
+    "bytes": 24855,
+    "sha256": "0c4c21101d36a36fc92d0a4193f80d10bec268a1f4ce2fe60d21d0ef3e5b6436",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_6_reasoning_effort.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_6_reasoning_effort.html",
+    "file": "widgets/widget_6_reasoning_effort.html",
+    "bytes": 23764,
+    "sha256": "6f595331be0e8509a00f95f4e109af05e6775d22655ff6987399d4089e45ce28",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_3_opus_selection.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_3_opus_selection.html",
+    "file": "widgets/widget_3_opus_selection.html",
+    "bytes": 31656,
+    "sha256": "7cea35b21e138a9a7299ad3c580527dd8fd197b7c73ebc3f6d60df8e0106b698",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_7_curriculum_stages.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_7_curriculum_stages.html",
+    "file": "widgets/widget_7_curriculum_stages.html",
+    "bytes": 22325,
+    "sha256": "54753e2aa4f05a497a6b587cb8eb8c947504a39962bbcafa04c7a8b96ecdeb31",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "source": "/widgets/widget_8_mixture_shift_spike.html",
+    "url": "https://axiom.theschoolofai.in/widgets/widget_8_mixture_shift_spike.html",
+    "file": "widgets/widget_8_mixture_shift_spike.html",
+    "bytes": 24068,
+    "sha256": "4da286703527f647779a3c56652055c55967d851ebd5c86958afde2ca5a4287d",
+    "contentType": "text/html; charset=utf-8"
+  }
+]

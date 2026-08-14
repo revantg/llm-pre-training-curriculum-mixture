@@ -1,0 +1,24 @@
+{
+  "id": "erav5s5quiz20260801",
+  "sessionId": "cmryiscq4002009rhmu56icmp",
+  "courseId": "cmq97i5kn032208o8xu5dab4q",
+  "title": "Session 5 - Data Mixtures and Curriculum",
+  "timeLimit": 10,
+  "opensAt": "2026-07-27T00:00:00.000Z",
+  "closesAt": "2026-08-01T01:30:00.000Z",
+  "maxAttempts": 1,
+  "questionCount": 20,
+  "order": 4,
+  "createdAt": "2026-07-27T00:50:09.975Z",
+  "_count": {
+    "questions": 20
+  },
+  "course": {
+    "id": "cmq97i5kn032208o8xu5dab4q",
+    "title": "ERA V5",
+    "status": "active"
+  },
+  "session": {
+    "status": "available"
+  }
+}

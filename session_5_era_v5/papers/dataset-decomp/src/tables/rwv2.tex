@@ -1,0 +1,21 @@
+\centering
+    \resizebox{0.99\linewidth}{!}
+    {
+    
+    \begin{tabular}{C{1.2cm}c|ccc|cc|cc}
+    \toprule[1.5pt]
+         \multirow{2}{1.2cm}{\centering \bf Model Size}& \multirow{2}{*}{\bf Method} &{\bf Num} & {\bf Time} & \multirow{2}{*}{$\boldsymbol{\Delta}$}& {\bf Regular} &\multirow{2}{*}{$\boldsymbol{\Delta}$}& {\bf MDQA}& \multirow{2}{*}{$\boldsymbol{\Delta}$}\\
+         
+        &&{\bf GPUs}&{\bf (hours)}&&{\bf Avg.}&&{\bf Avg.}&\\
+    \midrule[1pt]
+    \multirow{2}{*}{160M} & Baseline-8k &\multirow{2}{*}{16}& 18.3 & -&\cellcolor{gray!25} 39.3& - &\cellcolor{gray!25} 9.7&-\\
+    & DD & &{\bf 15.7} &\textcolor{Green}{\bf -14\%}&\cellcolor{gray!25} {\bf 40.0} &\textcolor{Green}{\bf +0.7}&\cellcolor{gray!25} {\bf 11.4}&\textcolor{Green}{\bf +1.7}\\
+    \midrule
+    \multirow{2}{*}{410M} & Baseline-8k &\multirow{2}{*}{16}& 38.9 & -&\cellcolor{gray!25} 48.3& - &\cellcolor{gray!25} 14.8&-\\
+    & DD & &{\bf 29.6} &\textcolor{Green}{\bf -24\%}&\cellcolor{gray!25} {\bf 49.4} &\textcolor{Green}{\bf+1.1}&\cellcolor{gray!25} {\bf 18.8}&\textcolor{Green}{\bf+4.0}\\
+    \midrule
+    \multirow{2}{*}{1B} & Baseline-8k & \multirow{2}{*}{32}&44.4 & -&\cellcolor{gray!25} 56.7& - &\cellcolor{gray!25} 25.6&-\\
+    & DD & &{\bf 35.4} &\textcolor{Green}{\bf -20\%}&\cellcolor{gray!25} {\bf 58.4} &\textcolor{Green}{\bf+1.7}&\cellcolor{gray!25} {25.6}&-\\
+        \bottomrule[1pt]
+    \end{tabular}
+        }

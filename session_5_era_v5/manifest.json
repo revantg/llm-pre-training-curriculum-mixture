@@ -1,0 +1,181 @@
+{
+  "fetchedAt": "2026-08-13T23:18:02.808610+00:00",
+  "course": {
+    "id": "cmq97i5kn032208o8xu5dab4q",
+    "title": "ERA V5"
+  },
+  "session": {
+    "id": "cmryiscq4002009rhmu56icmp",
+    "title": "Session 5 - Data Mixtures and Curriculum",
+    "order": 8,
+    "status": "available",
+    "opensAt": "2026-07-25T03:32:00.000Z",
+    "closesAt": null
+  },
+  "sources": {
+    "axiomSessionsApi": "https://axiom.theschoolofai.in/api/courses/cmq97i5kn032208o8xu5dab4q/sessions",
+    "lessonContent": "sessions[].lessons[].markdownContent",
+    "widgets": "https://axiom.theschoolofai.in/widgets/",
+    "studioVideo": "https://www.youtube.com/watch?v=xIAkYcE9Los",
+    "gmeetVideo": "https://www.youtube.com/watch?v=u2AY2CJEA4g",
+    "officialTranscriptGoogleDoc": "https://docs.google.com/document/d/1VATcZvXczsYwKMDEWoyanB7nfzjrFkXHb2ojf-95kjc/edit?usp=sharing"
+  },
+  "contents": {
+    "lectureNotes": "lecture_notes.md",
+    "embeddedWidgetCount": 9,
+    "embeddedWidgets": [
+      "widgets/widget_1_mixture_composer.html",
+      "widgets/widget_2_benchmark_explainer.html",
+      "widgets/widget_9_dataset_inventory.html",
+      "widgets/widget_4_training_stages.html",
+      "widgets/widget_5_agentic_trajectory.html",
+      "widgets/widget_6_reasoning_effort.html",
+      "widgets/widget_3_opus_selection.html",
+      "widgets/widget_7_curriculum_stages.html",
+      "widgets/widget_8_mixture_shift_spike.html"
+    ],
+    "officialTranscript": "transcript_google.txt",
+    "videoCaptionFiles": [
+      "transcripts/gmeet_u2AY2CJEA4g.en-orig.vtt",
+      "transcripts/gmeet_u2AY2CJEA4g.en.vtt",
+      "transcripts/studio_xIAkYcE9Los.en-orig.vtt",
+      "transcripts/studio_xIAkYcE9Los.en.vtt"
+    ],
+    "quiz": "quiz.json",
+    "assignment": "assignment.json",
+    "submission": "submission.json",
+    "assignmentGrade": "assignment_grade.json"
+  },
+  "files": [
+    {
+      "path": "assignment.json",
+      "bytes": 4222,
+      "sha256": "6b08dccdc0e2a3e3bda6f83b6029332112482c5be00d3d93645abf51bb0bcbd2"
+    },
+    {
+      "path": "assignment_grade.json",
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    {
+      "path": "course_sessions.json",
+      "bytes": 270811,
+      "sha256": "d5166dedfaa941da012e2d75b7b615ebb6d64527d7b81abe69f00b40480b64fa"
+    },
+    {
+      "path": "lecture_notes.md",
+      "bytes": 30787,
+      "sha256": "6ab642d8dc8cd94bb7f99b23edc207cd25336666c49e1b0e50fb6e3b8a1bafe8"
+    },
+    {
+      "path": "lesson.json",
+      "bytes": 31381,
+      "sha256": "f97c7f4223441fac768ce341c71e178de7930d138b2ce16b8c5824b31dc34035"
+    },
+    {
+      "path": "quiz.json",
+      "bytes": 567,
+      "sha256": "d116637c08ca2b0d3e00ac1967df332b63797cef8eb2a74d611fff789c6c14eb"
+    },
+    {
+      "path": "session_5.json",
+      "bytes": 32650,
+      "sha256": "ede3b90addaf9073ea968f511ca7d70864fa072d553343ddd8af105eda4a4b4b"
+    },
+    {
+      "path": "submission.json",
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    {
+      "path": "transcript_google.txt",
+      "bytes": 120549,
+      "sha256": "4133c552cbb2981c7f30a9930421c338e17dd93fae20b9e72794e7eccb14fb81"
+    },
+    {
+      "path": "transcripts/gmeet_u2AY2CJEA4g.en-orig.vtt",
+      "bytes": 1182605,
+      "sha256": "db8e17c8c0fc04fa0baad8005a8553557529be86e3124e11372577b4f470f2b4"
+    },
+    {
+      "path": "transcripts/gmeet_u2AY2CJEA4g.en.vtt",
+      "bytes": 1182605,
+      "sha256": "db8e17c8c0fc04fa0baad8005a8553557529be86e3124e11372577b4f470f2b4"
+    },
+    {
+      "path": "transcripts/gmeet_u2AY2CJEA4g.info.json",
+      "bytes": 551623,
+      "sha256": "6b1abc0c235f247ef40993843994cb940fd460029697be634be85108a6b6cfc4"
+    },
+    {
+      "path": "transcripts/studio_xIAkYcE9Los.en-orig.vtt",
+      "bytes": 1188808,
+      "sha256": "536a8194a791bc6af47c03c9d09cbeb47304be5184d813fb821b3411c71df1d5"
+    },
+    {
+      "path": "transcripts/studio_xIAkYcE9Los.en.vtt",
+      "bytes": 1188808,
+      "sha256": "536a8194a791bc6af47c03c9d09cbeb47304be5184d813fb821b3411c71df1d5"
+    },
+    {
+      "path": "transcripts/studio_xIAkYcE9Los.info.json",
+      "bytes": 551557,
+      "sha256": "54d01090913f087b2ab99d1c12047a5779fdbd8650382122f30e9a305425f440"
+    },
+    {
+      "path": "video_links.json",
+      "bytes": 954,
+      "sha256": "7a22b27c13e95223b624bd3911d7685ee317420e3790901f3325af8bbcb29787"
+    },
+    {
+      "path": "widget_manifest.json",
+      "bytes": 3192,
+      "sha256": "7232b1f6e75f64b3e7683f1d76018456b6ddc5a907804787c3ca179f8969bc56"
+    },
+    {
+      "path": "widgets/widget_1_mixture_composer.html",
+      "bytes": 29978,
+      "sha256": "7fb108c38e7f76556b80b9d06ebc11ae7a33bafb2727fec1d1fac245fbae3d7f"
+    },
+    {
+      "path": "widgets/widget_2_benchmark_explainer.html",
+      "bytes": 36527,
+      "sha256": "4324f49d87e462e3ae98ea700fbb491d82860caf5bd39c9c8889efa3b2a3dd7e"
+    },
+    {
+      "path": "widgets/widget_3_opus_selection.html",
+      "bytes": 31656,
+      "sha256": "7cea35b21e138a9a7299ad3c580527dd8fd197b7c73ebc3f6d60df8e0106b698"
+    },
+    {
+      "path": "widgets/widget_4_training_stages.html",
+      "bytes": 25245,
+      "sha256": "2bf6cecc21dd0fa77c5933a17e2c875607c0b47bdc0a73bdc6e6ef7595eafd48"
+    },
+    {
+      "path": "widgets/widget_5_agentic_trajectory.html",
+      "bytes": 24855,
+      "sha256": "0c4c21101d36a36fc92d0a4193f80d10bec268a1f4ce2fe60d21d0ef3e5b6436"
+    },
+    {
+      "path": "widgets/widget_6_reasoning_effort.html",
+      "bytes": 23764,
+      "sha256": "6f595331be0e8509a00f95f4e109af05e6775d22655ff6987399d4089e45ce28"
+    },
+    {
+      "path": "widgets/widget_7_curriculum_stages.html",
+      "bytes": 22325,
+      "sha256": "54753e2aa4f05a497a6b587cb8eb8c947504a39962bbcafa04c7a8b96ecdeb31"
+    },
+    {
+      "path": "widgets/widget_8_mixture_shift_spike.html",
+      "bytes": 24068,
+      "sha256": "4da286703527f647779a3c56652055c55967d851ebd5c86958afde2ca5a4287d"
+    },
+    {
+      "path": "widgets/widget_9_dataset_inventory.html",
+      "bytes": 33378,
+      "sha256": "7efd0ad77fb0a9b854ac2c7c2e29d3394555509b14d6937bd30c1bf4dd5de83a"
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+\begin{thebibliography}{41}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Abbas et~al.(2023)Abbas, Tirumala, Simig, Ganguli, and Morcos}]{abbas2023semdedup}
+Amro Abbas, Kushal Tirumala, D{\'a}niel Simig, Surya Ganguli, and Ari~S Morcos. 2023.
+\newblock Semdedup: Data-efficient learning at web-scale through semantic deduplication.
+\newblock \emph{arXiv preprint arXiv:2303.09540}.
+
+\bibitem[{Baumgartner et~al.(2020)Baumgartner, Zannettou, Keegan, Squire, and Blackburn}]{baumgartner2020pushshift}
+Jason Baumgartner, Savvas Zannettou, Brian Keegan, Megan Squire, and Jeremy Blackburn. 2020.
+\newblock The pushshift reddit dataset.
+\newblock In \emph{Proceedings of the international AAAI conference on web and social media}, volume~14, pages 830--839.
+
+\bibitem[{Bisk et~al.(2020)Bisk, Zellers, Gao, Choi et~al.}]{bisk2020piqa}
+Yonatan Bisk, Rowan Zellers, Jianfeng Gao, Yejin Choi, et~al. 2020.
+\newblock Piqa: Reasoning about physical commonsense in natural language.
+\newblock In \emph{Proceedings of the AAAI conference on artificial intelligence}, volume~34, pages 7432--7439.
+
+\bibitem[{Clark et~al.(2018)Clark, Cowhey, Etzioni, Khot, Sabharwal, Schoenick, and Tafjord}]{clark2018think}
+Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa Schoenick, and Oyvind Tafjord. 2018.
+\newblock Think you have solved question answering? try arc, the ai2 reasoning challenge.
+\newblock \emph{arXiv preprint arXiv:1803.05457}.
+
+\bibitem[{Collobert and Weston(2008)}]{collobert2008unified}
+Ronan Collobert and Jason Weston. 2008.
+\newblock A unified architecture for natural language processing: Deep neural networks with multitask learning.
+\newblock In \emph{Proceedings of the 25th international conference on Machine learning}, pages 160--167.
+
+\bibitem[{Computer(2023)}]{together2023redpajama}
+Together Computer. 2023.
+\newblock Redpajama: an open dataset for training large language models.
+
+\bibitem[{Du et~al.(2022)Du, Huang, Dai, Tong, Lepikhin, Xu, Krikun, Zhou, Yu, Firat et~al.}]{du2022glam}
+Nan Du, Yanping Huang, Andrew~M Dai, Simon Tong, Dmitry Lepikhin, Yuanzhong Xu, Maxim Krikun, Yanqi Zhou, Adams~Wei Yu, Orhan Firat, et~al. 2022.
+\newblock Glam: Efficient scaling of language models with mixture-of-experts.
+\newblock In \emph{International Conference on Machine Learning}, pages 5547--5569. PMLR.
+
+\bibitem[{Dubey et~al.(2024)Dubey, Jauhri, Pandey, Kadian, Al-Dahle, Letman, Mathur, Schelten, Yang, Fan et~al.}]{dubey2024llama}
+Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Amy Yang, Angela Fan, et~al. 2024.
+\newblock The llama 3 herd of models.
+\newblock \emph{arXiv preprint arXiv:2407.21783}.
+
+\bibitem[{Evans et~al.(2024)Evans, Parthasarathy, Merzic, and Henaff}]{evans2024datacurationjointexample}
+Talfan Evans, Nikhil Parthasarathy, Hamza Merzic, and Olivier~J. Henaff. 2024.
+\newblock \href {https://arxiv.org/abs/2406.17711} {Data curation via joint example selection further accelerates multimodal learning}.
+\newblock \emph{Preprint}, arXiv:2406.17711.
+
+\bibitem[{Forestier et~al.(2022)Forestier, Portelas, Mollard, and Oudeyer}]{forestier2022intrinsicallymotivatedgoalexploration}
+Sébastien Forestier, Rémy Portelas, Yoan Mollard, and Pierre-Yves Oudeyer. 2022.
+\newblock \href {https://arxiv.org/abs/1708.02190} {Intrinsically motivated goal exploration processes with automatic curriculum learning}.
+\newblock \emph{Preprint}, arXiv:1708.02190.
+
+\bibitem[{Gao et~al.(2020)Gao, Biderman, Black, Golding, Hoppe, Foster, Phang, He, Thite, Nabeshima et~al.}]{gao2020pile}
+Leo Gao, Stella Biderman, Sid Black, Laurence Golding, Travis Hoppe, Charles Foster, Jason Phang, Horace He, Anish Thite, Noa Nabeshima, et~al. 2020.
+\newblock The pile: An 800gb dataset of diverse text for language modeling.
+\newblock \emph{arXiv preprint arXiv:2101.00027}.
+
+\bibitem[{Gao et~al.(2021)Gao, Tow, Biderman, Black, DiPofi, Foster, Golding, Hsu, McDonell, Muennighoff et~al.}]{gao2021framework}
+Leo Gao, Jonathan Tow, Stella Biderman, Sid Black, Anthony DiPofi, Charles Foster, Laurence Golding, Jeffrey Hsu, Kyle McDonell, Niklas Muennighoff, et~al. 2021.
+\newblock A framework for few-shot language model evaluation.
+\newblock \emph{Version v0. 0.1. Sept}, 10:8--9.
+
+\bibitem[{Hendrycks et~al.(2020)Hendrycks, Burns, Basart, Zou, Mazeika, Song, and Steinhardt}]{hendrycks2020measuring}
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2020.
+\newblock Measuring massive multitask language understanding.
+\newblock \emph{arXiv preprint arXiv:2009.03300}.
+
+\bibitem[{Huang et~al.(2023)Huang, Bai, Zhu, Zhang, Zhang, Su, Liu, Lv, Zhang, Lei, Fu, Sun, and He}]{huang2023cevalmultilevelmultidisciplinechinese}
+Yuzhen Huang, Yuzhuo Bai, Zhihao Zhu, Junlei Zhang, Jinghan Zhang, Tangjun Su, Junteng Liu, Chuancheng Lv, Yikai Zhang, Jiayi Lei, Yao Fu, Maosong Sun, and Junxian He. 2023.
+\newblock \href {https://arxiv.org/abs/2305.08322} {C-eval: A multi-level multi-discipline chinese evaluation suite for foundation models}.
+\newblock \emph{Preprint}, arXiv:2305.08322.
+
+\bibitem[{Ko et~al.(2024)Ko, Kang, Shi, Jin, Yu, and Jia}]{ko2024mirrored}
+Myeongseob Ko, Feiyang Kang, Weiyan Shi, Ming Jin, Zhou Yu, and Ruoxi Jia. 2024.
+\newblock The mirrored influence hypothesis: Efficient data influence estimation by harnessing forward passes.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 26286--26295.
+
+\bibitem[{Koh and Liang(2017)}]{koh2017understanding}
+Pang~Wei Koh and Percy Liang. 2017.
+\newblock Understanding black-box predictions via influence functions.
+\newblock In \emph{International conference on machine learning}, pages 1885--1894. PMLR.
+
+\bibitem[{Lauren{\c{c}}on et~al.(2022)Lauren{\c{c}}on, Saulnier, Wang, Akiki, Villanova~del Moral, Le~Scao, Von~Werra, Mou, Gonz{\'a}lez~Ponferrada, Nguyen et~al.}]{laurenccon2022bigscience}
+Hugo Lauren{\c{c}}on, Lucile Saulnier, Thomas Wang, Christopher Akiki, Albert Villanova~del Moral, Teven Le~Scao, Leandro Von~Werra, Chenghao Mou, Eduardo Gonz{\'a}lez~Ponferrada, Huu Nguyen, et~al. 2022.
+\newblock The bigscience roots corpus: A 1.6 tb composite multilingual dataset.
+\newblock \emph{Advances in Neural Information Processing Systems}, 35:31809--31826.
+
+\bibitem[{Li et~al.(2024)Li, Zhang, Koto, Yang, Zhao, Gong, Duan, and Baldwin}]{li2024cmmlumeasuringmassivemultitask}
+Haonan Li, Yixuan Zhang, Fajri Koto, Yifei Yang, Hai Zhao, Yeyun Gong, Nan Duan, and Timothy Baldwin. 2024.
+\newblock \href {https://arxiv.org/abs/2306.09212} {Cmmlu: Measuring massive multitask language understanding in chinese}.
+\newblock \emph{Preprint}, arXiv:2306.09212.
+
+\bibitem[{Liu et~al.(2024)Liu, Feng, Xue, Wang, Wu, Lu, Zhao, Deng, Zhang, Ruan et~al.}]{liu2024deepseek}
+Aixin Liu, Bei Feng, Bing Xue, Bingxuan Wang, Bochao Wu, Chengda Lu, Chenggang Zhao, Chengqi Deng, Chenyu Zhang, Chong Ruan, et~al. 2024.
+\newblock Deepseek-v3 technical report.
+\newblock \emph{arXiv preprint arXiv:2412.19437}.
+
+\bibitem[{Marion et~al.(2023)Marion, {\"U}st{\"u}n, Pozzobon, Wang, Fadaee, and Hooker}]{marion2023less}
+Max Marion, Ahmet {\"U}st{\"u}n, Luiza Pozzobon, Alex Wang, Marzieh Fadaee, and Sara Hooker. 2023.
+\newblock When less is more: Investigating data pruning for pretraining llms at scale.
+\newblock \emph{arXiv preprint arXiv:2309.04564}.
+
+\bibitem[{Penedo et~al.(2024)Penedo, Kydl{\'\i}{\v{c}}ek, Lozhkov, Mitchell, Raffel, Von~Werra, Wolf et~al.}]{penedo2024fineweb}
+Guilherme Penedo, Hynek Kydl{\'\i}{\v{c}}ek, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Leandro Von~Werra, Thomas Wolf, et~al. 2024.
+\newblock The fineweb datasets: Decanting the web for the finest text data at scale.
+\newblock \emph{arXiv preprint arXiv:2406.17557}.
+
+\bibitem[{Platanios et~al.(2019)Platanios, Stretcu, Neubig, Poczos, and Mitchell}]{platanios2019competence}
+Emmanouil~Antonios Platanios, Otilia Stretcu, Graham Neubig, Barnabas Poczos, and Tom~M Mitchell. 2019.
+\newblock Competence-based curriculum learning for neural machine translation.
+\newblock \emph{arXiv preprint arXiv:1903.09848}.
+
+\bibitem[{Rae et~al.(2021)Rae, Borgeaud, Cai, Millican, Hoffmann, Song, Aslanides, Henderson, Ring, Young et~al.}]{rae2021scaling}
+Jack~W Rae, Sebastian Borgeaud, Trevor Cai, Katie Millican, Jordan Hoffmann, Francis Song, John Aslanides, Sarah Henderson, Roman Ring, Susannah Young, et~al. 2021.
+\newblock Scaling language models: Methods, analysis \& insights from training gopher.
+\newblock \emph{arXiv preprint arXiv:2112.11446}.
+
+\bibitem[{Raffel et~al.(2020)Raffel, Shazeer, Roberts, Lee, Narang, Matena, Zhou, Li, and Liu}]{raffel2020exploring}
+Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter~J Liu. 2020.
+\newblock Exploring the limits of transfer learning with a unified text-to-text transformer.
+\newblock \emph{Journal of machine learning research}, 21(140):1--67.
+
+\bibitem[{Raffel et~al.(2023)Raffel, Shazeer, Roberts, Lee, Narang, Matena, Zhou, Li, and Liu}]{raffel2023exploringlimitstransferlearning}
+Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter~J. Liu. 2023.
+\newblock \href {https://arxiv.org/abs/1910.10683} {Exploring the limits of transfer learning with a unified text-to-text transformer}.
+\newblock \emph{Preprint}, arXiv:1910.10683.
+
+\bibitem[{Sachdeva et~al.(2024)Sachdeva, Coleman, Kang, Ni, Hong, Chi, Caverlee, McAuley, and Cheng}]{sachdeva2024train}
+Noveen Sachdeva, Benjamin Coleman, Wang-Cheng Kang, Jianmo Ni, Lichan Hong, Ed~H Chi, James Caverlee, Julian McAuley, and Derek~Zhiyuan Cheng. 2024.
+\newblock How to train data-efficient llms.
+\newblock \emph{arXiv preprint arXiv:2402.09668}.
+
+\bibitem[{Sharma et~al.(2019)Sharma, Li, and Wang}]{sharma2019bigpatent}
+Eva Sharma, Chen Li, and Lu~Wang. 2019.
+\newblock Bigpatent: A large-scale dataset for abstractive and coherent summarization.
+\newblock \emph{arXiv preprint arXiv:1906.03741}.
+
+\bibitem[{Shoeybi et~al.(2019)Shoeybi, Patwary, Puri, LeGresley, Casper, and Catanzaro}]{shoeybi2019megatron}
+Mohammad Shoeybi, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper, and Bryan Catanzaro. 2019.
+\newblock Megatron-lm: Training multi-billion parameter language models using model parallelism.
+\newblock \emph{arXiv preprint arXiv:1909.08053}.
+
+\bibitem[{Soboleva et~al.(2023)Soboleva, Al-Khateeb, Myers, Steeves, Hestness, and Dey}]{cerebras2023slimpajama}
+Daria Soboleva, Faisal Al-Khateeb, Robert Myers, Jacob~R Steeves, Joel Hestness, and Nolan Dey. 2023.
+\newblock {SlimPajama: A 627B token cleaned and deduplicated version of RedPajama}.
+
+\bibitem[{Soviany et~al.(2021)Soviany, Ionescu, Rota, and Sebe}]{soviany2021curriculumselfpacedlearningcrossdomain}
+Petru Soviany, Radu~Tudor Ionescu, Paolo Rota, and Nicu Sebe. 2021.
+\newblock \href {https://arxiv.org/abs/1911.06849} {Curriculum self-paced learning for cross-domain object detection}.
+\newblock \emph{Preprint}, arXiv:1911.06849.
+
+\bibitem[{Touvron et~al.(2023)Touvron, Lavril, Izacard, Martinet, Lachaux, Lacroix, Rozi{\`e}re, Goyal, Hambro, Azhar et~al.}]{touvron2023llama}
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timoth{\'e}e Lacroix, Baptiste Rozi{\`e}re, Naman Goyal, Eric Hambro, Faisal Azhar, et~al. 2023.
+\newblock Llama: Open and efficient foundation language models.
+\newblock \emph{arXiv preprint arXiv:2302.13971}.
+
+\bibitem[{Welbl et~al.(2017)Welbl, Liu, and Gardner}]{welbl2017crowdsourcing}
+Johannes Welbl, Nelson~F Liu, and Matt Gardner. 2017.
+\newblock Crowdsourcing multiple choice science questions.
+\newblock \emph{arXiv preprint arXiv:1707.06209}.
+
+\bibitem[{Wenzek et~al.(2020)Wenzek, Lachaux, Conneau, Chaudhary, Guzm{\'a}n, Joulin, and Grave}]{wenzek2020ccnet}
+Guillaume Wenzek, Marie-Anne Lachaux, Alexis Conneau, Vishrav Chaudhary, Francisco Guzm{\'a}n, Armand Joulin, and {\'E}douard Grave. 2020.
+\newblock Ccnet: Extracting high quality monolingual datasets from web crawl data.
+\newblock In \emph{Proceedings of the Twelfth Language Resources and Evaluation Conference}, pages 4003--4012.
+
+\bibitem[{Wettig et~al.(2024)Wettig, Gupta, Malik, and Chen}]{wettig2024qurating}
+Alexander Wettig, Aatmik Gupta, Saumya Malik, and Danqi Chen. 2024.
+\newblock Qurating: Selecting high-quality data for training language models.
+\newblock \emph{arXiv preprint arXiv:2402.09739}.
+
+\bibitem[{Wu et~al.(2024)Wu, Meng, and Chen}]{wu2024curriculum}
+Biao Wu, Fang Meng, and Ling Chen. 2024.
+\newblock Curriculum learning with quality-driven data selection.
+\newblock \emph{arXiv preprint arXiv:2407.00102}.
+
+\bibitem[{Xie et~al.(2023)Xie, Santurkar, Ma, and Liang}]{xie2023data}
+Sang~Michael Xie, Shibani Santurkar, Tengyu Ma, and Percy~S Liang. 2023.
+\newblock Data selection for language models via importance resampling.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:34201--34227.
+
+\bibitem[{Yu et~al.(2024)Yu, Das, and Xiong}]{yu2024mates}
+Zichun Yu, Spandan Das, and Chenyan Xiong. 2024.
+\newblock Mates: Model-aware data selection for efficient pretraining with data influence models.
+\newblock \emph{arXiv preprint arXiv:2406.06046}.
+
+\bibitem[{Zellers et~al.(2019)Zellers, Holtzman, Bisk, Farhadi, and Choi}]{zellers2019hellaswag}
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi. 2019.
+\newblock Hellaswag: Can a machine really finish your sentence?
+\newblock \emph{arXiv preprint arXiv:1905.07830}.
+
+\bibitem[{Zhang et~al.(2024{\natexlab{a}})Zhang, Qu, Liu, Zhang, Lin, Yu, Pan, Cheng, Liu, Lin, Yuan, Zheng, Pang, Du, Liang, Ma, Li, Ma, Lin, Benetos, Yang, Zhou, Ma, Liu, Niu, Wang, Que, Liu, Liu, Guo, Gao, Zhou, Zhang, Zhou, Wang, Bai, Zhang, Zhang, Wang, Yang, Zhao, Zhang, Ouyang, Huang, and Chen}]{zhang2024mapneo}
+Ge~Zhang, Scott Qu, Jiaheng Liu, Chenchen Zhang, Chenghua Lin, Chou~Leuang Yu, Danny Pan, Esther Cheng, Jie Liu, Qunshu Lin, Raven Yuan, Tuney Zheng, Wei Pang, Xinrun Du, Yiming Liang, Yinghao Ma, Yizhi Li, Ziyang Ma, Bill Lin, Emmanouil Benetos, Huan Yang, Junting Zhou, Kaijing Ma, Minghao Liu, Morry Niu, Noah Wang, Quehry Que, Ruibo Liu, Sine Liu, Shawn Guo, Soren Gao, Wangchunshu Zhou, Xinyue Zhang, Yizhi Zhou, Yubo Wang, Yuelin Bai, Yuhan Zhang, Yuxiang Zhang, Zenith Wang, Zhenzhu Yang, Zijian Zhao, Jiajun Zhang, Wanli Ouyang, Wenhao Huang, and Wenhu Chen. 2024{\natexlab{a}}.
+\newblock Map-neo: Highly capable and transparent bilingual large language model series.
+\newblock \emph{arXiv preprint arXiv: 2405.19327}.
+
+\bibitem[{Zhang et~al.(2024{\natexlab{b}})Zhang, Luo, Yuan, and Yao}]{zhang2024autonomous}
+Yifan Zhang, Yifan Luo, Yang Yuan, and Andrew~C Yao. 2024{\natexlab{b}}.
+\newblock Autonomous data selection with language models for mathematical texts.
+\newblock In \emph{ICLR 2024 Workshop on Navigating and Addressing Data Problems for Foundation Models}.
+
+\bibitem[{Ziegel et~al.(1976)Ziegel, Box, Jenkins, and Reinsel}]{1976Time}
+Eric~R. Ziegel, G.~E.~P. Box, G.~M. Jenkins, and G.~C. Reinsel. 1976.
+\newblock Time series analysis, forecasting, and control.
+\newblock \emph{Journal of Time}, 31(2):238--242.
+
+\end{thebibliography}

@@ -1,0 +1,56 @@
+\centering
+    \resizebox{0.99\columnwidth}{!}
+    {
+    \begin{tabular}{c|cccccccc|C{0.7cm}C{0.7cm}C{0.7cm}|ccccc|cccc}
+    \toprule[1.5pt]
+    \multirow{3}{*}{\bf Name}& 
+    \multicolumn{8}{c|}{\bf Number of tokens $\times 2^{30}$}&
+    \multirow{3}{0.7cm}{\centering \bf Avg. Seq. Len}&
+    \multirow{3}{0.7cm}{\centering \bf Avg. Ctx. Len}&
+    \multirow{3}{0.7cm}{\centering \bf Step Time (ms)}&
+    \multicolumn{5}{c|}{\bf Regular}&
+    \multicolumn{4}{c}{\bf MDQA}\\
+    % \cline{2-9}\cline{15-17}
+    &\multirow{2}{*}{$\mathcal{D}_{6}$}&
+    \multirow{2}{*}{$\mathcal{D}_{7}$}&
+    \multirow{2}{*}{$\mathcal{D}_{8}$}&
+    \multirow{2}{*}{$\mathcal{D}_{9}$}&
+    \multirow{2}{*}{$\mathcal{D}_{10}$}&
+    \multirow{2}{*}{$\mathcal{D}_{11}$}&
+    \multirow{2}{*}{$\mathcal{D}_{12}$}&
+    \multirow{2}{*}{$\mathcal{D}_{13}$}&
+    &&&
+    \multirow{2}{*}{\bf CSR}& \multirow{2}{*}{\bf LU}& \multirow{2}{*}{\bf RC}& \multirow{2}{*}{\bf WK}& \multirow{2}{*}{\bf Avg.}&
+    \multirow{2}{*}{\bf 10}&\multirow{2}{*}{\bf 20}&\multirow{2}{*}{\bf 30}&\multirow{2}{*}{\bf Avg.}\\
+    &
+    &&&&&&&&
+    &&&
+    &&&&&
+    &&&\\
+    \midrule[1pt]
+    Natural& 3&6&10&17&21&17&13&9&482&1018&244&62.4&65.4&\underline{43.8}&43.9&\cellcolor{gray!25}{\bf 54.0}&{\bf 26.7}&20.7&{\bf 18.5}&\cellcolor{gray!25}\underline{21.9}\\
+
+     \midrule
+    Equal& 12&12&12&12&12&12&12&12&257&1020&244& \underline{61.9}&64.3&43.1&43.5&\cellcolor{gray!25}53.3&\underline{25.1}&\underline{21.4}&17.4&\cellcolor{gray!25}21.3\\
+
+     \midrule
+    1k-only& 0&0&0&0&96&0&0&0&1024&512&234& 60.8&{\bf 66.4}&43.2&{\bf44.7}&\cellcolor{gray!25}{\bf 54.0}&0.2&0.1&0.2&\cellcolor{gray!25}0.2\\
+
+     \midrule
+    $\le$2k& 16&16&16&16&16&16&0&0&195&336&231& {\bf 62.8}&63.7&41.8&43.5&\cellcolor{gray!25}53.1&23.5&0.4&0.4&\cellcolor{gray!25}8.1\\
+
+     \midrule
+    $\ge$256& 0&0&16&16&16&16&16&16&780&1344&250& 61.5&\underline{65.6}&43.4&\underline{44.1}&\cellcolor{gray!25}\underline{53.8}&25.0&18.4&17.2&\cellcolor{gray!25}20.1\\
+
+     \midrule
+    Mid& 0&0&24&24&24&24&0&0&546&480&233& \underline{61.9}&65.5&42.5&43.8&\cellcolor{gray!25}53.6&19.1&0.0&0.1&\cellcolor{gray!25}6.4\\
+    
+    \midrule
+    $\ge$1k& 0&0&0&0&24&24&24&24&2185&1920&263& \underline{61.9}&65.0&{\bf 45.8}&43.3&\cellcolor{gray!25}{\bf 54.0}&{\bf 26.7}&{\bf 21.6}&\underline{18.1}&\cellcolor{gray!25}{\bf 22.1}\\
+    
+    \bottomrule[1pt]
+    \end{tabular}
+        }
+    \vspace{1mm}
+    \caption{Effect of pretraining {\bf dataset mixture} on model performance. Each row corresponds to a model trained on a specific mixture of dataset decomposition buckets. All models are OpenLM-1B, have seen a total of $96 \times 2^{30}$ tokens, use RoPE with a base frequency of 10k, and are trained with the same hyperparameters. The definition of average context length is given in \cref{sec:avg_definition}.}
+    \label{tab:mixture}

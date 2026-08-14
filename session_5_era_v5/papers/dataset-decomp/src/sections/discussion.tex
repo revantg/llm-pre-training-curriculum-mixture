@@ -1,0 +1,5 @@
+\section{Conclusion and limitations}\label{sec:dicussion}
+In this paper, we explore the shortcomings of a popular LLM pretraining approach, concat-and-chunk, and introduce dataset decomposition, a method to decompose a dataset of text documents into buckets containing fixed sequence lengths. We show results of variable sequence training using DD with different mixtures, curricula, datasets, and models, demonstrating significant LLM pretraining speedup and a final model accuracy boost on a wide range of benchmarks. Furthermore, we provide analysis on sequence length bias and attention masking. We compare our proposed method with recent works that also address concat-and-chunk shortcomings in a unified experimental setup and show gains in data preparation cost, training time, and final model accuracy.
+
+\noindent{\bf Limitations.} The training speed gains compared to the baseline are significant only when the target sequence length is long enough. Otherwise, the attention cost is not a dominant fraction of training, and hence no significant training speedup is expected.
+

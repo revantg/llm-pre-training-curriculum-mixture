@@ -1,0 +1,267 @@
+\appendix
+
+\section{Broader impacts}\label{app:broader_impact}
+This work enables faster training of LLMs, which are among the most compute-intensive applications in the field. A positive societal/environmental impact of this work is training LLMs with a smaller carbon footprint.
+
+Another potential societal advantage of this work is training LLMs with fewer hallucinations. While we did not directly measure this potential benefit, a concurrent work~\citep{ding2024fewer} shows such a benefit when cross-document attention is not allowed during LLM pretraining.
+
+\section{Implementation details} \label{sec:impl_details}
+\subsection{Training details}\label{cc}
+\paragraph{Software and hardware details} All experiments in this paper are conducted using the OpenLM\footnote{\url{https://github.com/mlfoundations/open_lm}} repository, which is based on PyTorch. We use Fully Sharded Data Parallelism (FSDP) with Bfloat16 mixed precision for all experiments. We use the Xformers~\citep{xFormers2022} implementation for attention. For hardware, we use one or more nodes of $8\times$ NVIDIA H100 GPUs (Hopper architecture), each with 80GB memory, and 192 CPU cores with 2000GB of RAM. Nodes are connected through Elastic Fabric Adapter (EFA) for efficient inter-node communication hosted by AWS.
+
+
+\paragraph{Model architecture details}
+We provide details of all architectures used in the paper in \cref{tab:openlm160m} to \cref{tab:openlm7b}.
+\begin{figure}[h]
+    % Minipage for Figure
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/openlm160m}
+         \captionof{table}{\small OpenLM-160M.}\label{tab:openlm160m}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/openlm410m}
+         \captionof{table}{\small OpenLM-410M.}\label{tab:openlm410m}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    % Minipage for Figure
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/openlm1b}
+         \captionof{table}{\small OpenLM-1B.}\label{tab:openlm1b}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/openlm3b}
+         \captionof{table}{\small OpenLM-3B.}\label{tab:openlm3b}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    % Minipage for Figure
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/openlm7b}
+         \captionof{table}{\small OpenLM-7B.}\label{tab:openlm7b}
+    \end{minipage}
+\end{figure}
+
+\paragraph{Baseline hyper parameters}
+We list our baseline hyperparameters in \cref{tab:baseline_hp} and iterate over changes for each section next. Note that we did not explicitly optimize hyperparameters for any of the experiments, and we always use the same hyperparameters when using either the baseline method or ours.
+
+\begin{figure}[h]
+    % Minipage for Figure
+    \centering
+    \begin{minipage}{0.6\textwidth}
+         \input{tables/implementation_details}
+         \captionof{table}{\small Baseline hyper-parameters.}\label{tab:baseline_hp}
+    \end{minipage}
+\end{figure}
+
+
+\paragraph{Implementation details of \cref{sec:length_corr} experiments}
+Experiments in this section are done using the same hyperparameters as in \cref{tab:baseline_hp} for a total of $2^{34}$ tokens on the OpenLM-1B model. We trained each model twice with different random seeds and report the averaged results. For models in this section, we use RoPE with $f_b = 10,000$. In \cref{tab:baseline_hp}, we show that our results and conclusions in this section are not sensitive to hyperparameters, including the RoPE base frequency $f_b$.
+
+
+\paragraph{Implementation details of \cref{sec:mixture} and \cref{sec:curriculum} experiments}
+Experiments in this section are done with OpenLM-1B model, trained for total of $96\times10^{34}\approx 103$B tokens. Hyper-parameters are the same as \cref{tab:baseline_hp}, except we used 20000 warmup steps for all models presented in this section. We use RoPE with $f_b = 10,000$ for all models in \cref{sec:mixture} and $f_b = 100,000$ for models in \cref{sec:curriculum}.
+
+\paragraph{Implementation details of \cref{sec:scaling}}
+\quad\\
+\noindent{\bf Dataset scaling}: Experiments in this section are trained with the OpenLM-1B model, RoPE with $f_b = 100,000$, and the baseline setup as in \cref{tab:baseline_hp} except for the following changes for different dataset sizes:
+
+\begin{itemize}
+    \item total tokens $=2^{34}$, warmup steps $=5,000$
+    \item total tokens $=2^{35}$, warmup steps $=5,000$ 
+    \item total tokens $=2^{36}$, warmup steps $=10,000$ 
+    \item total tokens $=2^{37}$, warmup steps $=20,000$ 
+    \item total tokens $=2^{38}$, warmup steps $=40,000$ 
+\end{itemize}
+
+\noindent{\bf Model scaling}: Experiments in this section are trained with the OpenLM-1B, OpenLM-3B, and OpenLM-7B models, $2^{37}\approx 137$B total seen tokens, RoPE with $f_b = 100,000$, and the baseline setup as in \cref{tab:baseline_hp} except for the following changes for different model sizes:
+
+\begin{itemize}
+    \item OpenLM-1B, warmup steps $=20,000$, max-lr $=3 \times 10^{-3}$, batchsize  $b=2^{19}$, with 32 H100 GPUs
+    \item OpenLM-3B, warmup steps $=20,000$, max-lr $=2 \times 10^{-3}$, batchsize  $b=2^{20}$, with 64 H100 GPUs
+    \item OpenLM-7B, warmup steps $=20,000$, max-lr $=1 \times 10^{-3}$, batchsize  $b=2^{22}$, with 128 H100 GPUs 
+\end{itemize}
+
+
+\noindent{\bf Alternative dataset}: Experiments in this section are trained with the OpenLM-160M, OpenLM-410M, and OpenLM-1B models, $2^{37}\approx 137$B total seen tokens, RoPE with $f_b = 100,000$, and the baseline setup as in \cref{tab:baseline_hp} except for the following changes for different model sizes:
+
+\begin{itemize}
+    \item OpenLM-160M, warmup steps $=20,000$, max-lr $=5 \times 10^{-3}$, weight-decay $=0.033$, with 16 H100 GPUs
+    \item OpenLM-410M, warmup steps $=20,000$, max-lr $=4 \times 10^{-3}$, weight-decay $=0.066$, with 16 H100 GPUs
+    \item OpenLM-1B, warmup steps $=20,000$, max-lr $=3 \times 10^{-3}$, weight-decay $=0.1$, with 32 H100 GPUs
+\end{itemize}
+For the DD experiments we used ``Grow-P2'' length curriculum which is visualized in \cref{fig:curriculum}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/schedules.png}
+    \caption{\revisionred{Comparison of length-based curriculum schedule with learning rate schedule. Sequence length varies between 256 and 8192 based on the Grow-P2 curriculum with 8 cycles. Note that the choice of bucket (and hence the sequence length) is random, with sampling probabilities determined by the curriculum. In the figure, we show the length of the sampled sequence at every 9 optimization steps. For the learning rate, we use a cosine learning rate with a warm-up for 4k steps. The job corresponds to training for a total of $2^{36}$ tokens, with $2^{20}$ tokens seen per optimization step.}}
+    \label{fig:curriculum}
+\end{figure}
+
+\paragraph{Implementation details of \cref{sec:sota}}
+All experiments in this section are done with the OpenLM-1B model, trained for a total of $96\times10^{34}\approx 103$B tokens. Hyperparameters are the same as in \cref{tab:baseline_hp}, except we used 20,000 warmup steps for all models presented in this section. We use RoPE with $f_b = 100,000$.
+
+
+\subsection{Length based sampling and curriculum algorithm} \label{sec:algo}
+\revisionred{
+We present the details of our length-based sampling and curriculum in \cref{alg:sampling}.}
+
+\begin{algorithm}
+\caption{Length based sampling and curriculum}\label{alg:sampling}
+\begin{algorithmic}
+\Require\\
+\begin{itemize}
+    \item ${D_i}$: list of buckets such that $D_i$ includes sequences with length $2^i$
+    \item ${n_i}$: total number of tokens to be picked from each bucket (see \cref{tab:mixture})
+    \item ${o_i}$: sampling odd for each bucket (see \cref{tab:curriculum})
+    \item $c$: number of cycles
+    \item $b$: number of tokens per optimization step
+\end{itemize}
+
+\State $s_{i,j} \gets$ \texttt{random subset of} $D_i$ \texttt{with} $n_i/c$ \texttt{tokens} \Comment{non-overlapping subsets of} $D_i$
+\For{$j \in [1, 2, \ldots, c]$}\Comment{loop over cycles}
+\While{\texttt{at least one} $s_{i,j}$ \texttt{is non-empty}}
+\State $odds \gets [o_i$ \texttt{if} $s_{i,j}$ \texttt{is not empty else} 0 \texttt{for} $i=1,2,3,\ldots]$
+\State $probs \gets odds / odds.sum()$
+\State \texttt{randomly sample index} $i$ \texttt{with probability} $probs[i]$
+\State \texttt{sample} $b/2^i$ \texttt{sequences from} $s_{i,j}$ \texttt{w/o replacement for training}
+\EndWhile
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Evaluation details}\label{sec:eval_detail}
+\paragraph{Multi Document Question Answering (MDQA)} 
+We follow the open-book evaluation setup described in~\cite{liu2024lost}. The document containing the answer is part of the context. The evaluation script provided by the official repository processes the model's response by using only the text before the first occurrence of a newline character as the answer. We noticed that sometimes the model responds with multiple newline characters before providing any valid text. In view of this behavior, we updated the evaluation script to look for the first non-empty text output from the model instead of the first string after newline character. Apart from this change in processing the model output, the rest of the evaluation follows the official implementation~\cite{liu2024lost}.
+
+\paragraph{TOEFL}
+We follow the setup described in~\cite{an2023leval}. As described in~\cref{sec:experiments}, the dataset contains multiple-choice QA pairs for the 15 longest lectures in~\citep{tseng2016machine, chung-etal-2018-supervised}. To obtain a response from the model, we follow MMLU-style prompting, where the choices are appended to the original prompt individually and the mean log-probability is computed for each choice. The choice corresponding to the \texttt{argmax} of mean log-probability is then chosen as the model's response. After we obtain the response, the computation of accuracy follows the official implementation~\cite{an2023leval}.
+
+\paragraph{QuALITY}
+We follow the setup described in~\cite{an2023leval}. The dataset contains long documents with each document containing multiple-choice QA pairs. Sometimes the context for a QA pair can be longer than 8192 tokens. To account for the longer sequence length, we increase the base frequency of RoPE positional encoding from 100k to 200k without any fine-tuning. To obtain a response from the model, we follow MMLU-style prompting, where the choices are appended to the original prompt individually and the mean log-probability is computed for each choice. The choice corresponding to the \texttt{argmax} of mean log-probability is then chosen as the model's response. After we obtain the model output, the rest of the evaluation follows the official implementation~\cite{an2023leval}.   
+
+\section{Additional results}\label{sec:additional_results}
+\subsection{Additional results for training efficiency}\label{sec:additional_benchmark}
+We enumerate model sizes (OpenLM-1B, OpenLM-3B, OpenLM-7B), the number of sequences in a batch (from 1 to 256), and sequence lengths ($2^6$ to $2^{14}$) and measure the time to train 100 batches. We repeat this 5 times and report the average and standard deviation time per batch in \cref{fig:runtime h100}. Notice that in the figure, each diagonal corresponds to a fixed $b$ (number of tokens seen per optimization step). 
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{figures/runtime/open_lm_1b_h100.pdf}
+    \caption{Average time for OpenLM-1B}
+    \label{fig:runtime_1b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{figures/runtime/open_lm_3b_h100.pdf}
+    \caption{Average time for OpenLM-3B}
+    \label{fig:runtime_3b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{figures/runtime/open_lm_7b_h100.pdf}
+    \caption{Average time for OpenLM-7B}
+    \label{fig:runtime_7b}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{figures/runtime/std_1b.pdf}
+    \caption{STD for OpenLM-1B}
+    \label{fig:std_1b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{figures/runtime/std_3b.pdf}
+    \caption{STD for OpenLM-3B}
+    \label{fig:std_3b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{figures/runtime/std_7b.pdf}
+    \caption{STD for OpenLM-7B}
+    \label{fig:std_7b}
+    \end{subfigure}
+    
+    \caption{{\bf Top row:} Average time (ms) for each node to train one batch on a 8$\times$H100 machine using FSDP. {\bf Bottom row:} measured standard deviation for each setup.}
+    \label{fig:runtime h100}
+\end{figure}
+
+\subsection{Additional results for sequence length bias experiments}\label{app:length_bias_details}
+
+
+In this section, we show that changing hyperparameters does not alter our conclusions in \cref{sec:length_corr}. We observed that pretraining on a sequence length of 1024 results in optimal performance with respect to regular metrics, compared to both longer and shorter lengths. For example, the regular average metric is 48.0 when pretraining with a 1024 sequence length, but it is 47.0 when pretraining with a 2048 sequence length. We explore whether this gap can be filled by using potentially better hyperparameters when training with a 2048 sequence length. Results are shown in \cref{tab:length_bias_additional}, demonstrating that the gap cannot be simply filled by choosing a different hyperparameter and is fundamental to the choice of pretraining sequence length.
+
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.5\textwidth}
+         \input{tables/length_bias_additional}
+         \captionof{table}{Sensitivity to hyperparameters for \cref{sec:length_corr} experiments. All models are trained twice with different random seeds, and averaged results are reported.
+}\label{tab:length_bias_additional}
+    \end{minipage}
+\end{figure}
+
+
+\subsection{Additional results for scaling experiments} 
+In this section, we show additional results for the experiments presented in \cref{sec:scaling}. \cref{tab:additional_data_scaling} shows results for dataset scaling, \cref{tab:additionaL_model_scaling} for model scaling, and \cref{tab:fullrw2} for experiments on an alternative dataset.
+
+
+
+\begin{figure}[h]
+    % Minipage for Figure
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/additional_data_scaling}
+         \captionof{table}{\small Dataset scaling for OpenLM-1B.}\label{tab:additional_data_scaling}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+         \input{tables/model_scaling_additional}
+         \captionof{table}{\small Model scaling for total of 137B tokens.}\label{tab:additionaL_model_scaling}
+    \end{minipage}
+\end{figure}
+
+
+\label{sec:additional_dcl}
+\begin{table}[h]
+    \input{tables/full_rwv2}
+\end{table}
+
+\section{Comparison to best-fit sequence packing}\label{sec:packing_detail}
+Some recent works have employed a bin packing-based strategy~\citep{ding2024fewer} which aims to reduce document cross-attention by minimizing unnecessary document truncation. To achieve this, they implement a known approximation algorithm called best-fit decreasing, which packs document chunks into sequences as tightly as possible. To compare with our method, we created a new dataset based on our implementation of the best-fit decreasing algorithm and trained a new model using this dataset. We present our implementation of the best-fit decreasing algorithm, the dataset we created, and the model we trained for comparison.
+
+Given a dataset $\mathcal{D}$, the input to the algorithm is a list of {\it tokenized} document chunks $C = \{c_1, c_2, \ldots, c_K\}$ such that $\bigcup_{i=1}^K c_i = \mathcal{D}$, where each chunk is at most context size {\it n} (e.g., 2048) in length. The output of the algorithm is a list of bins $\mathcal{B} = \{b_1, b_2, \ldots, b_M\}$ such that $c_i \in b_j$. As a pre-processing step, we first tokenize the documents and convert them into chunks. Truncation is applied during this step only when necessary. Next, we sort the chunks from largest to smallest and start from the first chunk to pack into bins of size {\it n}. We track the remaining capacities for each bin while we iterate over the chunks. In each iteration, the algorithm finds the best bin that is both feasible and optimal for placing the chunk. Feasible bins are those that can accommodate the chunk, and optimal bins are those left with the minimum remaining capacity after placing the chunk. If such a bin is not found, we open a new bin and place the chunk inside. After all the chunks have been placed, we select the bins that have non-zero remaining capacities and fill them with pad tokens \verb|<PAD>|.
+
+We process the RefinedWeb~\citep{refinedweb} dataset using the aforementioned procedure and create training sequences by concatenating all chunks in a bin. \Cref{fig:dataset_distributions} shows that while best-fit packing results in a higher average context length compared to the baseline {\it concat-and-chunk}, it is still much lower compared to our method {\it dataset decomposition}. Furthermore, the best-fit packing method does not prevent tokens from different documents from appearing in training sequences, whereas our method does. The presence of padding tokens in best-fit packed sequences also means that some context is wasted during each optimization step.
+
+
+\section{Training stability with VSL and curriculum}\label{sec:stability}
+
+\cite{li2022stability} presents the \emph{stability-efficiency dilemma}: efficient LLM pretraining with massive data parallelism results in a large batch size and requires a high learning rate. However, such a setup can result in training instability, leading to poor generalization. They observe a correlation between training instability and long sequences, especially at the early stages of training, suggesting that training on long sequences when the model is not well-trained can be a main source of training instability.
+
+Here, we show that dataset decomposition alleviates this problem when used with a curriculum: starting training by sampling more from short sequence buckets. We empirically demonstrate this by training an OpenLM-1B model from scratch with a high learning rate ($=10^{-2}$) and no gradient clipping, once with baseline-8k and once with DD using the "Grow-P100" curriculum. Training loss is shown in \cref{fig:losses}, demonstrating the stability of training with DD in comparison to the baseline. This suggests that our proposed method can also be beneficial for large-scale pretraining with large batches and high learning rates in terms of efficiency.  
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/stability-crop.pdf}
+    \caption{We compare the training loss when training with Baseline-8k versus DD with the "Grow-P100" curriculum. Both models are trained with identical hyperparameters, a high learning rate ($=10^{-2}$), and no gradient clipping. It is evident that DD results in greater stability.
+}
+    \label{fig:losses}
+\end{figure}
+
+\section{Average sequence length vs average context length}\label{sec:avg_definition}
+We compute the mean of length (\cref{fig:length_dist}) and context (\cref{fig:position_dist}) distributions as follows. Assume a list of sequences with lengths $l_1, l_2, \ldots, l_N$, which are, for example, the chunk lengths in the concat-and-chunk approach or the sequence lengths in different buckets of the dataset decomposition approach. We define the average sequence length as follows:
+\begin{equation}
+    \text{Average sequence length} = \frac{1}{N} \sum_i^N l_i
+\end{equation}
+
+In auto-regressive training on a sequence with length $l$, we apply $l$ losses for next-token prediction on each token in parallel. Hence, for a sequence with length $l$, we see contexts with lengths equal to $0, 1, 2, \ldots, l-1$. We define the average context length, which is different from the average sequence length, as follows:
+\begin{equation} \label{eqn:avg_context}
+    \text{Average context length} = \left(\sum_{i=1}^N \sum_{j=0}^{l_i-1} j \right) / \left(\sum_{i=1}^N l_i \right) = \left(\sum_{i=1}^N l_i(l_i-1) \right)/ \left(2\sum_{i=1}^N l_i \right).
+\end{equation}
+In \cref{fig:length_dist}, \cref{fig:position_dist}, and \cref{tab:mixture}, we report the average sequence length and average context length for original documents, concat-and-chunk, and dataset decomposition with different mixtures.

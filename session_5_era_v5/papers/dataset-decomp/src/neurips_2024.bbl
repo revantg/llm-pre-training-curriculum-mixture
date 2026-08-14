@@ -1,0 +1,342 @@
+\begin{thebibliography}{67}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[cc()]{cc}
+Common crawl.
+\newblock \url{https://commoncrawl.org}.
+
+\bibitem[fou()]{foundry}
+Llm foundry v0.7.0.
+\newblock \url{https://github.com/mosaicml/llm-foundry}.
+
+\bibitem[jeo()]{jeopardy}
+Jeopardy.
+\newblock \url{https://huggingface.co/datasets/jeopardy}.
+\newblock [Used custom curated version by LLM Foundry].
+
+\bibitem[qa_()]{qa_wikidata}
+Big-bench qa wikidata.
+\newblock \url{https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/qa_wikidata}.
+\newblock [Used through LLM Foundry].
+
+\bibitem[An et~al.(2023)An, Gong, Zhong, Li, Zhang, Kong, and Qiu]{an2023leval}
+C.~An, S.~Gong, M.~Zhong, M.~Li, J.~Zhang, L.~Kong, and X.~Qiu.
+\newblock L-eval: Instituting standardized evaluation for long context language models, 2023.
+
+\bibitem[Anil et~al.(2022)Anil, Wu, Andreassen, Lewkowycz, Misra, Ramasesh, Slone, Gur-Ari, Dyer, and Neyshabur]{anil2022exploring}
+C.~Anil, Y.~Wu, A.~Andreassen, A.~Lewkowycz, V.~Misra, V.~Ramasesh, A.~Slone, G.~Gur-Ari, E.~Dyer, and B.~Neyshabur.
+\newblock Exploring length generalization in large language models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 35:\penalty0 38546--38556, 2022.
+
+\bibitem[Bengio et~al.(2009)Bengio, Louradour, Collobert, and Weston]{bengio2009curriculum}
+Y.~Bengio, J.~Louradour, R.~Collobert, and J.~Weston.
+\newblock Curriculum learning.
+\newblock In \emph{Proceedings of the 26th annual international conference on machine learning}, pages 41--48, 2009.
+
+\bibitem[Bisk et~al.(2020)Bisk, Zellers, Gao, Choi, et~al.]{piqa}
+Y.~Bisk, R.~Zellers, J.~Gao, Y.~Choi, et~al.
+\newblock Piqa: Reasoning about physical commonsense in natural language.
+\newblock In \emph{Proceedings of the AAAI conference on artificial intelligence}, volume~34, pages 7432--7439, 2020.
+
+\bibitem[Black et~al.(2022)Black, Biderman, Hallahan, Anthony, Gao, Golding, He, Leahy, McDonell, Phang, et~al.]{black2022gpt}
+S.~Black, S.~Biderman, E.~Hallahan, Q.~Anthony, L.~Gao, L.~Golding, H.~He, C.~Leahy, K.~McDonell, J.~Phang, et~al.
+\newblock Gpt-neox-20b: An open-source autoregressive language model.
+\newblock \emph{arXiv preprint arXiv:2204.06745}, 2022.
+
+\bibitem[Chen et~al.(2023)Chen, Wong, Chen, and Tian]{chen2023extending}
+S.~Chen, S.~Wong, L.~Chen, and Y.~Tian.
+\newblock Extending context window of large language models via positional interpolation.
+\newblock \emph{arXiv preprint arXiv:2306.15595}, 2023.
+
+\bibitem[Chung et~al.(2018)Chung, Lee, and Glass]{chung-etal-2018-supervised}
+Y.-A. Chung, H.-Y. Lee, and J.~Glass.
+\newblock Supervised and unsupervised transfer learning for question answering.
+\newblock In M.~Walker, H.~Ji, and A.~Stent, editors, \emph{Proceedings of the 2018 Conference of the North {A}merican Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers)}. Association for Computational Linguistics, 2018.
+
+\bibitem[Clark et~al.(2019)Clark, Lee, Chang, Kwiatkowski, Collins, and Toutanova]{clark2019boolq}
+C.~Clark, K.~Lee, M.-W. Chang, T.~Kwiatkowski, M.~Collins, and K.~Toutanova.
+\newblock Boolq: Exploring the surprising difficulty of natural yes/no questions.
+\newblock \emph{arXiv preprint arXiv:1905.10044}, 2019.
+
+\bibitem[Clark et~al.(2018)Clark, Cowhey, Etzioni, Khot, Sabharwal, Schoenick, and Tafjord]{clark2018think}
+P.~Clark, I.~Cowhey, O.~Etzioni, T.~Khot, A.~Sabharwal, C.~Schoenick, and O.~Tafjord.
+\newblock Think you have solved question answering? try arc, the ai2 reasoning challenge.
+\newblock \emph{arXiv preprint arXiv:1803.05457}, 2018.
+
+\bibitem[Computer(2023)]{redpajama}
+T.~Computer.
+\newblock Redpajama: An open source recipe to reproduce llama training dataset, 2023.
+\newblock URL \url{https://github.com/togethercomputer/RedPajama-Data}.
+
+\bibitem[Dao(2023)]{dao2023flashattention}
+T.~Dao.
+\newblock Flashattention-2: Faster attention with better parallelism and work partitioning.
+\newblock \emph{arXiv preprint arXiv:2307.08691}, 2023.
+
+\bibitem[Dehghani et~al.(2024)Dehghani, Mustafa, Djolonga, Heek, Minderer, Caron, Steiner, Puigcerver, Geirhos, Alabdulmohsin, et~al.]{dehghani2024patch}
+M.~Dehghani, B.~Mustafa, J.~Djolonga, J.~Heek, M.~Minderer, M.~Caron, A.~Steiner, J.~Puigcerver, R.~Geirhos, I.~M. Alabdulmohsin, et~al.
+\newblock Patch n’pack: Navit, a vision transformer for any aspect ratio and resolution.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Ding et~al.(2024)Ding, Wang, Paolini, Kumar, Deoras, Roth, and Soatto]{ding2024fewer}
+H.~Ding, Z.~Wang, G.~Paolini, V.~Kumar, A.~Deoras, D.~Roth, and S.~Soatto.
+\newblock Fewer truncations improve language modeling.
+\newblock \emph{arXiv preprint arXiv:2404.10830}, 2024.
+
+\bibitem[Elman(1993)]{elman1993learning}
+J.~L. Elman.
+\newblock Learning and development in neural networks: The importance of starting small.
+\newblock \emph{Cognition}, 48\penalty0 (1):\penalty0 71--99, 1993.
+
+\bibitem[Gao et~al.(2020)Gao, Biderman, Black, Golding, Hoppe, Foster, Phang, He, Thite, Nabeshima, et~al.]{PILE}
+L.~Gao, S.~Biderman, S.~Black, L.~Golding, T.~Hoppe, C.~Foster, J.~Phang, H.~He, A.~Thite, N.~Nabeshima, et~al.
+\newblock The {P}ile: An 800{GB} dataset of diverse text for language modeling.
+\newblock \emph{arXiv preprint arXiv:2101.00027}, 2020.
+
+\bibitem[Ge et~al.(2021)Ge, Kaushik, Omote, and Kumar]{ge2021speed}
+Z.~Ge, L.~Kaushik, M.~Omote, and S.~Kumar.
+\newblock Speed up training with variable length inputs by efficient batching strategies.
+\newblock In \emph{Interspeech}, pages 156--160, 2021.
+
+\bibitem[Gonzalez et~al.(2023)Gonzalez, Alstr{\o}m, and May]{gonzalez2023batching}
+P.~Gonzalez, T.~S. Alstr{\o}m, and T.~May.
+\newblock On batching variable size inputs for training end-to-end speech enhancement systems.
+\newblock In \emph{ICASSP 2023-2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, pages 1--5. IEEE, 2023.
+
+\bibitem[Gururangan et~al.(2023)Gururangan, Wortsman, Gadre, Dave, Kilian, Shi, Mercat, Smyrnis, Ilharco, Jordan, Heckel, Dimakis, Farhadi, Shankar, and Schmidt]{openlm}
+S.~Gururangan, M.~Wortsman, S.~Y. Gadre, A.~Dave, M.~Kilian, W.~Shi, J.~Mercat, G.~Smyrnis, G.~Ilharco, M.~Jordan, R.~Heckel, A.~Dimakis, A.~Farhadi, V.~Shankar, and L.~Schmidt.
+\newblock {OpenLM}: a minimal but performative language modeling (lm) repository, 2023.
+\newblock URL \url{https://github.com/mlfoundations/open_lm/}.
+\newblock GitHub repository.
+
+\bibitem[Han et~al.(2023)Han, Wang, Xiong, Chen, Ji, and Wang]{han2023lm}
+C.~Han, Q.~Wang, W.~Xiong, Y.~Chen, H.~Ji, and S.~Wang.
+\newblock Lm-infinite: Simple on-the-fly length generalization for large language models.
+\newblock \emph{arXiv preprint arXiv:2308.16137}, 2023.
+
+\bibitem[Jin et~al.(2023)Jin, Han, Yang, Jiang, Chang, and Hu]{jin2023growlength}
+H.~Jin, X.~Han, J.~Yang, Z.~Jiang, C.-Y. Chang, and X.~Hu.
+\newblock Growlength: Accelerating llms pretraining by progressively growing training length.
+\newblock \emph{arXiv preprint arXiv:2310.00576}, 2023.
+
+\bibitem[Kazemnejad et~al.(2024)Kazemnejad, Padhi, Natesan~Ramamurthy, Das, and Reddy]{kazemnejad2024impact}
+A.~Kazemnejad, I.~Padhi, K.~Natesan~Ramamurthy, P.~Das, and S.~Reddy.
+\newblock The impact of positional encoding on length generalization in transformers.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Krell et~al.(2021)Krell, Kosec, Perez, and Fitzgibbon]{krell2021efficient}
+M.~M. Krell, M.~Kosec, S.~P. Perez, and A.~Fitzgibbon.
+\newblock Efficient sequence packing without cross-contamination: Accelerating large language models without impacting performance.
+\newblock \emph{arXiv preprint arXiv:2107.02027}, 2021.
+
+\bibitem[Kwiatkowski et~al.(2019)Kwiatkowski, Palomaki, Redfield, Collins, Parikh, Alberti, Epstein, Polosukhin, Devlin, Lee, et~al.]{kwiatkowski2019natural}
+T.~Kwiatkowski, J.~Palomaki, O.~Redfield, M.~Collins, A.~Parikh, C.~Alberti, D.~Epstein, I.~Polosukhin, J.~Devlin, K.~Lee, et~al.
+\newblock Natural questions: a benchmark for question answering research.
+\newblock \emph{Transactions of the Association for Computational Linguistics}, 7:\penalty0 453--466, 2019.
+
+\bibitem[Lee et~al.(2019)Lee, Chang, and Toutanova]{lee2019latent}
+K.~Lee, M.-W. Chang, and K.~Toutanova.
+\newblock Latent retrieval for weakly supervised open domain question answering.
+\newblock \emph{arXiv preprint arXiv:1906.00300}, 2019.
+
+\bibitem[Lefaudeux et~al.(2022)Lefaudeux, Massa, Liskovich, Xiong, Caggiano, Naren, Xu, Hu, Tintore, Zhang, Labatut, Haziza, Wehrstedt, Reizenstein, and Sizov]{xFormers2022}
+B.~Lefaudeux, F.~Massa, D.~Liskovich, W.~Xiong, V.~Caggiano, S.~Naren, M.~Xu, J.~Hu, M.~Tintore, S.~Zhang, P.~Labatut, D.~Haziza, L.~Wehrstedt, J.~Reizenstein, and G.~Sizov.
+\newblock xformers: A modular and hackable transformer modelling library.
+\newblock \url{https://github.com/facebookresearch/xformers}, 2022.
+
+\bibitem[Levesque et~al.(2012)Levesque, Davis, and Morgenstern]{levesque2012winograd}
+H.~Levesque, E.~Davis, and L.~Morgenstern.
+\newblock The winograd schema challenge.
+\newblock In \emph{Thirteenth international conference on the principles of knowledge representation and reasoning}, 2012.
+
+\bibitem[Li et~al.(2022)Li, Zhang, and He]{li2022stability}
+C.~Li, M.~Zhang, and Y.~He.
+\newblock The stability-efficiency dilemma: Investigating sequence length warmup for training gpt models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 35:\penalty0 26736--26750, 2022.
+
+\bibitem[Li et~al.(2024{\natexlab{a}})Li, Fang, Smyrnis, Ivgi, Jordan, Gadre, Bansal, Guha, Keh, Arora, et~al.]{li2024datacomp}
+J.~Li, A.~Fang, G.~Smyrnis, M.~Ivgi, M.~Jordan, S.~Gadre, H.~Bansal, E.~Guha, S.~Keh, K.~Arora, et~al.
+\newblock Datacomp-lm: In search of the next generation of training sets for language models.
+\newblock \emph{arXiv preprint arXiv:2406.11794}, 2024{\natexlab{a}}.
+
+\bibitem[Li et~al.(2024{\natexlab{b}})Li, Wang, and Xie]{li2024inverse}
+X.~Li, Z.~Wang, and C.~Xie.
+\newblock An inverse scaling law for clip training.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2024{\natexlab{a}})Liu, Yan, Zaharia, and Abbeel]{liu2024world}
+H.~Liu, W.~Yan, M.~Zaharia, and P.~Abbeel.
+\newblock World model on million-length video and language with blockwise ringattention.
+\newblock \emph{arXiv preprint arXiv:2402.08268}, 2024{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2024{\natexlab{b}})Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, and Liang]{liu2024lost}
+N.~F. Liu, K.~Lin, J.~Hewitt, A.~Paranjape, M.~Bevilacqua, F.~Petroni, and P.~Liang.
+\newblock Lost in the middle: How language models use long contexts.
+\newblock \emph{Transactions of the Association for Computational Linguistics}, 12:\penalty0 157--173, 2024{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2023)Liu, Yan, Zhang, An, Qiu, and Lin]{liu2023scaling}
+X.~Liu, H.~Yan, S.~Zhang, C.~An, X.~Qiu, and D.~Lin.
+\newblock Scaling laws of rope-based extrapolation.
+\newblock \emph{arXiv preprint arXiv:2310.05209}, 2023.
+
+\bibitem[Liu et~al.(2019)Liu, Ott, Goyal, Du, Joshi, Chen, Levy, Lewis, Zettlemoyer, and Stoyanov]{liu2019roberta}
+Y.~Liu, M.~Ott, N.~Goyal, J.~Du, M.~Joshi, D.~Chen, O.~Levy, M.~Lewis, L.~Zettlemoyer, and V.~Stoyanov.
+\newblock Roberta: A robustly optimized bert pretraining approach.
+\newblock \emph{arXiv preprint arXiv:1907.11692}, 2019.
+
+\bibitem[Mehta et~al.(2022)Mehta, Abdolhosseini, and Rastegari]{mehta2022cvnets}
+S.~Mehta, F.~Abdolhosseini, and M.~Rastegari.
+\newblock Cvnets: High performance library for computer vision.
+\newblock In \emph{Proceedings of the 30th ACM International Conference on Multimedia}, pages 7327--7330, 2022.
+
+\bibitem[Meta(2024)]{llama3}
+Meta.
+\newblock Introducing meta llama 3: The most capable openly available llm to date, 2024.
+\newblock URL \url{https://ai.meta.com/blog/meta-llama-3}.
+
+\bibitem[Mihaylov et~al.(2018)Mihaylov, Clark, Khot, and Sabharwal]{openbookqa}
+T.~Mihaylov, P.~Clark, T.~Khot, and A.~Sabharwal.
+\newblock Can a suit of armor conduct electricity? a new dataset for open book question answering.
+\newblock \emph{arXiv preprint arXiv:1809.02789}, 2018.
+
+\bibitem[Mohtashami and Jaggi(2024)]{mohtashami2024random}
+A.~Mohtashami and M.~Jaggi.
+\newblock Random-access infinite context length for transformers.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Nagatsuka et~al.(2021)Nagatsuka, Broni-Bediako, and Atsumi]{nagatsuka2021pre}
+K.~Nagatsuka, C.~Broni-Bediako, and M.~Atsumi.
+\newblock Pre-training a bert with curriculum learning by increasing block-size of input text.
+\newblock In \emph{Proceedings of the International Conference on Recent Advances in Natural Language Processing (RANLP 2021)}, pages 989--996, 2021.
+
+\bibitem[Ott et~al.(2019)Ott, Edunov, Baevski, Fan, Gross, Ng, Grangier, and Auli]{ott2019fairseq}
+M.~Ott, S.~Edunov, A.~Baevski, A.~Fan, S.~Gross, N.~Ng, D.~Grangier, and M.~Auli.
+\newblock fairseq: A fast, extensible toolkit for sequence modeling.
+\newblock In \emph{Proceedings of NAACL-HLT 2019: Demonstrations}, 2019.
+
+\bibitem[Paperno et~al.(2016)Paperno, Kruszewski, Lazaridou, Pham, Bernardi, Pezzelle, Baroni, Boleda, and Fern{\'a}ndez]{paperno2016lambada}
+D.~Paperno, G.~Kruszewski, A.~Lazaridou, Q.~N. Pham, R.~Bernardi, S.~Pezzelle, M.~Baroni, G.~Boleda, and R.~Fern{\'a}ndez.
+\newblock The lambada dataset: Word prediction requiring a broad discourse context.
+\newblock \emph{arXiv preprint arXiv:1606.06031}, 2016.
+
+\bibitem[Pawar et~al.(2024)Pawar, Tonmoy, Zaman, Jain, Chadha, and Das]{pawar2024and}
+S.~Pawar, S.~Tonmoy, S.~Zaman, V.~Jain, A.~Chadha, and A.~Das.
+\newblock The what, why, and how of context length extension techniques in large language models--a detailed survey.
+\newblock \emph{arXiv preprint arXiv:2401.07872}, 2024.
+
+\bibitem[Penedo et~al.(2023)Penedo, Malartic, Hesslow, Cojocaru, Cappelli, Alobeidli, Pannier, Almazrouei, and Launay]{refinedweb}
+G.~Penedo, Q.~Malartic, D.~Hesslow, R.~Cojocaru, A.~Cappelli, H.~Alobeidli, B.~Pannier, E.~Almazrouei, and J.~Launay.
+\newblock The {R}efined{W}eb dataset for {F}alcon {LLM}: outperforming curated corpora with web data, and web data only.
+\newblock \emph{arXiv preprint arXiv:2306.01116}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2306.01116}.
+
+\bibitem[Peng and Quesnelle(2023)]{ntkaware}
+B.~Peng and J.~Quesnelle.
+\newblock Ntk-aware scaled rope allows llama models to have extended (8k+) context size without any fine-tuning and minimal perplexity degradation.
+\newblock 2023.
+\newblock URL \url{https://www.reddit.com/r/LocalLLaMA/comments/14lz7j5/ntkaware_scaled_ rope_allows_llama_models_to_have}.
+
+\bibitem[Peng et~al.(2023)Peng, Quesnelle, Fan, and Shippole]{peng2023yarn}
+B.~Peng, J.~Quesnelle, H.~Fan, and E.~Shippole.
+\newblock Yarn: Efficient context window extension of large language models.
+\newblock \emph{arXiv preprint arXiv:2309.00071}, 2023.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, et~al.]{radford2021learning}
+A.~Radford, J.~W. Kim, C.~Hallacy, A.~Ramesh, G.~Goh, S.~Agarwal, G.~Sastry, A.~Askell, P.~Mishkin, J.~Clark, et~al.
+\newblock Learning transferable visual models from natural language supervision.
+\newblock In \emph{International conference on machine learning}, pages 8748--8763. PMLR, 2021.
+
+\bibitem[Rajpurkar et~al.(2018)Rajpurkar, Jia, and Liang]{rajpurkar2018know}
+P.~Rajpurkar, R.~Jia, and P.~Liang.
+\newblock Know what you don't know: Unanswerable questions for squad.
+\newblock \emph{arXiv preprint arXiv:1806.03822}, 2018.
+
+\bibitem[Reddy et~al.(2019)Reddy, Chen, and Manning]{reddy2019coqa}
+S.~Reddy, D.~Chen, and C.~D. Manning.
+\newblock Coqa: A conversational question answering challenge.
+\newblock \emph{Transactions of the Association for Computational Linguistics}, 7:\penalty0 249--266, 2019.
+
+\bibitem[Roemmele et~al.(2011)Roemmele, Bejan, and Gordon]{copa}
+M.~Roemmele, C.~A. Bejan, and A.~S. Gordon.
+\newblock Choice of plausible alternatives: An evaluation of commonsense causal reasoning.
+\newblock In \emph{2011 AAAI Spring Symposium Series}, 2011.
+
+\bibitem[Ruoss et~al.(2023)Ruoss, Del{\'e}tang, Genewein, Grau-Moya, Csord{\'a}s, Bennani, Legg, and Veness]{ruoss2023randomized}
+A.~Ruoss, G.~Del{\'e}tang, T.~Genewein, J.~Grau-Moya, R.~Csord{\'a}s, M.~Bennani, S.~Legg, and J.~Veness.
+\newblock Randomized positional encodings boost length generalization of transformers.
+\newblock \emph{arXiv preprint arXiv:2305.16843}, 2023.
+
+\bibitem[Sakaguchi et~al.(2021)Sakaguchi, Bras, Bhagavatula, and Choi]{sakaguchi2021winogrande}
+K.~Sakaguchi, R.~L. Bras, C.~Bhagavatula, and Y.~Choi.
+\newblock Winogrande: An adversarial winograd schema challenge at scale.
+\newblock \emph{Communications of the ACM}, 64\penalty0 (9):\penalty0 99--106, 2021.
+
+\bibitem[Shi et~al.(2023)Shi, Min, Lomeli, Zhou, Li, Lin, Smith, Zettlemoyer, Yih, and Lewis]{shi2023context}
+W.~Shi, S.~Min, M.~Lomeli, C.~Zhou, M.~Li, V.~Lin, N.~A. Smith, L.~Zettlemoyer, S.~Yih, and M.~Lewis.
+\newblock In-context pretraining: Language modeling beyond document boundaries.
+\newblock \emph{arXiv preprint arXiv:2310.10638}, 2023.
+
+\bibitem[Smith(2017)]{smith2017cyclical}
+L.~N. Smith.
+\newblock Cyclical learning rates for training neural networks.
+\newblock In \emph{2017 IEEE winter conference on applications of computer vision (WACV)}, pages 464--472. IEEE, 2017.
+
+\bibitem[Soldaini et~al.(2024)Soldaini, Kinney, Bhagia, Schwenk, Atkinson, Authur, Bogin, Chandu, Dumas, Elazar, Hofmann, Jha, Kumar, Lucy, Lyu, Lambert, Magnusson, Morrison, Muennighoff, Naik, Nam, Peters, Ravichander, Richardson, Shen, Strubell, Subramani, Tafjord, Walsh, Zettlemoyer, Smith, Hajishirzi, Beltagy, Groeneveld, Dodge, and Lo]{dolma}
+L.~Soldaini, R.~Kinney, A.~Bhagia, D.~Schwenk, D.~Atkinson, R.~Authur, B.~Bogin, K.~Chandu, J.~Dumas, Y.~Elazar, V.~Hofmann, A.~H. Jha, S.~Kumar, L.~Lucy, X.~Lyu, N.~Lambert, I.~Magnusson, J.~Morrison, N.~Muennighoff, A.~Naik, C.~Nam, M.~E. Peters, A.~Ravichander, K.~Richardson, Z.~Shen, E.~Strubell, N.~Subramani, O.~Tafjord, P.~Walsh, L.~Zettlemoyer, N.~A. Smith, H.~Hajishirzi, I.~Beltagy, D.~Groeneveld, J.~Dodge, and K.~Lo.
+\newblock {Dolma: an Open Corpus of Three Trillion Tokens for Language Model Pretraining Research}.
+\newblock \emph{arXiv preprint}, 2024.
+
+\bibitem[Su et~al.(2024)Su, Ahmed, Lu, Pan, Bo, and Liu]{su2024roformer}
+J.~Su, M.~Ahmed, Y.~Lu, S.~Pan, W.~Bo, and Y.~Liu.
+\newblock Roformer: Enhanced transformer with rotary position embedding.
+\newblock \emph{Neurocomputing}, 568:\penalty0 127063, 2024.
+
+\bibitem[Touvron et~al.(2023{\natexlab{a}})Touvron, Lavril, Izacard, Martinet, Lachaux, Lacroix, Rozi{\`e}re, Goyal, Hambro, Azhar, et~al.]{llama1}
+H.~Touvron, T.~Lavril, G.~Izacard, X.~Martinet, M.-A. Lachaux, T.~Lacroix, B.~Rozi{\`e}re, N.~Goyal, E.~Hambro, F.~Azhar, et~al.
+\newblock Llama: Open and efficient foundation language models.
+\newblock \emph{arXiv preprint arXiv:2302.13971}, 2023{\natexlab{a}}.
+
+\bibitem[Touvron et~al.(2023{\natexlab{b}})Touvron, Martin, Stone, Albert, Almahairi, Babaei, Bashlykov, Batra, Bhargava, Bhosale, et~al.]{llama2}
+H.~Touvron, L.~Martin, K.~Stone, P.~Albert, A.~Almahairi, Y.~Babaei, N.~Bashlykov, S.~Batra, P.~Bhargava, S.~Bhosale, et~al.
+\newblock Llama 2: Open foundation and fine-tuned chat models.
+\newblock \emph{arXiv preprint arXiv:2307.09288}, 2023{\natexlab{b}}.
+
+\bibitem[Tseng et~al.(2016)Tseng, Shen, Lee, and Lee]{tseng2016machine}
+B.-H. Tseng, S.-S. Shen, H.-Y. Lee, and L.-S. Lee.
+\newblock Towards machine comprehension of spoken content: Initial toefl listening comprehension test by machine, 2016.
+
+\bibitem[Vari{\v{s}} and Bojar(2021)]{varivs2021sequence}
+D.~Vari{\v{s}} and O.~Bojar.
+\newblock Sequence length is a domain: Length-based overfitting in transformer models.
+\newblock \emph{arXiv preprint arXiv:2109.07276}, 2021.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin]{vaswani2017attention}
+A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones, A.~N. Gomez, {\L}.~Kaiser, and I.~Polosukhin.
+\newblock Attention is all you need.
+\newblock \emph{Advances in neural information processing systems}, 30, 2017.
+
+\bibitem[Xiong et~al.(2023)Xiong, Liu, Molybog, Zhang, Bhargava, Hou, Martin, Rungta, Sankararaman, Oguz, et~al.]{xiong2023effective}
+W.~Xiong, J.~Liu, I.~Molybog, H.~Zhang, P.~Bhargava, R.~Hou, L.~Martin, R.~Rungta, K.~A. Sankararaman, B.~Oguz, et~al.
+\newblock Effective long-context scaling of foundation models.
+\newblock \emph{arXiv preprint arXiv:2309.16039}, 2023.
+
+\bibitem[Zellers et~al.(2019)Zellers, Holtzman, Bisk, Farhadi, and Choi]{zellers2019hellaswag}
+R.~Zellers, A.~Holtzman, Y.~Bisk, A.~Farhadi, and Y.~Choi.
+\newblock Hellaswag: Can a machine really finish your sentence?
+\newblock \emph{arXiv preprint arXiv:1905.07830}, 2019.
+
+\bibitem[Zhou et~al.(2024)Zhou, Alon, Chen, Wang, Agarwal, and Zhou]{zhou2024transformers}
+Y.~Zhou, U.~Alon, X.~Chen, X.~Wang, R.~Agarwal, and D.~Zhou.
+\newblock Transformers can achieve length generalization but not robustly.
+\newblock \emph{arXiv preprint arXiv:2402.09371}, 2024.
+
+\bibitem[Zhu et~al.(2023)Zhu, Yang, Wang, Song, Wu, Wei, and Li]{zhu2023pose}
+D.~Zhu, N.~Yang, L.~Wang, Y.~Song, W.~Wu, F.~Wei, and S.~Li.
+\newblock Pose: Efficient context window extension of llms via positional skip-wise training.
+\newblock \emph{arXiv preprint arXiv:2309.10400}, 2023.
+
+\end{thebibliography}

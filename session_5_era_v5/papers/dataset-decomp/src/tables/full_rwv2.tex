@@ -1,0 +1,27 @@
+\centering
+    \resizebox{0.99\columnwidth}{!}
+    {
+    \begin{tabular}{cc|ccc|cccc|ccc|cccc|ccc}
+    \toprule[1.5pt]
+         \multirow{2}{*}{\bf Size}& \multirow{2}{*}{\bf Method} & {\bf PIQA}& {\bf COPA}& {\bf OBQA}& {\bf LamOAI}& {\bf HelSwg}& {\bf WinG}& {\bf WinGE}& {\bf SQuaAD}& {\bf BoolQ}& {\bf CoQA}& {\bf Jeop}& {\bf ArcE}& {\bf ArcC}& {\bf WikiQA}& \multicolumn{3}{c}{\bf MDQA}\\
+         &&0-shot&0-shot&10-shots&0-shot&0-shot&3-shots&5-shots&3-shots&,0-shot&0-shot&3-shots&3-shots&3-shots&3-shots&10&20&30\\
+         \midrule[1pt]
+         
+         \multirow{2}{*}{160M} & Baseline &66.5&61&29.2&40.5&37.2&63.4&51.9&12.9&55.6&18.2&2.3&49.5&25.9&36.2&12.8&9.3&7.1\\
+        &DD&66.4&66&30.2&43.6&37.7&66.3&52.2&14.3&50.7&19.1&4.3&51.5&24&34&16.2&9.9&8.2\\
+        \midrule
+        
+        \multirow{2}{*}{410M} & Baseline &69.8&68&37.4&53.0&50.4&74.0&55.8&30.0&59.7&28.5&12.1&59&29.8&48.3&18.9&13.4&12\\
+        &DD&71.5&70&38&55.8&51.6&74.7&56.3&27&59.5&26.2&17.6&60.4&30.5&52.2&24.4&18.1&14\\
+        \midrule
+
+        \multirow{2}{*}{1B} & Baseline
+        &74.9&74&43.4&63&62.7&80.2&63.4&41.8&64.1&35.3&29.7&65.7&38.4&56.7&31.3&24.8&20.8\\
+        &DD&76.7&75&42.6&64.7&64.7&82.8&65&41.8&66.4&38.3&32.6&68.4&39.8&58.7&31.6&24.7&20.4\\
+
+        \bottomrule[1pt]
+    \end{tabular}
+        }
+    \caption{Small model performance trained on an improved refined-web pipeline applied to Common Crawl. All models are trained for a total of $2^{37}$ tokens.
+}
+    \label{tab:fullrw2}

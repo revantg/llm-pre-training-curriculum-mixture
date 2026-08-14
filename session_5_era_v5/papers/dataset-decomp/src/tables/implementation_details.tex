@@ -1,0 +1,19 @@
+\centering
+    \resizebox{0.99\linewidth}{!}
+    {
+    \begin{tabular}{c|c}
+    \toprule[1.5pt]
+      {\bf Optimizer} & AdamW\\
+      {\bf AdamW-$\beta_1$} & 0.9\\
+      {\bf AdamW-$\beta_2$} & 0.95\\
+      {\bf learning-rate schedule}& cosine+warmup\\
+      {\bf Maximum learning rate}& $3\times 10^{-3}$\\
+      {\bf cooldown learning rate}& $3\times 10^{-5}$\\
+      {\bf Warm-up steps}& 5000\\
+      {\bf Grad Norm Clipping} & 1.0\\
+      {\bf Global batchsize (num tokens per step)} & $2^{19}$\\
+      {\bf Weight Decay}& 0.1\\
+      {\bf Z-Loss Coefficient}& $10^{-4}$\\
+        \bottomrule[1pt]
+    \end{tabular}
+    }

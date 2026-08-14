@@ -1,0 +1,997 @@
+\section{Long Context Extension}
+\label{sec:longcontext}
+In this section, we focus on the long context extension phases in popular LLMs. 
+
+% \subsection{Background and Formulation}
+% \subsubsection{Self‑attention with Positional Encoding}
+% \label{sec:prelim-sa}
+
+% Let $\mathbb S_N=\{w_i\}_{i=1}^{N}$ be an $N$‑token sequence and
+% $\mathbb E_N=\{\mathbf x_i\}_{i=1}^{N}$ its word‑embedding vectors,
+% $\mathbf x_i\in\mathbb R^{d}$.  
+% Positional information is injected via task‑specific functions
+% $f_q,f_k,f_v$ that transform the \emph{content} embedding $\mathbf x_i$
+% and the \emph{position} index $i$ into query, key and value vectors:
+% \begin{equation}
+% \label{eq:qkv}
+% \mathbf q_{m}=f_q(\mathbf x_{m},m),\quad
+% \mathbf k_{n}=f_k(\mathbf x_{n},n),\quad
+% \mathbf v_{n}=f_v(\mathbf x_{n},n).
+% \end{equation}
+
+% Given \eqref{eq:qkv}, single‑head scaled dot‑product self‑attention
+% computes the weight of position $n$ when attending from position $m$:
+% \begin{equation}
+% \label{eq:attn-weights}
+% a_{m,n}\;=\;
+% \frac{\exp\bigl(\mathbf q_{m}^{\top}\mathbf k_{n}/\sqrt d\bigr)}
+%      {\displaystyle\sum_{j=1}^{N}\exp\bigl(\mathbf q_{m}^{\top}\mathbf k_{j}/\sqrt d\bigr)},
+% \qquad
+% \mathbf o_{m}\;=\;\sum_{n=1}^{N}a_{m,n}\,\mathbf v_{n},
+% \end{equation}
+% where $\mathbf o_{m}$ is the output representation for token $w_{m}$.
+
+% \subsubsection{Rotary Position Embedding (RoPE)}
+% \label{sec:rope}
+
+% Let $W_q,W_k\in\mathbb R^{d\times d}$ be the linear maps that turn a
+% content embedding $\mathbf x_m$ into \emph{base} query/key vectors
+% $\tilde{\mathbf q}_m=W_q\mathbf x_m$ and
+% $\tilde{\mathbf k}_m=W_k\mathbf x_m$.
+% RoPE applies a position‑dependent \emph{rotation} in each 2‑D
+% sub‑plane \emph{after} these linear projections:
+% \begin{align}\label{eq:rope-rotate-qk}
+% \mathbf q_m
+%     = f_q(\mathbf x_{m},m)
+%     = R^d_{\Theta,m}\,\tilde{\mathbf q}_m
+%     = R^d_{\Theta,m}\,W_q\mathbf x_m, 
+% \\
+% \mathbf k_n
+%     = f_k(\mathbf x_{n},n)
+%     = R^d_{\Theta,n}\,\tilde{\mathbf k}_n
+%     = R^d_{\Theta,n}\,W_k\mathbf x_n .
+% \end{align}
+
+% The rotation matrix $R^d_{\Theta,m}$ is defined as follows. 
+% Write the $d$‑dimensional rotation as the block‑diagonal matrix
+% \begin{equation}
+% R^d_{\Theta,m}
+% =\bigoplus_{j=1}^{d/2}
+% \begin{pmatrix}
+% \cos m\theta_j & -\sin m\theta_j\\
+% \sin m\theta_j &  \cos m\theta_j
+% \end{pmatrix},
+% \label{eq:R-block}
+% \end{equation}
+% where $\bigoplus$ concatenates the $2{\times}2$ rotation blocks along the embedding dimension, 
+% $\Theta=\bigl\{ \theta_{j}, j\in[1,,2,\dots,d/2] \bigr\}$, 
+% and each block rotates a pair
+% $\bigl(\tilde q_{m,2j-1},\tilde q_{m,2j}\bigr)$ (and likewise for
+% $\tilde{\mathbf k}_n$) by the phase
+% \[
+% \theta_j = b^{-\frac{2(j-1)}{d}}, \qquad b=10000, 
+% \qquad j=1,\dots,d/2 .
+% \]
+
+% The relative‑position property is as follows. 
+% Because $R^d_{\Theta,m}$ is orthogonal and
+% $R^d_{\Theta,m}^{\top} R^d_{\Theta,n}=R^d_{\Theta,{m-n}}$,
+% the dot product inside scaled self‑attention becomes
+% \begin{equation}\label{eq:rope-relative}
+% \mathbf q_m^{\top}\mathbf k_n
+%   = \tilde{\mathbf q}_m^{\top} R^d_{\Theta_{m-n}} \tilde{\mathbf k}_n ,
+%   = \mathbf x_{m}^{\top} W_q^{\top} R^d_{\Theta_{m-n}} W_k {\mathbf x}_n
+% \end{equation}
+% which depends only on the \emph{relative} position $m-n$.
+% This invariance enables extrapolation to context lengths well beyond
+% those seen during pre‑training.
+
+\subsection{Background and Formulation}
+\subsubsection{Self‑attention with Positional Encoding}
+\label{sec:prelim-sa}
+
+We briefly fix notation and recall scaled dot–product self‑attention.
+Let $\mathbb S_N=\{w_i\}_{i=1}^{N}$ be an $N$‑token sequence and
+$\mathbb E_N=\{\mathbf x_i\}_{i=1}^{N}$ the corresponding token embeddings with
+$\mathbf x_i\in\mathbb R^{d}$.
+To inject order information, we use task‑specific maps
+$f_q,f_k,f_v$ that take the \emph{content} embedding $\mathbf x_i$ together with its
+\emph{position} index $i$ and produce the query, key and value vectors:
+\begin{equation}
+\label{eq:qkv}
+\mathbf q_{m}=f_q(\mathbf x_{m},m),\quad
+\mathbf k_{n}=f_k(\mathbf x_{n},n),\quad
+\mathbf v_{n}=f_v(\mathbf x_{n},n).
+\end{equation}
+Given \eqref{eq:qkv}, single‑head scaled dot–product attention from position $m$ to all
+positions $n\in\{1,\dots,N\}$ computes
+\begin{equation}
+\label{eq:attn-weights}
+a_{m,n}\;=\;
+\frac{\exp\!\bigl(\mathbf q_{m}^{\top}\mathbf k_{n}/\sqrt d\bigr)}
+     {\displaystyle\sum_{j=1}^{N}\exp\!\bigl(\mathbf q_{m}^{\top}\mathbf k_{j}/\sqrt d\bigr)},
+\qquad
+\mathbf o_{m}\;=\;\sum_{n=1}^{N}a_{m,n}\,\mathbf v_{n},
+\end{equation}
+where $\mathbf o_m$ denotes the output at token $w_m$.
+For clarity, we omit the (standard) causal mask and multi‑head split; all subsequent
+derivations apply per head identically.
+
+\subsubsection{Rotary Position Embedding (RoPE)}
+\label{sec:rope}
+
+RoPE encodes positions by \emph{rotating} the query/key vectors in a set of
+two‑dimensional sub‑planes of the embedding space.
+Let $W_q,W_k\in\mathbb R^{d\times d}$ denote the linear maps that first produce the
+\emph{base} query/key vectors
+$\tilde{\mathbf q}_m=W_q\mathbf x_m$ and $\tilde{\mathbf k}_n=W_k\mathbf x_n$.
+A position‑dependent rotation is applied after the projections:
+\begin{align}\label{eq:rope-rotate-qk}
+\mathbf q_m
+    = f_q(\mathbf x_{m},m)
+    = R^d_{\Theta,m}\,\tilde{\mathbf q}_m
+    = R^d_{\Theta,m}\,W_q\mathbf x_m, 
+\\
+\mathbf k_n
+    = f_k(\mathbf x_{n},n)
+    = R^d_{\Theta,n}\,\tilde{\mathbf k}_n
+    = R^d_{\Theta,n}\,W_k\mathbf x_n .
+\end{align}
+Here $R^d_{\Theta,m}$ is an orthogonal block‑diagonal rotation that acts independently
+on $d/2$ disjoint 2‑D sub‑planes:
+\begin{equation}
+\label{eq:R-block}
+R^d_{\Theta,m}
+=\bigoplus_{j=1}^{d/2}
+\begin{pmatrix}
+\cos(m\theta_j) & -\sin(m\theta_j)\\
+\sin(m\theta_j) &  \cos(m\theta_j)
+\end{pmatrix},
+\end{equation}
+where $\bigoplus$ concatenates the $2{\times}2$ blocks along the embedding dimension,
+$\Theta=\{\theta_{j}\mid j=1,2,\dots,d/2\}$ is the set of base angular frequencies, and
+each block rotates the coordinate pair
+$\bigl(\tilde q_{m,2j-1},\tilde q_{m,2j}\bigr)$ (and analogously for
+$\tilde{\mathbf k}_n$).
+The original RoPE schedule sets
+\[
+\theta_j = b^{-\frac{2(j-1)}{d}}, \qquad b=10000, \qquad j=1,\dots,d/2 .
+\]
+Intuitively, the $j$‑th 2‑D sub‑plane behaves like a complex plane whose phase advances
+linearly with the position index $m$ at rate $\theta_j$.
+
+A crucial property of RoPE is that inner products of rotated vectors depend only on
+\emph{relative} positions. Because $R^d_{\Theta,m}$ is orthogonal and
+${R^d_{\Theta,m}}^{\top} R^d_{\Theta,n}=R^d_{\Theta,{m-n}}$, 
+the attention dot‑product becomes
+\begin{equation}\label{eq:rope-relative}
+\mathbf q_m^{\top}\mathbf k_n
+  = \tilde{\mathbf q}_m^{\top} R^d_{\Theta,{m-n}} \tilde{\mathbf k}_n
+  = \mathbf x_{m}^{\top} W_q^{\top} R^d_{\Theta,{m-n}} W_k\,\mathbf x_n ,
+\end{equation}
+which depends only on the displacement $m-n$.
+This relative‑position invariance is at the heart of many long‑context strategies:
+with suitable frequency remapping, models trained at a certain window length can
+generalize to much longer contexts during fine‑tuning or inference.
+
+% ---------------------------------------------------------------
+%  Generic RoPE extrapolation: only the frequency map h(θd) varies
+% ---------------------------------------------------------------
+\subsection{A Unified Overview of Context Extension Methods}
+% \subsubsection{Generic frequency–remapping template}
+\label{sec:rope-h-only}
+
+% Unified long-context frequency-scaling table (drop-in snippet)
+% Requires: \usepackage{booktabs}
+\begin{table*}[t]
+\centering
+\small
+\caption{Unified frequency-scaling view of long-context families (fix absolute index $g(m)=m$). Let $s=L_{\text{new}}/L_{\text{train}}$. All methods differ only in how they remap RoPE base frequencies $\theta \mapsto h(\theta)$; attention uses $\cos(m\,h(\theta)),\sin(m\,h(\theta))$.}
+\label{tab:unified-h-theta}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{2cm} p{4.6cm} p{2.7cm} p{4.8cm} p{4.8cm} p{4.8cm}}
+\toprule
+\textbf{Family} & \textbf{Unified map $h(\theta)$} & \textbf{Extra stabilizer} & \textbf{Fixes vs previous} & \textbf{Pros} & \textbf{Cons} \\
+\midrule
+PI (Positional Interpolation)
+& $h(\theta)=\theta/s$ \, (uniform) 
+& None
+& Avoids naive extrapolation by compressing positions into the seen range
+& Conceptually simple; light tuning; robust up to moderate $s$
+& Uniform compression hurts high-frequency (local) signals; short-context quality may drop at large $s$ \\
+\addlinespace
+NTK-aware (ABF-style)
+& $h(\theta)=\theta/s^{\rho(\theta)}$, with $\rho(\theta)\!\in[0,1]$ increasing toward low frequencies
+& None
+& Reduces long-range attention decay vs.\ PI while keeping more locality
+& Better locality/short-length retention than PI; works with minimal tuning
+& Hyperparameter coupling (e.g., target length vs.\ curvature); mid-band still mixes interp/extrap \\
+\addlinespace
+NTK-by-part (piecewise)
+& $\displaystyle
+h(\theta)=\begin{cases}
+\theta & \text{(high freq)}\\[2pt]
+\theta/s & \text{(low freq)}\\[2pt]
+\theta/s^{\rho(\theta)} & \text{(mid freq)}
+\end{cases}$
+& None
+& Preserves the shortest wavelengths (local detail) while still extending range
+& Strong short-context preservation; cleaner trade-off across bands
+& More boundaries/knobs to set; modest tuning often needed \\
+\addlinespace
+YaRN
+& Same piecewise $h(\theta)$ as NTK-by-part
+& Length-dependent logit temperature / scaling $t(s)$
+& Stabilizes loss/perplexity for fast extension; reduces data/steps vs.\ prior methods
+& Efficient route to 32k–128k; robust convergence with few steps
+& Extra temperature and schedule to choose; still handcrafted frequency policy \\
+\addlinespace
+LongRoPE
+& Non-uniform $h(\theta)$ discovered by search; applied progressively (stages)
+& Progressive extension + short-length readjustment
+& Surpasses handcrafted rules by optimizing $h$; avoids catastrophic angles at ultra-long lengths
+& Reaches $\sim$\,2M context with limited extra steps; recovers short-length performance
+& Pipeline complexity (search + stages + readjustment); fewer closed-form guarantees \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-4pt}
+\end{table*}
+
+\noindent\textbf{Goal.} We present a \emph{single} formulation that covers five representative long-context families---\textbf{PI}, \textbf{NTK}, \textbf{NTK-by-part}, \textbf{YaRN}, and \textbf{LongRoPE}---while keeping the \emph{absolute position} fixed. This isolates what changes in all methods: the \emph{frequency spectrum} used by RoPE.
+
+\noindent\textbf{Unified formulation for context extension.}
+We introduce a single scalar function
+\[
+  h:\theta_j \;\mapsto\; h(\theta_j)
+\]
+that rescales each base frequency $\theta_j$.  
+Any of these extended‑context position embedding $f'$ can be expressed with the original rope embedding $f$ as 
+\begin{equation}
+  f^{\prime}_W(\mathbf x_m,m,\theta_j)
+  \;=\;
+  f_W\!\bigl(\mathbf x_m,\,m,\,h(\theta_j)\bigr)
+  \;=\;
+  \mathbf R_{h(\theta_j),m}\,W\,\mathbf x_m, 
+  \label{eq:rope-extrapol-h}
+\end{equation}
+where $W\in \{W_q, W_k\}$. These methods are summarize in Table~\ref{tab:unified-h-theta}.
+
+% The \emph{scale factor} $s$ is defined as 
+% $
+%     s = L_{\text{target}} / L_{\text{train}}, 
+%     \label{eq:scale-h}
+% $
+% where $L_{\text{train}}$ is the pre‑training window and
+% $L_{\text{target}}>L_{\text{train}}$ is the desired length. 
+
+% The \emph{wavelength} $\lambda_j$ is defined as the number of tokens
+% required to complete a full $2\pi$ rotation:
+% $
+%   \lambda_j
+%   \;=\;
+%   2\pi/\theta_j
+%   \;=\;
+%   2\pi\,b^{2(j-1)/d},
+%   \label{eq:wavelength}
+% $
+% for every two‑dimensional rotary sub‑plane indexed by $j$
+% ($j=1,\dots,\tfrac{d}{2}$, and $d$ is the embedding dimension),
+% and $\theta_j$ is its base angular frequency
+% (cf.\ Eq.~\eqref{eq:rope-extrapol-h}; typically
+% $\theta_j=b^{-2(j-1)/d}$ with $b=10\,000$).  
+% Smaller $\theta_j$ (i.e.\ larger $\lambda_j$) correspond to
+% lower‑frequency dimensions, while larger $\theta_j$ yield
+% high‑frequency dimensions that rotate more rapidly across positions.
+
+% \begin{figure*}[t]
+%   \centering
+%   \subfloat[$h(\theta_j)$]{\includegraphics[width=.32\linewidth]{CompassLLM/figures/4_long_context/Effective_Frequency.png}\label{fig:freq-map}}
+%   \hfill
+%   \subfloat[$\lambda_j$]{\includegraphics[width=.32\linewidth]{CompassLLM/figures/4_long_context/Effective_wavelength.png}\label{fig:wavelengths}}
+%   \hfill
+%   \subfloat[$h(\theta_j)/\theta_j$]{\includegraphics[width=.32\linewidth]{CompassLLM/figures/4_long_context/Relative_Frequency_Scaling.png}\label{fig:scaling-ratio}}
+%   \caption{\centering Comparison of frequency remapping schemes.}
+%   \label{fig:context-extension-suite}
+% \end{figure*}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{4_Relative_Frequency_Scaling.png}
+    \caption{Comparison of frequency remapping schemes.}
+    \label{fig:scaling-ratio}
+\end{figure}
+
+As shown in Fig.~\ref{fig:scaling-ratio}, all concrete methods now differ \emph{only} by their choice of
+$h(\theta_j)$ as a (possibly $j$‑dependent) function of $s$.
+% Typical examples to be instantiated later are
+% \[
+%   \begin{aligned}
+%     h_{\text{PI}}(\theta_j)   &= \theta_j/s,\\
+%     h_{\text{NTK}}(\theta_j)  &= \theta_j\,s^{-\gamma_j},\\
+%     h_{\text{NTP}}(\theta_j)  &= (1-\gamma)\,\theta_j/s+\gamma\,\theta_j,
+%   \end{aligned}
+% \]
+% where $\gamma_j$ or $\gamma$ encode dimension‑specific heuristics.
+% Plugging any $h(\theta_j)$ into
+% Eq.~\eqref{eq:rope-extrapol-h} yields the full forward rule for
+% $\mathbf q_m$ and $\mathbf k_n$ at the extended context length.
+
+\subsubsection{Position Interpolation (PI)}
+Position Interpolation rescales absolute positions when evaluating sequences longer than the pre‑training window~\cite{chen2023extending}.  Let $L_{\text{train}}$ and $L_{\text{target}}>L_{\text{train}}$ be the maximum lengths during training and inference. 
+
+Each position $m$ is mapped to
+$
+m'=\alpha m,\qquad \alpha=(L_{\text{train}}-1)/(L_{\text{target}}-1),
+\label{eq:pi_scale}
+$ and $h_{\text{PI}}(\theta_j),m$ is defined as 
+$$h_{\text{PI}}(\theta_j)=\alpha \theta_j.$$ 
+\begin{definition}[Position Interpolation]\label{def:pi}
+\begin{equation}
+  f_W^{\text{PI}}(\mathbf x_m,m,\theta_j)
+  \;=\;
+  \mathbf R_{h_{\text{PI}}(\theta_j),m}\,
+  W\,\mathbf x_m 
+  % \;=\;
+  % \mathbf R_{\alpha h(\theta_j),m}\
+  % W\,\mathbf x_m
+  \label{eq:pi-final}
+\end{equation}
+ This equals to setting the rotary angle $h(\theta_j)$ to $\alpha \theta_j$ in Eq.~\eqref{eq:rope-extrapol-h}.  This preserves the overall frequency range while re‑using trained low‑frequency dimensions. PI is easy to implement, but it compresses frequency bands uniformly and might affect the model performance in short problems.
+\end{definition}
+
+\subsubsection{Neural Tangent Kernel (NTK) -aware Interpolation}
+Inspired by NTK theory~\cite{tancik2020fourier}, the neural networks have trouble learning high‑frequency information when the input dimension is low. This might be the reason why the perplexity of PI deteriorates a bit.
+
+To solve the problem of losing high-frequency information, the NTK-aware~\cite{bloc97_ntk_rope_2023} interpolation is developed. The idea is to extend the low-frequency dimensions more and the high-frequency dimensions less.
+
+With the scale factor
+$
+  s=L_{\text{target}}/L_{\text{train}}\;>1,
+$
+define
+$
+  b' \;=\; b \, s^{d/(d-2)},
+  \label{eq:ntk-base}
+$
+and set the frequency‑remapping function to
+\begin{equation}
+  h_{\text{NTK}}(\theta_j)
+  \;=\;
+  (b')^{-\tfrac{2j}{d}},
+  \qquad
+  j=0,\dots,d/2 .
+  \label{eq:ntk-h}
+\end{equation}
+
+\begin{definition}[NTK‑aware interpolation]\label{def:ntk-aware}
+Using $g(m)=m$ and the map $h_{\text{NTK}}$ in
+Eq.~\eqref{eq:rope-extrapol-h} yields
+\begin{equation}
+  f_W^{\text{NTK}}(\mathbf x_m,m,\theta_j)
+  \;=\;
+  \mathbf R_{h_{\text{NTK}}(\theta_j),m}\,
+  W\,\mathbf x_m .
+  \label{eq:ntk-final}
+\end{equation}
+\end{definition}
+
+Equation~\eqref{eq:ntk-h} spreads the interpolation pressure across
+dimensions as shown in Figure~\ref{fig:scaling-ratio}: low‑frequency dimensions (small $j$) receive a larger
+scaling $h(\theta_j)/\theta_j$, while high‑frequency ones are
+affected less, thereby preserving fine‑grained relative information
+and reducing perplexity degradation at long context lengths. But it still blends interpolation/extrapolation in mid frequencies and affects performance under short context. 
+
+
+\subsubsection{NTK‑by‑parts Interpolation}
+\label{sec:ntk-by-parts}
+
+Recall the wavelength of the $j$‑th rotary pair:
+\[
+  \lambda_j = 2\pi\,b^{\tfrac{2(j-1)}{d}},
+  \qquad j = 1,\dots,\tfrac{d}{2}.
+\]
+
+Given a context size, some dimensions $j$ have a wavelength $\lambda_j$ longer than the maximum context length seen during the pretraining, so these dimensions' embeddings might not be trained on some part of the rotational domains. In such cases, these dimensions all have unique position pairs, making them behave like absolute position embeddings. 
+
+For other dimensions, all tokens become closer to each other, so the dot product of two vectors rotated by a lesser amount is bigger. This has a negative impact on the LLM's ability to understand small local relationships between nearby embeddings. 
+
+So for dimensions with wavelength smaller than context size, we do not interpolate; for wavelengths bigger than the context size, we only interpolate and avoid extrapolations, unlike the NTK-aware method; for dimensions in-between, we extrapolate like the NTK-ware method. 
+
+\noindent\textbf{Relative ratio:}
+Let $L$ be the pre‑training context length.  
+Define the dimension‑specific ratio
+\begin{equation}
+  r(j)
+  \;=\;
+  \frac{L}{\lambda_j}
+  \;=\;
+  \frac{L}{2\pi\,b^{\tfrac{2(j-1)}{d}}}.
+  \label{eq:ratio-r}
+\end{equation}
+Intuitively, $r(j)$ measures how many full rotary periods fit inside
+the training window for dimension~$j$.
+
+\noindent\textbf{Ramp (mask) function:}
+Choose two hyper‑parameters $\alpha<\beta$ that delimit three
+frequency regimes and define
+\begin{equation}
+  \gamma\!\bigl(r(j)\bigr)
+  \;=\;
+  \begin{cases}
+    0, & r(j)<\alpha,\\[6pt]
+    1, & r(j)>\beta,\\[6pt]
+    \dfrac{r(j)-\alpha}{\beta-\alpha}, & \text{otherwise}.
+  \end{cases}
+  \label{eq:ramp}
+\end{equation}
+Thus $\gamma=0$ flags \emph{low‑frequency} dimensions
+($\lambda_j\!>\!L/\alpha$), $\gamma=1$ flags
+\emph{high‑frequency} dimensions
+($\lambda_j\!<\!L/\beta$), and the linear middle section creates a
+smooth transition.
+
+\noindent\textbf{Frequency map:}
+With scale factor $s\!=\!L_{\text{target}}/L_{\text{train}}>1$, set
+\begin{equation}
+  h_{\text{NTP}}(\theta_j)
+  \;=\;
+  \bigl(1-\gamma(r(j))\bigr)\,\frac{\theta_j}{s}
+  \;+\;
+  \gamma(r(j))\,\theta_j,
+  \label{eq:h-ntp}
+\end{equation}
+which \emph{interpolates} low‑frequency dimensions by the factor
+$1/s$ (PI‑like) while \emph{leaving} high‑frequency dimensions
+unchanged; mid‑range dimensions receive a weighted mix, as shown in Figure~\ref{fig:scaling-ratio}. 
+
+\begin{definition}[NTK‑by‑parts interpolation]\label{def:ntk-by-parts}
+Using $g(m)=m$ and the map $h_{\text{NTP}}$ from
+Eq.~\eqref{eq:h-ntp} in the generic template
+Eq.~\eqref{eq:rope-extrapol-h} yields
+\begin{equation}
+  f_W^{\text{NTP}}(\mathbf x_m,m,\theta_j)
+  \;=\;
+  \mathbf R_{\,m\,h_{\text{NTP}}(\theta_j)}\,W\,\mathbf x_m .
+  \label{eq:ntp-final}
+\end{equation}
+\end{definition}
+
+Recommended defaults for LLaMA‑family models are
+$\alpha=1$ and $\beta=32$; these can be tuned per architecture
+and target length.
+
+\subsubsection{YaRN}
+\label{sec:yarn}
+
+YaRN augments the \textit{NTK‑by‑parts} frequency map
+$h_{\text{NTP}}(\theta_j)$ (Sec.~\ref{sec:ntk-by-parts}) with a
+\emph{temperature} $t>0$ applied to the attention logits:
+\begin{equation}
+  \operatorname{softmax}\!\Bigl(
+     \tfrac{\mathbf q_m^{\top}\mathbf k_n}{\,t\sqrt{d}\,}
+  \Bigr),
+  \label{eq:yarn-softmax}
+\end{equation}
+where $d$ is the model dimension.
+Empirically, the following scale‑dependent rule provides near‑optimal
+perplexity across LLaMA‑family models:
+\begin{equation}
+  \sqrt{\smash[b]{\tfrac1t}}
+  \;=\;
+  \alpha(s)
+  \;=\;
+  0.1\,\ln s + 1,
+  \qquad
+  s=\frac{L_{\text{target}}}{L_{\text{train}}}>1 .
+  \label{eq:yarn-alpha}
+\end{equation}
+Hence $t=\alpha(s)^{-2}$.
+
+\noindent\textbf{Implementation via length scaling:}
+Because RoPE can be viewed as a bank of $2\times2$ rotation matrices,
+Eq.~\eqref{eq:yarn-softmax} is equivalent to scaling the \emph{RoPE
+embeddings themselves}:
+\[
+  \mathbf q_m^{\text{YaRN}}
+    \;=\;
+    \alpha(s)\,
+    \mathbf q_m^{\text{NTP}},
+  \qquad
+  \mathbf k_n^{\text{YaRN}}
+    \;=\;
+    \alpha(s)\,
+    \mathbf k_n^{\text{NTP}},
+\]
+where $\mathbf q^{\text{NTP}}$ and $\mathbf k^{\text{NTP}}$ use the
+frequency remapping $h_{\text{NTP}}(\theta_j)$ from
+Eq.~\eqref{eq:h-ntp}.  
+No changes to the attention kernel are required; RoPE embeddings are
+scaled once and cached for all forward passes.
+
+\begin{definition}[YaRN]\label{def:yarn}
+Combine
+\[
+  g(m)=m,\quad
+  h(\theta_j)=h_{\text{NTP}}(\theta_j),\quad
+  \text{and}\quad
+  \alpha(s)\text{ from Eq.~\eqref{eq:yarn-alpha}}
+\]
+to obtain
+\begin{equation}
+  f_W^{\text{YaRN}}(\mathbf x_m,m,\theta_j)
+  \;=\;
+  \alpha(s)\,
+  \mathbf R_{\,m\,h_{\text{NTP}}(\theta_j)}\,
+  W\,\mathbf x_m.
+  \label{eq:yarn-final}
+\end{equation}
+\end{definition}
+
+Recommended values for Eq.~\eqref{eq:yarn-alpha} were obtained by
+fitting $\alpha(s)$ on LLaMA‑7B/13B/65B for scale factors
+$s\!\in\![1,512]$ without fine‑tuning; the same rule transfers well
+to Llama‑2 models (7B, 13B, 70B).\footnote{%
+  For alternative kernels such as Flash‑Attention 2 the same
+  embedding‑side scaling applies because the softmax temperature in
+  Eq.~\eqref{eq:yarn-softmax} is absorbed into $\alpha(s)$.} 
+YaRN proves itself in many models, but it still requires extra hyperparameter tuning for $\alpha(s)$. 
+
+\subsubsection{LongRoPE}
+\label{sec:longrope}
+
+Unlike PI, NTK-aware or YaRN—which apply a \emph{global}
+dimension-wise rule—\textbf{LongRoPE}~\cite{ding2024longrope}  learns a \emph{token-dependent}
+scale for every rotary sub-plane.  
+Let \(P=\{p_0,p_1,\dots,p_K\}\) be a set of \emph{anchor} positions
+with \(0=p_0<\dots<p_K=L_{\text{target}}\).
+For each dimension \(j\in[1,\tfrac{d}{2}]\) and every interval
+\([p_k,p_{k+1})\) we introduce a learnable scale
+\(\sigma_{j,k}>0\).
+The frequency map therefore becomes a piece-wise constant function
+\begin{equation}
+  h_{\text{LR}}\bigl(\theta_j,m\bigr)
+  \;=\;
+  \sigma_{j,k}\,\theta_j,
+  \qquad
+  p_k\le m < p_{k+1}.
+  \label{eq:h-longrope}
+\end{equation}
+
+\noindent\textbf{Optimisation objective:}
+Given the pretrained attention logits
+\(z_{m,n}=\mathbf q_m^{\top}\mathbf k_n\)
+(\(L_{\text{train}}\!\times\!L_{\text{train}}\) region),
+LongRoPE selects \(\{\sigma_{j,k}\}\) by minimising the discrepancy
+between the original logits and those produced with the scaled RoPE:
+\begin{equation}
+  \min_{\{\sigma_{j,k}\}}
+  \; \mathbb{E}_{(m,n)\sim\mathcal D}
+  \bigl\|
+    z_{m,n}
+    -\tilde z_{m,n}
+  \bigr\|_2^2,
+  \label{eq:longrope-loss}
+\end{equation}
+where \(\tilde z_{m,n}\) is obtained from
+Eq.~\eqref{eq:rope-extrapol-h} with
+\(h(\theta_j)=h_{\text{LR}}(\theta_j,m)\).
+The sampling distribution \(\mathcal D\) mixes pairs
+\((m,n)\) \emph{within} pre-training window
+(\(m,n<L_{\text{train}}\)) and \emph{out-of-window}
+pairs (\(m\) or \(n\ge L_{\text{train}}\)); this encourages model
+to preserve short-range behaviour while smoothly extending to
+\(L_{\text{target}}\).
+
+\noindent\textbf{Search procedure:}
+The resulting multidimensional, non-uniform interpolation is cast as a
+search problem over the discrete grid \(P\):
+LongRoPE performs coordinate-wise optimisation (or Bayesian search)
+until convergence, then caches the \(\sigma_{j,k}\) table for use at
+inference time.  
+In practice \(K\!\ll\!L_{\text{target}}\) (e.g.\ anchors every 512
+tokens), so memory overhead is negligible.
+
+LongRoPE is more capable since it learns the parameter \(\sigma_{j,k}>0\) from the data and preserves original short-length quality, but it requires high-quality data for the adjustment process, and has a complex pipeline. 
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Context extension at a glance. Tags: \textit{Context Extension} = frequency remapping \(h(\cdot)\) plus optional length/temperature scaling (e.g., YaRN); Arch.\ = architectural assists.}
+\label{tab:ctx-ext-at-a-glance}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{p{3.5cm}lllp{4.2cm}}
+\toprule
+Model & Max Len & Context Extension & Arch. & Datasets for long-context \\
+\midrule
+Nemotron-4 15B~\cite{parmar2024nemotron} & 4k & RoPE (native) & — & N/A \\
+Gemma 1 (7B) & 8k & RoPE (native) & — & N/A \\
+InternLM2~\cite{cai2024internlm2} & 32k & ABF & — & Book, patent, paper, CC. \\
+MiniCPM-128K~\cite{hu2024minicpm} & 128k & ABF + NTK-aware & — & — \\
+Phi-3-Mini~\cite{abdin2024phi3} & 128k & LongRoPE~\cite{ding2024longrope} & BlocksparseAttn & — \\
+DeepSeek-V2~\cite{liu2024deepseek} & 128k & YaRN & MLA, MoE & — \\
+Zamba-v1~\cite{glorioso2024zamba} & 4k & RoPE (native) & Hybrid ssm/global 6:1 & — \\
+MAP-Neo~\cite{Zhang2024MAPNeoHC} & 8k & RoPE (native) & — & — \\
+Nemotron-4 340B~\cite{adler2024nemotron} & 4k & RoPE (native) & — & N/A \\
+AFM~\cite{gunter2024apple} & 32k & ABF & — & — \\
+Llama-3.1~\cite{Dubey2024TheL3} & 128k & ABF + YaRN~\cite{peng2023yarn} & — & — \\
+Gemma 2~\cite{team2024gemma} & 8k & RoPE (native) & Interleave local/global 1:1 & N/A \\
+Granite 3.0~\cite{granite2024granite} & 4k & RoPE (native) & — & N/A \\
+Hunyuan-Large~\cite{sun2024hunyuan} & 256k & ABF & MoE & 25\% Book, Code \\
+Yi-Lightning~\cite{wake2024yi} & 64k & ABF & Interleave local/global 3:1 & — \\
+Qwen-2.5/2.5-Turbo~\cite{Yang2024Qwen25TR} & 128k/1M & ABF +YaRN +DCA  & SparseAttn (Minference) & — \\
+DeepSeek-V3~\cite{DeepSeekAI2024DeepSeekV3TR} & 128k & YaRN & MLA, MoE & — \\
+OLMo-2~\cite{olmo20242} & 4k & RoPE (native) & — & N/A \\
+MiniMax-01~\cite{li2025minimax} & 4M & ABF & Interleave LightningAttn/global 7:1 & +10\% long QA late-stage \\
+Qwen-2.5-1M~\cite{yang2025qwen2} & 1M & ABF +YaRN +DCA & SparseAttn (Minference) & 40\% long +synthetic tasks \\
+SmolLM2~\cite{allal2025smollm2} & 8k & ABF & — & 40\% long data mix \\
+Gemma 3~\cite{team2025gemma} & 128k & ABF + PI & Interleave local/global 5:1 & — \\
+Llama-4 Scout~\cite{meta2025llama4} & 10M & NoPE/iRoPE + temp scale & Interleave local/global & — \\
+Phi-4~\cite{abdin2024phi} & 16k & ABF & — & +30\% curated long data \\
+MiMo-7B~\cite{xiaomi2025mimo} & 32k & ABF & — & — \\
+Qwen-3~\cite{yang2025qwen3} & 128k & ABF +YaRN +DCA & — & 75\% long data \\
+PANGU PRO MoE~\cite{tang2025pangu} & 32k & — & MoE & STEM/code-heavy later stages \\
+MiniCPM-4 8B~\cite{team2025minicpm4} & 128k & LongRoPE +YaRN & SparseAttn (InfLLM v2) & — \\
+Hunyuan-A13B & 256k & NTK-aware & MoE & — \\
+SmolLM3~\cite{bakouch2025smollm3} & 128k & ABF +YaRN & Interleave NoPE & math, code, reasoning-heavy \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+% ===============================================================
+% A Unified View of Context Extension (frequency maps h(θ_j))
+% ===============================================================
+\subsubsection{A Unified View of Context Extension}
+\label{sec:unified-context-ext}
+
+For each rotary sub-plane \(j=1,\dots,\tfrac{d}{2}\) with base
+frequency \(\theta_j\) (wavelength \(\lambda_j=2\pi/\theta_j\)),
+and scale factor \(s=L_{\text{target}}/L_{\text{train}}>1\),
+the following frequency maps \(h(\theta_j)\) instantiate the generic
+template in Eq.~\eqref{eq:rope-extrapol-h}, as show in Table~\ref{tab:unified-h-theta}.
+
+\medskip
+\noindent\textbf{(i) Position Interpolation (PI).}
+\begin{equation}
+  h_{\text{PI}}(\theta_j)=\frac{\theta_j}{s}.
+  \label{eq:h-pi}
+\end{equation}
+
+\medskip
+\noindent\textbf{(ii) NTK-aware Scaling.}
+\begin{equation}
+  h_{\text{NTK}}(\theta_j)
+  = \theta_j\,s^{-\tfrac{2(j-1)}{\,d-2\,}}.
+  \label{eq:h-ntk}
+\end{equation}
+
+\medskip
+\noindent\textbf{(iii) NTK-by-parts.}
+Define the ratio
+\begin{equation}
+  r(j)=\frac{L_{\text{train}}}{\lambda_j}
+      =\frac{L_{\text{train}}\theta_j}{2\pi},
+  \label{eq:rj}
+\end{equation}
+and a ramp function with hyper-parameters \(\alpha<\beta\):
+\begin{equation}
+  \gamma(r)=
+  \begin{cases}
+    0, & r<\alpha,\\[4pt]
+    1, & r>\beta,\\[4pt]
+    \dfrac{r-\alpha}{\beta-\alpha}, & \text{otherwise}.
+  \end{cases}
+  \label{eq:gamma}
+\end{equation}
+Then
+\begin{equation}
+  h_{\text{NTP}}(\theta_j)
+    = \bigl(1-\gamma(r(j))\bigr)\,\frac{\theta_j}{s}
+      + \gamma(r(j))\,\theta_j.
+  \label{eq:h-ntp-unified}
+\end{equation}
+
+\medskip
+\noindent\textbf{(iv) YaRN.}
+YaRN uses the NTK-by-parts frequency map unchanged:
+\begin{equation}
+  h_{\text{YaRN}}(\theta_j)=h_{\text{NTP}}(\theta_j).
+  \label{eq:h-yarn}
+\end{equation}
+In addition, YaRN applies a length-dependent scaling to the resulting
+queries/keys (or equivalently a softmax temperature):
+\begin{equation}
+  \alpha(s)=0.1\ln s + 1,
+  \qquad
+  t=\alpha(s)^{-2}.
+  \label{eq:yarn-alpha-unified}
+\end{equation}
+(See Sec.~\ref{sec:yarn} for details.)
+
+\medskip
+\noindent\textbf{(v) LongRoPE.}
+LongRoPE introduces non-uniform rescaling across RoPE dimensions and (optionally) across token positions. 
+Let \(s_j \in [1,s]\) be a per-dimension rescale factor and let \(\tau\in\mathbb{N}\) denote the number of initial tokens that keep the original RoPE (no interpolation). 
+Then the frequency map is
+\begin{equation}
+  h_{\text{LongRoPE}}(\theta_j;m)
+  \;=\;
+  \begin{cases}
+    \theta_j, & m<\tau,\\[4pt]
+    \dfrac{\theta_j}{\,s_j\,}, & m\ge \tau,
+  \end{cases}
+  \label{eq:h-longrope-unified}
+\end{equation}
+which recovers PI when \(s_j\equiv s\) and \(\tau=0\), and contains NTK/YaRN-like non-uniformity as special cases when \(s_j\) varies with \(j\). 
+In our generic template \eqref{eq:rope-extrapol-h}, this corresponds to applying the rotation with an \(m\)- and \(j\)-dependent frequency,
+\(
+\mathbf R_{h_{\text{LongRoPE}}(\theta_j;m),\,m}.
+\)
+(See \cite{ding2024longrope} for the search-based procedure that selects \(\{s_j\}\) and \(\tau\).)
+
+% \subsection{Context Extension in Popular LLMs}
+% In this section, we discuss the long-context extension part of the mainstream LLMs. 
+
+% \begin{table*}[h]
+%     \centering
+%     \caption{Long Context Extension in the state-of-the-art Models}
+%     \small            % keeps the wide table on the page
+%     \begin{tabular}{lllp{4.5cm}}
+%     \hline
+%     \textbf{Model} & \textbf{Context} & \textbf{Tech for context extension} & \textbf{Datasets for long-context} \\ \hline
+%     Nemotron-4 (15B)    & 4k   & RoPE                            &  \\
+%     Gemma 1 (7B)        & 8K   & RoPE                            &  \\
+%     InternLM2 (7B)      & 200k & ABF                             & Book, patent, paper, CC. \\
+%     Phi-3-Mini (3.8B)   & 128K & LongRoPE two-stage    & Undisclosed \\
+%     DeepSeek-V2 (21B/236B MoE) & 128K & MLA, YaRN                       & Undisclosed \\
+%     Nemotron-4 (340B)   & 4K   & RoPE                            &  \\
+%     Llama-3/3.1 (3B,70B,405B)  & 128K & ABF, YaRN                       & Undisclosed \\
+%     Gemma 2 (2B,7B)     & 8K   & Interleave 50\% local, RoPE & \\
+%     Granite 3.0 (8B)    & 4K   & RoPE                            & \\
+%     Hunyuan-Large (52B/389B MoE) & 256K & ABF two-stage                   & 25\% Book, Code 75\% Normal \\
+%     Yi-Lightning        & 64K  & Interleave 75\% local, ABF & Undisclosed \\
+%     Qwen 2.5 (0.5B-72B) & 128K & ABF, YaRN, DCA                  & Undisclosed \\
+%     DeepSeek-V3 (37B/671B MoE) & 128K & MLA, YaRN two-stage            & Undisclosed \\
+%     OLMo 2 (7B,13B)     & 4K   & RoPE                            & \\
+%     MiniMax-01 (45.9B/456B MoE) & 4M   & Hybrid Lightning Attn, ABF & Upsampled long data, add 10\% high quality long QA. \\
+%     Qwen 2.5-1M (7B/14B) & 1M   & ABF, DCA, Sparse Attention           & Natural, Fill-in-the-middle, retrieval, and paragraph reorder. \\
+%     SmolLM2 (1.7B)       & 8K   & ABF                             & 40\% long, 60\% short \\
+%     Gemma 3 (1B-27B)    & 128K & Interleave $83\%$ local, ABF, PI & Undisclosed \\
+%     Llama 4 Scout (17B/109B MoE) & 10M  & Interleave local, NoPE  & Undisclosed \\ 
+%     Phi-4 (14B)         & 16K  & ABF                             & Upsampled academic, books, code, with 30\% longer data \\
+%     MiMo (7B)           & 32K  & ABF three-stage                 & add $10\%$ synthetic data for math, code, and writing. \\ 
+%     Qwen 3 (235B)       & 128K & ABF, YaRN, DCA                  & 25\% length in (4k,16k), 75\% length in (16k,32k) \\
+%     PANGU PRO MoE (16B/72B MoE) & 32K  & Undisclosed                     & Undisclosed \\
+%     MiniCPM-4 (8B)      & 128K & InfLLM v2, LongRoPE, YaRN       & Undisclosed \\
+%     % MiniMax-M1          & 1M   & Hybrid Arc, Lightning Attention & 3 stage datasets of 360B token, with 10\% high-quality long QA data \\
+%     Hunyuan A13B        & 256K & NTK-aware                       & Undisclosed \\
+%     SmolLM3 (3B)        & 128K & ABF, NoPE, YaRN                 & Upsampled math, code, and reasoning \\
+%     \hline
+%     \end{tabular}
+%     \label{tab:long_context_llms}
+% \end{table*}
+
+% context, technique, data, evaluation benchmarks, 
+
+% The Nemotron-4 15B~\cite{parmar2024nemotron} is naively pretrained with a context window of 4k. It is continued pretrained on two distinct distributions. The first distribution is the pretraining dataset with a larger sampling weight on the higher-quality sources. The second distribution uses a small number of benchmark-style alignment examples and up-weights the data sources with low performance, to better prepare the model for downstream evaluations. 
+
+% Gemma 1 (7B) – The original Gemma-7B is trained natively at 8K with standard RoPE. 
+
+% The InternLM2~\cite{cai2024internlm2} is an open-source model that explicitly focuses on long-context modeling. It supports context lengths up to $32K$ tokens after pre-training, and was demonstrated to be effective on a 200K-token Needle In A Haystack test. InternLM2’s architecture uses Grouped-Query Attention (GQA) to reduce memory usage per head. The model was first trained on 4K-token sequences, then transitioned to 32K-token pre-training in a second phase, with ~9\% of training steps using mixed long sequences, half of which are longer than $4K$. During this long-context phase, the RoPE base frequency was expanded from $50K$ to $1M$ to stretch the positional embedding to $32k$. High-quality long-context data like concatenated code files from repositories, lengthy books and papers was curated and filtered for this phase. 
+
+% The Phi-3~\cite{abdin2024phi3} model series, supports up to $128K$ context length. The authors proposed a blocksparse attention module. For each attention head, the blocksparse attention enforces different sparsity patterns on KV caches, which ensures all tokens are attended to by different heads under a given choice of sparsity. Specifically, the phi-3-mini-128K uses the LongRope~\cite{ding2024longrope} technique to extend the model from $4K$ to $128K$. 
+
+% The DeepSeek-V2~\cite{liu2024deepseek} is an efficient MoE model, with 236B total parameters and 21B activation parameters per token. It supports a context length of $128K$. The authors proposed a novel MLA architecture, which supports efficient inference under long context, since it compresses KV-cache significantly. During context extension of the model, YaRN~\cite{peng2023yarn} is used to extend the model from $4K$ to $128K$. YaRN is applied to the decoupled shared key which uses RoPE. For YaRN, the authors set the scale $s$ to $40$, $\alpha$ to $1$, $\beta$ to $32$, and the target max length to $160K$. The author also adjusted the length scaling factor to modulate the attention entropy. The factor $\sqrt{t}$ is set to $\sqrt{t}=0.0707 \ln{s} + 1$ to minimize the perplexity. During long context extension, the model is trained for $1000$ steps, with a sequence length of $32K$ and a batch size of $576$. 
+
+% The Nemotron-4 340B~\cite{adler2024nemotron} is a model pretrained with a $4K$ context window. There is no long context extension in the mid-training phase. 
+
+% The Llama-3.1~\cite{Dubey2024TheL3}, the improved version of Llama 3, introduced $128K$ context support. Meta achieved this by training Llama-3 in stages: initially on ~8K sequences, then using a long-context pre-training phase up to 32K, and finally employing positional extrapolation to reach 128K at inference. Indeed, Llama-3.1 continues to use Rotary Positional Embeddings, but with an adjusted base and YaRN~\cite{peng2023yarn} to extend beyond the trained length. The architecture also uses Grouped-Query Attention (GQA) to manage memory and speed with long inputs. Llama-3.1 was trained on a massive 15T-token dataset, so plenty of long texts (books, code, etc.) were included implicitly. The long-context pretraining and careful RoPE scaling resulted in Llama-3.1 nearly perfectly identifying information in 128k-token tests. 
+
+% The Gemma 2~\cite{team2024gemma} models have a context length of $8K$. To speed up, the model alternates between global attention and local attention in every other layer. The global attention layers span a range of $8K$ tokens, while the local attention layers span a range of $4K$ tokens. 
+
+% The Granite 3.0~\cite{granite2024granite} is a set of lightweight foundation models from 400M to 8B active parameters. It is pre-trained naively with a sequence length of $4K$, and there is no long context extension. 
+
+% The Hunyuan-Large~\cite{sun2024hunyuan} is an MoE LLM with 389 billion total parameters and 52 billion activation parameters, and it can support a context length of $256K$ tokens. After the learning rate annealing phase, the model is extended from $4K$ to $32K$, then from $32K$ to $256K$, with $\theta$ set to 1 billion using the ABF~\cite{xiong2023effective} techniques. The dataset used has $25\%$ natural long context data from books and codes, and $75\%$ normal-length pretraining data. In these two long context extension stages, about 10 billion tokens are used. The RULER~\cite{hsieh2024ruler} and LV-Eval are used to evaluate the long context capabilities of the model. 
+
+% The Yi-Lightning~\cite{wake2024yi} is an MoE LLM with a context length of $64K$. The model uses hybrid attention blocks which combine three sliding-window-attention layers with one full attention layer. After a fast learning rate decreasing phase, the model is progressively extended from $8K$ to $16K$, $16K$ to $32K$, $32K$ to $64K$ with the ABF~\cite{xiong2023effective} techniques. 
+
+% The Qwen 2.5~\cite{Yang2024Qwen25TR} model series supports a context length of up to $128K$, and the Qwen2.5-Turbo model series supports a context length of $1M$ tokens. The Qwen2.5 has a two-phase pretraining approach. After the initial $4k$ pretraining stage, the model is extended to $32k$ during the second pretraining stage with the ABF techniques, which adjust the RoPE $\theta$ from $10k$ to $1M$. The Qwen2.5-Turbo has a four-stage pretraining, and the context length is extended to $32k$, $64k$, $128k$, $256k$ in the four stages. The final RoPE $\theta$ is set to $10M$. At each stage, the authors used $40\%$ long context dataset and $60\%$ short dataset. YARN~\cite{peng2023yarn} and DCA are used during inference, achieving a four-fold increase in sequence-length capacity. The Qwen2.5-1M model is evaluated with the RULER~\cite{hsieh2024ruler}, the LV-Eval~\cite{yuan2024lv}, the Longbench-chat~\cite{bai2024longalign}. 
+
+% Granite 3.1 language models extend the context length of Granite 3.0 language models from 4K to 128K using a progressive training strategy by increasing the supported context length in increments while adjusting RoPE theta until the models successfully adapt to the desired length of 128K. This long-context pre-training stage was performed using approximately 500B tokens. 
+
+% The DeepSeek-V3~\cite{DeepSeekAI2024DeepSeekV3TR} used MLA and MoE, and it has improved long-context performance. After the first phase of pretraining, the authors applied YaRN~\cite{peng2023yarn} for context extension and performed two additional training phases. Both phases have 1000 steps to expand the context window of the model from 4k to 32k and then to 128k. It used the same YaRN configuration with DeepSeek-V2, and it is applied to the decoupled shared $\bf{k}_t^R$. The hyper-parameters remain the same for two phrases, with the scale $s=40$, $\alpha=15$, $\beta=32$, and the scaling factor $\sqrt{t}=0.1 \ln s+1$. The first phase is set to 32k with batch size $1920$, the second phase is set to 128k with batch size $480$. The learning rate of both phases is $7.3e-6$, and it is the final learning rate from the pretraining stage. The Deepseek-v3 evaluated its long context performance on various benchmarks, including the DROP, the FRAMES, the LongBench v2, and the Needle In A Haystack(NIAH). 
+
+% The OLMo 2~\cite{olmo20242} is a fully open language model with a $4K$ context length. The model is pretrained with a $4K$ context window, and there is no specific mid-training phase to further extend the context length. 
+
+% The MiniMax-01 model~\cite{li2025minimax} features a context length of 4 million tokens.  It introduced the lightning attention, an I/O aware linear attention. To save kv-cache, it introduced a hybrid architecture, where one transformer block follows seven transformer blocks with lightning attention. The data used in the long context extension phase is generated by upsampling long context data and preserving the distribution in critical domains. The author mixes in 10\% high-quality question answer data during the last 20\% of training cycles in each stage. To ensure a smooth data distribution transition, the author uses linear interpolation of source-specific weights in the data transition phase. The long context ability of this model is evaluated on several benchmarks, including the Multi-Round Needle-In-A-Haystack(MR-NIAH), the RULER~\cite{hsieh2024ruler}, the LongBench-v2 and the Machine Translation from One Book(MTOB). 
+
+% Qwen 2.5-1M~\cite{yang2025qwen2} supports up to 1 million tokens in the context window. During pretraining, the model is exposed to both natural and synthetic long text data. The natural data includes Common Crawl, arXiv, books and code repositories. The synthetic data includes Fill-in-the-middle tasks, keyword-based and position-based retrieval tasks, and paragraph reordering tasks, to expose the model to enough tasks requiring long dependencies. The context length is progressively extended in five stages, from $4K$ to $256k$, along with the Adaptive Base Frequenciy(ABF)~\cite{xiong2023effective}. In the first two stages, the model is extended from $4K$ to $32k$, adjusting the RoPE $\theta$ from $10K$ to $1M$. In the next three stages, the model is expanded to $64K$, $128K$ and $256k$, with the RoPE base frequencies set to $1M$, $5M$, and $10M$, respectively. The Qwen2.5-1M model is evaluated with the RULER~\cite{hsieh2024ruler}, the LV-Eval~\cite{yuan2024lv}, the Longbench-chat~\cite{bai2024longalign}. 
+
+% The SmolLM2~\cite{allal2025smollm2} is a 1.7B small model with a context length of 8k. During the long context extension phase, the RoPE $\theta$ is increased from 10k to 130k. The data used for long context extension consists of 40\% long context documents from DCLM(10\%), FineWeb-Edu(10\%), and the books subset of Dolma (20\%), and the remaining 60\% from the last pretraining stage. The model is evaluated with Needle in the Haystack (NIAH) and the HELMET benchmark.
+
+% The Gemma 3~\cite{team2025gemma} is a multimodal LLM that has a 128k context length. To achieve a long context, the model reduces the kv-cache by using interleaving global and local layers at the ratio of 1:5. The model is pre-trained with 32K sequences. During the context extension phase, the RoPE $\theta$ in the global layers is increased from 10k to 1M, while the $\theta$ in the local layers is unchanged. To further extend the context length, the authors also used the Position Interpolation~\cite{chen2023extending}. % Did not mentioned long context dataset. 
+% The models are evaluated with the RULER~\cite{hsieh2024ruler} and MRCR~\cite{vodrahalli2024michelangelo}. 
+
+% The Llama 4~\cite{meta2025llama4} scout supports a context length of up to 10M. Llama 4 Scout uses the iRoPE architecture with interleaved global and local layers. In the global layers, it uses no position embedding (NoPE). The model is pre-trained with 256k context length. Additionally, the authors use inference-time temperature scaling of attention to enhance length generalization. The model is evaluated on the Needle In A Haystack(NIAH) benchmark. 
+
+% The Phi-4~\cite{abdin2024phi} has a context length of 16k. During the mid-training stage, the authors increased the base frequency of RoPE to 250K with ABF~\cite{xiong2023effective}, and continued pretraining the model on datasets with longer context. They further filtered and up-weighted the high-quality non-synthetic datasets, such as academic, books, and code data. The authors also created new synthetic datasets longer than 4k. The final data mix includes 30\% newly curated longer context data, and 70\% of the original pretraining dataset. Evaluations used included the RULER~\cite{hsieh2024ruler} and the HELMET. Specifically, the authors reported the sub-tasks of Recall, RAG, Re-rank, ICL, QA, Summ. 
+
+% The MiMo-7B~\cite{xiaomi2025mimo} uses a three-stage pretraining schema. In the first two stages, the model is pretrained with a context length of 8K. In the third stage, the authors extended the context length of the model from 8K to 32K, and they increased the RoPE $\theta$ from $10,000$ to $64,000$ in the third stage. In the third stage, the authors incorporated $10\%$ synthetic responses for mathematics, code, and creative writing queries in the dataset, to boost the model's capability to solve complex tasks. The model is evaluated with the RULER~\cite{hsieh2024ruler}.
+
+% The Qwen 3~\cite{yang2025qwen3} has a context length of 128k. It has three pretraining stages: the general stage (S1), the reasoning stage (S2), and the Long Context Stage (S3). In the long context stage, the authors extend the context length to 32k with a mixture corpus of 25\% short (4k-16k length) data and 75\% long (16k-32k) data. The RoPE $\theta$ is increased from $10,000$ to $1,000,000$ using the ABF~\cite{xiong2023effective} techniques. After extending the model to 32k, the model is further extended to 128k with YARN~\cite{peng2023yarn} and Dual Chunk Attention techniques. These training-free techniques increased the context length of the model by four times. The model is evaluated with the RULER~\cite{hsieh2024ruler}.
+
+% The PANGU PRO MoE~\cite{tang2025pangu} is a MoE model with 72B total parameters and 16B active parameters. trained with three phases. After the first general pretraining phase, the authors trained the model with a significantly higher proportion of high-quality STEM data, code, and synthetic data in the second reasoning phase, under 32k context length. In the third annealing stage, the authors bridged the gap between the pre-training phase and the alignment phase by including 20\% instruction data and 18\% advanced-level STEM education data, under 32k context length. 
+
+% The MiniCPM-4 8B~\cite{team2025minicpm4} is an efficient small model trained for End Devices. The author proposed InfLLM v2, a trainable sparse attention mechanism which has up to 81\% sparsity. After pretraining, the model underwent a mid-training phase with 1T tokens. The author extended the model from $4K$ to $32K$ with 20 billion tokens using LongRoPE~\cite{ding2024longrope}. Although the model is trained only on $32K$ context length, the model is further extended to $128K$ with YaRN~\cite{peng2023yarn}. The long-context ability of this model is evaluated with RULER-NIAH~\cite{hsieh2024ruler}. 
+
+% % Minimax-M1 reused minimax-01 pretrain checkpoint. 
+
+% The Hunyuan-A13B is an MoE model with 80B total parameters and 13B active parameters for each token. After pretraining with 4k context length, the model went through a fast annealing stage which extended its context length to 8k. In the context extension stage, the model went through two sequential stages to expand its context length to 32k and then to 256k. Both phases use the NTK-aware~\cite{bloc97_ntk_rope_2023} position encoding with the alpha value set to 50 for 32k and 1000 for 256k respectively. 
+
+% The SmolLM3~\cite{bakouch2025smollm3} is a 3B powerful multilingual long context reasoner model with $128K$ context length. The model is pre-trained with five different stages with $11.2T$ tokens. The model implements NoPE, which selectively removes rotary position embeddings from every 4th layer. This approach improves long context performance without affecting short context capabilities.
+% %After the first pretraining with $8T$ tokens, the model is further pretrained with $2T$ of high-quality tokens. In the third stage the model is trained with a linear decay learning rate on $1.1T$ of high-quality code, math, instruction, and reasoning data. 
+% The fourth stage is long-context extension, the model is progressively extended from $4K$ to $32K$ with $\theta=1.5M$, then from $32K$ to $64K$ with $\theta=5M$, both stages are with upsampled math, code, and reasoning data. During inference, the model is further extended with YARN~\cite{peng2023yarn} to $128K$ context length. The model is evaluated using RULER and HELMET benchmarks. 
+
+\begin{table*}[h]
+  \centering
+  \caption{Pre-training benchmarks by category.}
+  \label{tab:std-benchmarks}
+  \begin{tabular}{p{2.2cm}p{11cm}}
+    \toprule
+    \textbf{Task Category} & \textbf{Benchmarks} \\
+    \midrule
+    General & MMLU~\cite{hendrycks2021measuringmassivemultitasklanguage} (5-shot),
+        MMLU-Pro~\cite{wang2024mmluprorobustchallengingmultitask} (5-shot, CoT),
+        ARC ~\cite{clark2018thinksolvedquestionanswering} (0-shot), 
+        HellaSwag~\cite{zellers2019hellaswagmachinereallyfinish} (0-shot),
+        BBH~\cite{suzgun2022challengingbigbenchtaskschainofthought} (3-shot, CoT), 
+        WinoGrande~\cite{sakaguchi2019winograndeadversarialwinogradschema} (0-shot),
+        PIQA~\cite{bisk2019piqareasoningphysicalcommonsense} (0-shot) \\[2pt]
+    \midrule
+    Math \& STEM & GPQA~\cite{rein2023gpqagraduatelevelgoogleproofqa} (5-shot, CoT),
+        MATH~\cite{hendrycks2021measuringmathematicalproblemsolving} (4-shot, CoT),
+        GSM8K~\cite{cobbe2021gsm8k} (4-shot, CoT) \\[2pt]
+    \midrule
+    Coding & HumanEval~\cite{chen2021evaluating} (0-shot), 
+        MBPP~\cite{austin2021programsynthesislargelanguage} (3-shot),  
+        MultiPL-E~\cite{cassano2022multiplescalableextensibleapproach} (0-shot; Python, C++, Java, PHP, TypeScript, C\#, Bash, JavaScript) \\[2pt]
+    \midrule
+    Multilingual & MGSM~\cite{shi2022languagemodelsmultilingualchainofthought} (8-shot, CoT),
+        Flores-101~\cite{goyal2021flores101evaluationbenchmarklowresource} (5-shot) \\[2pt]
+    \midrule
+    Long context & LongBench~\cite{bai2024longbenchbilingualmultitaskbenchmark}, 
+        Ruler~\cite{hsieh2024rulerwhatsrealcontext} \\[2pt]
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\subsection{Context Extension in Popular LLMs}
+\label{sec:ctx-ext-popular}
+
+Most systems scale context using three levers. Firstly, \emph{frequency remapping} of RoPE via \(h(\theta_j;s)\), such as ABF, PI, NTK, NTP and LongRoPE mentioned in Sec.~\ref{sec:unified-context-ext}. Secondly, optional \emph{temperature scaling} \(\alpha(s)\) at the attention logits, e.g., YaRN~\cite{peng2023yarn}. Thirdly, \emph{architecture assists} that reduce KV cost, e.g., the interleaved global and local attention, GQA, MLA, and MoE. 
+In practice, windows are grown progressively \(4\text{k}\!\to\!32\text{k}\!\to\!128\text{k}\) with a mix of long and short tokens and occasional synthetic long-dependency tasks. We summarize the techniques used in many LLMs in Table~\ref{tab:ctx-ext-at-a-glance}.
+
+\medskip
+
+\noindent\textbf{No context extension (native RoPE).} 
+The Nemotron-4 15B~\cite{parmar2024nemotron} uses native RoPE at 4K, and subsequent tuning reweights data but keeps the window unchanged. 
+The Gemma 1 (7B) employs native RoPE at 8K. 
+The Nemotron-4 340B is pretrained at 4K with native RoPE and does not include a long-context continuation phase. 
+The Gemma 2~\cite{team2024gemma} fixed 8K with native RoPE, and it interleaves global and local layers roughly 1{:}1 to reduce KV cost.
+The Granite 3.0~\cite{granite2024granite} family are trained at 4K with native RoPE. 
+The OLMo 2~\cite{olmo20242} is a 4K model using native RoPE. 
+
+\medskip
+
+\noindent\textbf{Adaptive Base Frequency (ABF).}
+The InternLM2~\cite{cai2024internlm2} extends to 32K via ABF~\cite{xiong2023effective} (RoPE base $50\mathrm{K}\!\to\!1\mathrm{M}$), GQA, and $\sim9\%$ mixed long sequences. Its training data includes book, patent, paper, and CC long sequences.
+The Hunyuan-Large~\cite{sun2024hunyuan} uses staged 4K$\to$32K$\to$256K with ABF and a MoE backbone. About 25\% long natural data is included, and evaluations cover RULER/LV-Eval.
+The Yi-Lightning~\cite{wake2024yi} uses progressive ABF from 8K to 64K. It combines sliding-window and full attention with an interleave of around 3{:}1.
+The SmolLM2~\cite{allal2025smollm2} reaches 8K by increasing the RoPE base via ABF. It is trained with roughly 40\% long data.
+The MiMo-7B~\cite{xiaomi2025mimo} follows three ABF stages to $32\mathrm{K}$ (RoPE $\theta:10\mathrm{K}\!\to\!64\mathrm{K}$). The data mix includes about 10\% synthetic math, code, and creative tasks to elicit longer-range behaviors.
+The Gemma 3~\cite{team2025gemma} reaches $128\mathrm{K}$ with ABF on global layers plus position interpolation (PI). Global and local layers are interleaved at approximately $1{:}5$ for memory balance.
+The Phi-4~\cite{abdin2024phi} reaches $16\mathrm{K}$ via ABF with a high RoPE base ($\sim\!250\mathrm{K}$). Later training up-weights natural and synthetic $>\!4\mathrm{K}$ data.
+The SmolLM3~\cite{bakouch2025smollm3} scales $4\mathrm{K}\!\to\!64\mathrm{K}$ via ABF (with $\theta$ up to $1.5\mathrm{M}\!-\!5\mathrm{M}$) and selective NoPE for every 4th layer. Inference-time YaRN then lifts to $128\mathrm{K}$, focusing on math, code, and reasoning workloads. 
+
+\medskip
+
+\noindent\textbf{YaRN}.
+DeepSeek-V2~\cite{liu2024deepseek} uses YaRN to scale $4\mathrm{K}\!\to\!128\mathrm{K}$. And the novel MLA and MoE design provide KV and compute efficiency.
+DeepSeek-V3~\cite{DeepSeekAI2024DeepSeekV3TR} applies two YaRN phases with 1000 steps to extend the context length from ($4\mathrm{K}\!\to\!32\mathrm{K}\!\to\!128\mathrm{K}$). The MLA{+}MoE structure provides good efficiency, and it has strong long-context results.
+Llama-3.1~\cite{Dubey2024TheL3} trains to $32\mathrm{K}$ then uses YaRN (with an adjusted RoPE base) to reach $128\mathrm{K}$. GQA reduces memory traffic for longer sequences.
+
+\medskip
+
+\noindent\textbf{DCA paired with ABF/YaRN at inference}.
+The Qwen-2.5 / 2.5-Turbo~\cite{Yang2024Qwen25TR} uses ABF to extend their context to $128\mathrm{K}$, then uses inference-time DCA{+}YaRN to expand the window to $256\mathrm{K}+$. GQA and Minference-style sparse attention reduce KV cost at inference.
+The Qwen-2.5-1M~\cite{yang2025qwen2} uses five ABF stages to extend their context to $256\mathrm{K}$ (with $\theta$ up to $10\mathrm{M}$), then uses DCA{+}YaRN push to $\sim\!1\mathrm{M}$ tokens. The data mix includes $\sim\!40\%$ long and synthetic tasks.
+The Qwen-3~\cite{yang2025qwen3} uses ABF to support $32\mathrm{K}$ with a heavy long-data ratio ($\sim\!75\%$), then uses DCA{+}YaRN extend to $128\mathrm{K}$. The recipe retains ABF priors while scaling inference reach.
+
+\medskip
+
+\noindent\textbf{LongRoPE}.
+The Phi-3 Mini (128K)~\cite{abdin2024phi3} achieves $128\mathrm{K}$ via LongRoPE~\cite{ding2024longrope} frequency remapping. The block-sparse attention also helps to manage memory and latency.
+The MiniCPM-4 8B~\cite{team2025minicpm4} uses LongRoPE to support $32\mathrm{K}$ and uses inference-time YaRN to reach $128\mathrm{K}$. Sparse attention (InfLLM v2) further reduces KV pressure.
+
+\medskip
+
+\noindent\textbf{NTK-aware/PI/NoPE-family}.
+The Hunyuan-A13B adopts NTK-aware scaling after a fast $4\mathrm{K}\!\to\!8\mathrm{K}$ stage. The temperature scale is $\alpha\!\approx\!50$ at $32\mathrm{K}$ and $\approx\!1000$ at $256\mathrm{K}$ with a MoE backbone.
+The Llama-4 Scout~\cite{meta2025llama4} is pretrained at $256\mathrm{K}$ with iRoPE architecture, which has interleaved attention layers with no position embedding (NoPE). It uses inference-time temperature scaling. The reported inference scaling reaches $\sim\!10\mathrm{M}$ tokens.
+
+\medskip
+
+\noindent\textbf{Architecture-dominant}.
+The MiniMax-01~\cite{li2025minimax} targets a $4\mathrm{M}$ context via a $7{:}1$ LightningAttn:full attention interleave. Its training upsamples long data and adds a late-stage QA mix to consolidate extremely long-span utility.
+The PANGU PRO MoE~\cite{tang2025pangu} follows a three-phase training under $32\mathrm{K}$ on a MoE backbone. Later stages emphasize STEM and code to strengthen long-range reasoning.
+
+\medskip
+
+\noindent\textit{Takeaway.} Across families, a robust recipe pairs progressive ABF with a non-uniform \(h(\cdot)\) and a mild \(\alpha(s)\) schedule (e.g., YaRN), while architecture assists primarily unlock the memory budget required for long windows rather than replacing frequency remapping.
+
+% Put this block immediately after \label{sec:longcontext} and before Background.
+
+\begin{table*}[h]
+  \centering
+  % \scriptsize
+  \caption{Mid-Training uplift summary.}
+  \label{tab:annealing uplift summary}
+  \begin{tabular}{p{1.5cm}p{7.6cm}p{7.6cm}}
+    \toprule
+    \textbf{Model} & \textbf{Quantified Metric Uplift} & \textbf{Qualitative Impact / Purpose of Strategy} \\
+    \midrule
+    InternLM2     & Achieves substantial performance improvements in coding, reasoning, question answering, examinations, and long-context modeling. & \textbf{[Advanced Reasoning \& Adaptability]} Leveraging enriched datasets for coding, reasoning, QA, and exams, the model outperforms predecessors across 6 dimensions and 30 benchmarks, notably in long-context modeling and subjective evaluation. \\
+    \midrule
+    MiniCPM4      & Achieves comparable performance to Qwen3 using 22\% of tokens (8T vs 36T). MiniCPM4-0.5B surpasses Llama3.2-1B, Gemma3-1B. MiniCPM4-8B outperforms Gemma3-12B, Phi4-14B. & \textbf{[Scalable Efficiency]} Reduces training costs, improves performance \& efficiency, enables predictable scaling, critical for low-bit LLMs. \\
+    \midrule
+    DeepSeek-v2   & Achieves 88.9\% pass ratio on MiniF2F-test. Solves 47/658 PutnamBench problems. Pass rate can be improved significantly with CoT reasoning. & \textbf{[Advanced Reasoning \& Adaptability]} Overall training significantly enhances formal theorem proving capabilities. \\
+    \midrule
+    Zamba         & Base model (Phase 1) achieves Llama2 performance with 1T tokens (Llama2 uses 2T). Overall performance approaches leading ~7B transformers. & \textbf{[Advanced Reasoning \& Adaptability]} Improves adaptation, mitigates forgetting, enables fast adaptation from high-quality data, contributes to data efficiency. \\
+    \midrule
+    MAP-Neo       & Achieves rapid improvements and stabilization of code metrics during the decay phase, and enhances professional response generation. & \textbf{[Reliable Foundations]} Rectifies tokenizer flaws, enhances code generation, targeted remediation of specific deficiencies. \\
+    \midrule
+    Nemotron4     & Achieves a better learning from the data and a significant improvement in overall model quality. & \textbf{[Reliable Foundations]} Refines model, effectively integrates new data, contributes to overall polish and robustness. \\
+    \midrule
+    Llama3        & Annealing improved Llama 3 8B on GSM8k by 24.0\% and MATH by 6.4\%, but a negligible uplift for 405B model. & \textbf{[Scalable Efficiency]} Boosts performance for smaller models, ensures training stability, efficient method to judge value of domain-specific datasets. \\
+    \midrule
+    Gemma2        & Gemma2-9B shows up to 10\% improvement in some benchmarks compared to previous versions. & \textbf{[Scalable Efficiency]} Significantly improves model quality for smaller models, simulates training beyond available tokens, provides richer gradients. \\
+    \midrule
+    Hunyuan-Large & Achieves substantial improvements in downstream task performance and generalization ability. & \textbf{[Reliable Foundations]} Optimizes alignment pipeline, front-loads instruction-following, shapes model behavior, improves robustness. \\
+    \midrule
+    Yi-Lightning  & Achieves model capabilities enhancing and context length extending. & \textbf{[Scalable Efficiency]} Enables efficient training, deployment, inference, and high practical efficacy. Builds capabilities progressively from broad to specialized. \\
+    \midrule
+    DeepSeek-v3   & Achieves a remarkably stable training without irrecoverable loss spikes or rollbacks. & \textbf{[Scalable Efficiency]} Ensures robust and cost-effective training process, prevents costly failures, critical for large-scale training. \\
+    \midrule
+    OLMo2         & Mid-training improves 7B by 10.6 pts, 13B by 10.3 pts (avg performance). Specific uplifts on Arc Challenge (+7.2/3.3), MMLU (+3.9/4.1), GSM8K (+43.4/37.8), DROP (+20.1/21.1) for 7B and 13B respectively. & \textbf{[Reliable Foundations]} Dramatically improves performance across diverse benchmarks, enhances robustness, reduces experimentation cost. \\
+    \midrule
+    Phi-4         & Substantially surpasses teacher model on STEM-focused QA. Meets or exceeds Llama-3.1-405B on reasoning. Scores well above its weight-class on competition math. & \textbf{[Advanced Reasoning \& Adaptability]} Enables emergent reasoning capabilities, improves on teacher models, stabilizes learning during context extension. \\
+    \midrule
+    PanguProMoE   & Annealing phase can still bring about a large improvement in model performance, stabilize convergence, and reduce catastrophic forgetting. & \textbf{[Reliable Foundations]} Ensures robust generalization and effective specialization, systematically acquires diverse skills, prevents knowledge degradation. \\
+    \midrule
+    SmolLM3       & Achieves SOTA at 3B scale, and competitive performance with 4B models. Linear Blend retains robust CoT and instruction alignment while recovering top-tier performance on 128 K-token tasks. & \textbf{[Scalable Efficiency]} Maximizes performance from limited parameters, ensures robustness across capabilities, enables long-context robustness. \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\subsection{Key paradigms and insights at a glance}
+\label{sec:longcontext-takeaways}
+\noindent{Frequency remapping and length/temperature scaling unify most methods.} Long-context schemes are well modeled by two independent controls:
+(i) a \emph{frequency remapping} \(h(\theta_j;s)\) that modifies RoPE’s base angles in each rotary sub-plane (cf.\ Eq.~\eqref{eq:rope-extrapol-h}); and
+(ii) an optional \emph{length/temperature scaling} \(\alpha(s)\) applied to queries/keys or softmax (e.g., YaRN in Eq.~\eqref{eq:yarn-alpha}).
+PI, NTK-aware, NTK-by-parts, YaRN, and LongRoPE are all specific choices of \(h(\cdot)\) (and sometimes \(\alpha(\cdot)\)).
+
+\noindent\textbf{Trade off between global reach and local fidelity.} Pure interpolation (e.g., PI, Eq.~\eqref{eq:h-pi}) stretches all frequencies equally but can blur local cues at long ranges; NTK-aware~(Eq.~\eqref{eq:h-ntk}) and NTK-by-parts~(Eq.~\eqref{eq:h-ntp}) spare high-frequency bands to preserve short-range structure; YaRN adds a gentle temperature schedule to stabilize optimization at large \(s\).
+
+% \textbf{Piecewise or learned non-uniformity is robust.} Methods that vary scaling across \emph{dimensions} (NTK-by-parts) and/or \emph{positions} (LongRoPE, Eq.~\eqref{eq:h-longrope}) better match the pretrained geometry, yielding stronger length generalization with minimal short-context regression.
+
+\noindent\textbf{Architecture assists matter but are orthogonal.} Interleaved global/local attention, GQA/MLA, and sparse attention primarily reduce KV-cache and memory cost; they \emph{enable} long sequences and pair well with frequency remapping, but do not replace it.
+
+\noindent\textbf{Stage the data and schedule.} Effective recipes expand the window progressively (e.g., \(4\text{k}\!\rightarrow\!32\text{k}\!\rightarrow\!128\text{k}\)), anneal the learning rate, and mix long/short tokens (often 30–60\% long) with synthetic tasks (FIM, retrieval, reordering) to teach cross-document dependencies.
+
+% \textbf{Claimed \(\neq\) effective length.} Report both the advertised window and an \emph{effective} range (e.g., RULER wAvg\(_{\text{inc/dec}}\)) where accuracy remains stable; many models degrade well before the claimed maximum if frequency scaling is mismatched.
+
+\noindent\textbf{Practical default.} For \(L_{\text{target}}\!\le\!128\text{k}\): set ABF to \(\theta\!\approx\!10^6\), 
+%use NTK-by-parts \(h(\cdot)\) with \((\alpha,\beta)\!\approx\!(1,32)\), and 
+apply YaRN \(\alpha(s)=0.1\ln s+1\). For \(\ge\!1\text{M}\): consider staged ABF (\(\theta\) up to \(10^7\!-\!10^8\)) and dimension/position-aware scaling (e.g., LongRoPE), while protecting short-context performance via short-length recovery.

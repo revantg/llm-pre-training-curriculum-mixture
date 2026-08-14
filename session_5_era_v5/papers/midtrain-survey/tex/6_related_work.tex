@@ -1,0 +1,43 @@
+\section{Future Work}
+% \label{sec:related}
+
+% Research related to \emph{annealing} in large language model (LLM) training is scattered across several neighboring areas—continual pre-training, domain-adaptive training, learning-rate schedule theory, and long-context extension. 
+% %In this section, we synthesize these strands and clarify how our survey differs from prior overviews.
+
+% \subsection{Continual Pre-training and Continual Learning}
+% The body of work most closely aligned with what many practitioners now call \emph{mid-training} or \emph{annealing} is surveyed under the umbrella of \emph{continual learning for LLMs}. Wu et al.\ (2024) provide a taxonomy that explicitly names ``continual pre-training'' as the first stage of continual learning, mapping almost one-to-one to industrial mid-training practice. Their survey covers objectives, data curation, catastrophic forgetting, and the design space of parameter-efficient vs.\ full-model updates. A companion, continuously updated GitHub survey tracks roughly 200 papers on domain refresh, ReLoRA, and soft masking strategies. %:contentReference[oaicite:0]{index=0}
+
+% \subsection{Domain-Adaptive Pre-training and General PLM Surveys}
+% Earlier but still relevant work on \emph{domain-adaptive pre-training} (DAPT) for BERT/GPT-style models synthesizes principles of data selection, regularization, and continual objectives that have since been scaled to 7--70B LLMs. Guo and Yu (2022) give a thorough taxonomy of DAPT methods, while Chen et al.\ (2024) include a concise chapter on training strategies, curriculum/annealing schedules, and specialized continued pre-training within a broad LLM survey. %:contentReference[oaicite:1]{index=1}
+
+% \subsection{Learning-Rate Annealing and Optimization Schedules}
+% Despite its ubiquity, learning-rate decay itself has not been the focus of many surveys. Tissue et al.\ (2024) offer one of the first systematic analyses of cosine/linear annealing for LLMs, proposing predictive scaling laws that link schedules to loss trajectories. %:contentReference[oaicite:2]{index=2} 
+% Recent meta-analyses emphasize that ``annealing per se lacks a dedicated survey'' and remains treated as a hyperparameter detail in most recipe papers. %:contentReference[oaicite:3]{index=3} 
+% Complementary works (e.g., Defazio et al.\ 2023; Bergsma et al.\ 2025) study optimal linear decay and the empirical success of straight-to-zero schedules, enriching the theoretical toolkit for annealing stages. %:contentReference[oaicite:4]{index=4}
+
+% \subsection{Long-Context Extension Surveys}
+% Because many annealing passes coincide with context-length extension, surveys on long-context LLMs are directly relevant. Liu et al.\ (2025) present the most up-to-date LLM-centric synthesis, organizing 250+ papers by data strategies, RoPE remapping variants, retrieval/memory mechanisms, and evaluation. Wang et al.\ (IJCAI'24) catalog practical tricks for extending windows (positional encoding, chunking, hierarchical processing), while Zhao et al.\ (EMNLP'24) give a deep dive into positional-encoding math and length extrapolation protocols. %:contentReference[oaicite:5]{index=5}
+
+% \subsection{Efficient Attention and State-Space Alternatives}
+% Historical surveys on ``efficient transformers'' (e.g., Tay et al.\ 2020) provide the foundational taxonomy of local/sparse/low-rank attention and memory mechanisms that long-context methods draw upon. %:contentReference[oaicite:6]{index=6} 
+% More recent state-space model (SSM) surveys (Tiezzi 2024; Patro 2024) catalog Mamba, S4, Hyena, and RetNet as transformer alternatives that sidestep quadratic attention, complementing the transformer-centric context-extension literature. %:contentReference[oaicite:7]{index=7}
+
+% \subsection{Overtraining, Scaling Laws, and Stability Analyses}
+% A line of work investigates the risks and dynamics of \emph{overtraining}—a phenomenon particularly relevant to late-stage annealing. Springer et al.\ (2025) show that overtrained LMs can be harder to fine-tune, emphasizing the need for carefully budgeted annealing passes. %:contentReference[oaicite:8]{index=8} 
+% Broader scaling-law research (Kaplan et al.\ 2020; Hoffmann et al.\ 2022; Li et al.\ 2025) and curvature-based stability analyses (Gilmer et al.\ 2022) provide theoretical baselines for compute-optimality and optimization stability that intersect with learning-rate and data-annealing design. %:contentReference[oaicite:9]{index=9}
+
+% \subsection{Position of This Survey}
+% To our knowledge, there is no prior survey that \emph{unifies} (i) high-quality data curation, (ii) learning-rate scheduler theory and practice, and (iii) long-context extension into a \emph{single late-stage training paradigm}. Previous surveys cover one or two axes in isolation. Our work integrates all three, adding a design-oriented perspective (recipes, ablations, and open challenges) tailored for practitioners executing annealing under real-world constraints. %:contentReference[oaicite:10]{index=10}
+
+% \subsection{Open Challenges and Future Directions}
+\label{sec:future}
+Despite its growing adoption, \emph{mid-training} for LLMs remains more of an engineering art than a principled science. Below we outline key open challenges and sketch promising directions for future research.
+
+
+\textbf{Dynamic Curriculum Design that adaptively adjust data composition.} 
+A promising direction for mid-training is the development of dynamic curriculum strategies that adaptively adjust data composition based on the model’s evolving capabilities. Rather than relying on fixed sampling ratios, future approaches could monitor intermediate performance signals (e.g., loss sharpness, gradient variance, or benchmark outcomes) to guide the gradual transition from broad natural corpora toward specialized reasoning, coding, or multilingual tasks. Such adaptive curriculum would allow mid-training to better align data exposure with the model’s learning trajectory, improving efficiency while mitigating overfitting.
+
+{\textbf{Theoretically grounded schedulers with adaptive mechanisms that co-evolve with scale and data.}}
+{Learning rate schedulers remain a critical yet underexplored component in LLM training. Their interaction with other experimental parameters, such as batch size and model size, continues to be an active area of empirical and theoretical research. Future work should aim to unify these disparate empirical findings under a theoretical framework, and develop adaptive or scale-aware schedulers that generalize across model sizes and training regimes.}
+
+\textbf{Long-context progress hinges on two fronts: fixing position-embedding OOD and cutting compute/latency.} Beyond RoPE tweaks, push toward general, learnable position functions and index warps, with robustness curricula and on-the-fly calibration. Beyond sparse attention, attack efficiency via KV-cache compression and quantization, token pruning/merging, hybrid attention-SSM stacks, retrieval-summarized contexts, and length-aware scheduling with compute controllers and MoE specialized by sequence length. We should also come up with better long-range datasets and metrics, and theory that ties spectral generalization and compute–length scaling laws—validated by concrete experiments on learned PEs, hybrid stacks, KV compression, retrieval summaries, and OOD calibration.

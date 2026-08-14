@@ -1,0 +1,183 @@
+\section{Experiments and analysis}\label{sec:experiments}
+
+\begin{figure}[t]
+	\centering
+	\begin{subfigure}[t]{0.35\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figures/benchmark_8192_tokens.pdf}
+		\caption{}
+		\label{fig:sequence-scaling}
+	\end{subfigure}
+	\hspace{4mm}
+	\begin{subfigure}[t]{0.39\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figures/teaser/teaser_model_scaling.pdf}
+		\caption{}
+		\label{fig:model-scaling}
+	\end{subfigure}
+	\caption{{\bf (a)} Average time for one optimization step ($b=8\times8192$ tokens) on an 8$\times$H100 node with FSDP and FlashAttention2 for different context lengths. {\bf (b)} OpenLM-1B/3B/7B models trained on 137B tokens. Accuracy and training speed gains are shown.}
+\end{figure}
+
+In this section, we show the efficacy of the proposed method to train LLMs of different sizes on large-scale datasets and provide additional analyses. For all experiments, except the results in \cref{sec:dclm}, we use RefinedWeb~\citep{refinedweb} filtering of Common Crawl~\citep{cc} with a total of $\sim 525$ billion tokens using the EleutherAI/gpt-neox~\citep{black2022gpt} tokenizer (vocabulary size is 50,432). Model architectures and training code are based on the OpenLM~\citep{openlm}\footnote{\url{https://github.com/mlfoundations/open_lm}}. For all experiments, other than model scaling in \cref{sec:scaling}, we use the OpenLM-1B model with an 8k context length. Please refer to \cref{sec:impl_details} for implementation details of all experiments.
+
+
+\paragraph{Positional encoding}\label{sec:position}
+We use Rotary Positional Embedding (RoPE)~\citep{su2024roformer} to encode positions in queries and keys before the attention module. RoPE rotates the consecutive components of queries and keys with a base frequency $f_b = 10,000$. Recent studies~\citep{peng2023yarn,xiong2023effective,liu2023scaling} have suggested increasing $f_b$ to better adapt a pretrained model for longer sequences through fine-tuning. We find that using a larger $f_b$ is also beneficial when training LLMs from scratch. In \cref{tab:rotary_freq}, we show that increasing $f_b$ to 100,000 improves performance for both the baseline and DD methods.
+
+
+\paragraph{Evaluation} We evaluate each model on a comprehensive set of standard benchmarks, mainly using LLM Foundry~\citep{foundry}. We report averaged accuracies over each category, as well as the \emph{regular average}, which is the average of 14 regular language modeling benchmarks detailed below:
+\setlist{nolistsep}
+\begin{itemize}[wide, labelindent=5pt, noitemsep]
+\item {\bf Commonsense Reasoning (CSR)}: PIQA-0-shot~\citep{piqa}, COPA-0-shot~\citep{copa}, and OpenBookQA-10-shots~\citep{openbookqa}.
+\item {\bf Language Understanding (LU)}: Lambada-OpenAI~\citep{paperno2016lambada}, Hellaswag-0-shot~\citep{zellers2019hellaswag}, Winograd-3-shots~\citep{levesque2012winograd}, and WinoGrande-5-shots~\citep{sakaguchi2021winogrande}.
+\item {\bf Reading Comprehension (RC)}: SQuAD-3-shots~\citep{rajpurkar2018know}, BoolQ-0-shot~\citep{clark2019boolq}, and CoQA-0-shot~\citep{reddy2019coqa}.
+\item {\bf World Knowledge (WK)}: Jeopardy-3-shots~\citep{jeopardy}, ArcEasy-3-shots~\citep{clark2018think}, ArcChallenge-3-shots~\citep{clark2018think}, and WikiDataQA-3-shots~\citep{qa_wikidata}
+\end{itemize}
+To evaluate model on longer context tasks, we adopt the following real-world benchmarks: 
+\setlist{nolistsep}
+\begin{itemize}[wide, labelindent=5pt, noitemsep]
+\item {\bf Multi-Document Question Answering (MDQA)}: We follow the exact setup as in \citet{liu2024lost}, where for each question from NaturalQuestions-Open~\citep{lee2019latent,kwiatkowski2019natural}, $r$ Wikipedia documents are retrieved such that one of them has the answer to the question, and the other $r-1$ documents are distractors. We report MDQA-10, MDQA-20, and MDQA-30 accuracy corresponding to $r=10, 20$, and 30, respectively. For each query, we evaluate the model by changing the location of the target document among distractors and report the averaged accuracy.
+\item {\bf TOEFL}: This dataset is a multiple-choice question answering dataset from~\citet{an2023leval}. The dataset contains QA pairs for 15 longest lectures in~\citet{tseng2016machine, chung-etal-2018-supervised}. Only one of the choices is the correct response. We estimate the correct choice by picking the choice with the lowest mean log probability value.
+\item {\bf QuALITY}: This dataset is a multiple-choice question answering dataset from~\citet{an2023leval}. The dataset contains a long passage for context, followed by a question with multiple choices. Only one of the choices is the correct response. We estimate the correct choice by picking the choice with the lowest mean log probability value. 
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Training efficiency}\label{sec:benchmark}
+We first verify that VSL training enables a higher throughput than the baseline concat-and-chunk method. We enumerate model sizes (OpenLM-1B/3B/7B) and different context lengths ($2^6$ to $2^{13}$) and measure the time to train 100 batches with a fixed global batchsize of $b=8\times 8192$ distributed over $8$ GPUs in a single node. We repeat this 5 times and report the average time per optimization step in \cref{fig:sequence-scaling} (with STD mostly $<1$ms). See \cref{sec:additional_benchmark} for additional results with different batchsizes $b$. For each model, we highlight the training time overhead (due to attention's quadratic complexity with an optimized FlashAttention2 kernel~\citep{dao2023flashattention}) when training with 8192 context lengths compared to 64 context lengths: +35\%, +88\%, and +23\% for OpenLM-1B, -3B\footnote{OpenLM-3B has 32 heads ($\times2$ that of OpenLM-1B), and a per-head dimension of 2560/32=80, not suitable for FlashAttention. This makes attention a significant bottleneck for this model.}, and -7B, respectively. Training overhead grows for longer context lengths (see \cref{fig:runtime h100} for results up to 16k context length).
+
+The concat-and-chunk baseline method always operates at a fixed sequence length. For example, for the OpenLM-1B model, an optimization step with concat-and-chunk takes 243ms and 304ms for target context lengths of 2048 and 8192, respectively. The expected time for VSL, on the other hand, is the weighted average over different sequence lengths depending on the mixture. In \cref{tab:mixture}, we report the training step time for different mixtures. For example, with the natural length distribution resulting from DD (\cref{fig:buckets_dist}), training up to length 8192 sequences takes a similar time (244ms) as baseline training with length 2048 (with 243ms per step) per step—equivalent to a 20\% training time reduction compared to baseline training with a fixed length of 8192 (with 304ms per step).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Sequence length bias}\label{sec:length_corr}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.31\linewidth}
+    \includegraphics[width=\linewidth]{figures/length_accuracy.png}
+    \caption{}
+    \label{fig:length-accuracy}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.34\linewidth}
+    \includegraphics[width=\linewidth]{figures/evals_distributions.png}
+    \caption{}
+    \label{fig:eval-dist}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.33\linewidth}
+    \includegraphics[width=\linewidth]{figures/length_bias-crop_v2.pdf}
+    \caption{}
+    \label{fig:length-bias}
+    \end{subfigure}
+    \vspace{-3mm}
+    \caption{{\bf(a)} Performance of OpenLM-1B model trained on $2^{34}$ tokens from buckets with different sequence lengths. {\bf(b)} distribution of lengths of documents for different benchmarks. {\bf(c)} Effect of chunking ($\mathcal{D}_{13\to10}$) and concatenating ($\mathcal{D}_{7\to13}$) sequences during pretraining on model performance.}
+    \label{fig:length}
+\end{figure}
+
+In this section, we study the effect of pretraining data sequence length on model performance in isolation. Using a single bucket $\mathcal{D}_i$ as the dataset, we train an LLM from scratch on sequences with length $2^i$ for a total of $2^{34}$ seen tokens. Note that the number of tokens per optimization step is fixed at 256, irrespective of sequence length. We use the same training hyperparameters for all runs. In \cref{app:length_bias_details}, we show that our conclusions do not depend on the choice of hyperparameters. To reduce statistical error, we train each model twice from scratch with different random seeds and report the average metric for each benchmark (observing an average standard deviation of $\sim 0.3$ for regular benchmarks and $\sim 1.6$ for multi-document QA). Results are demonstrated in \cref{fig:length-accuracy}.
+ 
+
+We show a significant correlation between pretraining sequence length and different benchmarks. Specifically, the accuracy of commonsense reasoning, language understanding, and world knowledge shows an inverted U-shape behavior with respect to pretraining sequence length, while reading comprehension benefits from longer sequences. This behavior can be associated with training-test distribution alignment with respect to sequence length. In \cref{fig:eval-dist}, we show the length distribution for different benchmarks where RC demonstrates a heavier tail compared to CSR, LU, and WK. Multi-document QA benchmarks show a vivid correlation with respect to sequence length: test accuracy is $\approx0$ unless pretraining sequence length is greater than the test context length, which is $\sim$ 2k, 4k, and 6k for MDQA-10, -20, and -30, respectively.
+ 
+
+It could be argued that data selection based on sequence lengths could introduce bias since the content (or source) of the documents might change based on the sequence lengths. To better understand the effect of sequence length on common metrics, we created two new buckets, $\mathcal{D}_{13\to10}$ and $\mathcal{D}_{7\to10}$, from existing buckets $\mathcal{D}_{13}$ and $\mathcal{D}_{7}$, respectively. The bucket $\mathcal{D}_{13\to10}$ contains sequences of length $2^{10}$ created by \emph{chunking} sequences from $\mathcal{D}_{13}$ into 8 subsequences and then performing a global shuffle. The bucket $\mathcal{D}_{7\to10}$ also includes sequences of length $2^{10}$, each formed by \emph{concatenating} 8 random sequences from $\mathcal{D}_7$. 
+
+In \cref{fig:length-bias}, we compare the regular average metric of models pretrained on these buckets; for each bucket, we train two models from scratch using different random seeds and report the averaged results. $\mathcal{D}_{13\to10}$ gains 2.6 points compared to $\mathcal{D}_{13}$ while including the same content. This demonstrates the pure effect of sequence length on model accuracy. Furthermore, training on $\mathcal{D}_{13\to10}$ underperforms $\mathcal{D}_{10}$ by 0.9 points, even though they are of the same length, indicating that long documents (used to construct $\mathcal{D}_{13\to10}$) correlate less with our benchmarks than short documents (used to construct $\mathcal{D}_{10}$). Finally, we show that \emph{concatenation}, as opposed to \emph{chunking}, does not mitigate length correlation. This is evident from the fact that $\mathcal{D}_{7\to10}$ scores the same as $\mathcal{D}_7$ and still significantly worse than $\mathcal{D}_{10}$.
+
+Our analysis suggests that effective base model pretraining requires a mixture of different sequence lengths to perform well on all benchmarks. Next, we systematically study the effect of dataset mixture from the sequence length perspective.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Data mixture}\label{sec:mixture}
+\begin{table}[t]
+    \input{tables/mixture_results}
+\end{table}
+A key benefit of dataset decomposition is access to and control over sequence length distribution. We form datasets with different mixtures of sequence lengths and explore the performance of a model trained on each mixture. \cref{tab:mixture} shows the results. For all experiments, the total seen tokens and hyperparameters are fixed, and only the distribution over sequence length is changed. First, we observe that mixtures with small average context length (we provide the exact definition in \cref{sec:avg_definition}) perform poorly on MDQA, which requires long context understanding. \revisionred{For example, as for ``1k-only'', ``$\le$2k'', and ``Mid'' distributions that do not include long sequences from $\mathcal{D}_{12}$ and $\mathcal{D}_{13}$.} Larger average context length \revisionred{(e.g., as in ``$\ge$1k'')} also correlates positively with performance on reading comprehension tasks, consistent with our observation in \cref{fig:length-accuracy}, but comes at the cost of a longer training step \revisionred{time}.
+
+
+Furthermore, ``1k-only'', that is training using only the best sequence length ($=1024$) from the study in \cref{sec:length_corr} results in good performance on regular evaluations, especially for language understanding and world knowledge tasks, but is poor for long context tasks. Finally, we observe that ``natural'' mixture, that is aligned with the distribution resulting from dataset decomposition (see \cref{fig:buckets_dist}), obtains near-optimal performance on both regular and MDQA tasks, demonstrating the scalability of the proposed approach to large datasets \revisionred{without a need for intervention on the natural underlying length distribution}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Length-based curriculum}\label{sec:curriculum}
+We can think of short sequences as being "easier" compared to longer ones; hence motivating a curriculum learning~\citep{bengio2009curriculum,elman1993learning} that prioritizes short sequences. A similar idea (training with image resolutions from low to high) is explored in vision to train CLIP~\citep{radford2021learning} models more efficiently~\citep{li2024inverse}. In VSL, we can easily implement curriculum learning through sampling designs. At every optimization step, we sample \emph{without replacement} a batch with $b$ tokens from bucket $\mathcal{D}_i$ with probability $p_i$. If a bucket is empty, we exclude it from sampling. We study different curricula for the "$\ge 256$" mixture (with an equal number of tokens in $\mathcal{D}_8, \ldots, \mathcal{D}_{13}$). Results are shown in \cref{tab:curriculum}. For each curriculum, we determine the odds of picking a batch from each bucket ($=p_i$'s when normalized). \revisionred{Details of our length-based sampling and curriculum are provided in \cref{alg:sampling}.}
+We consider curricula that shift from short to long sequences at different paces controlled by $p_i$'s changing linearly, with powers of 2, and with powers of 100 between buckets.
+
+Due to the presence of other hyperparameter schedules during the course of training (e.g., learning rate and weight decay), a curriculum on length may result in a potential implicit bias. For example, if we only see long sequences toward the end of training, long sequence learning occurs only when the learning rate is too small. To address this potential issue, we also explore cyclic curricula, where a curriculum is applied in cycles similar to cyclic learning rate schedules~\citep{smith2017cyclical} \revisionred{as shown in \cref{fig:curriculum}. Note that when we train on a sequence of length $l$, we have $l$ next-token prediction losses (applied in parallel) with context lengths $0, 1, \ldots, l-1$. This already implies some mixing: when training on a ``hard'' example (i.e., a long sequence), we also include ``easy'' examples (its shorter sub-sequences). Therefore, even towards the end of each cycle, we still have some losses with short contexts.}
+
+
+Our results show that the cyclic "Grow-P2" curriculum is near optimal with different metrics. An additional benefit of curriculum is training stability. \citet{li2022stability} noticed that long sequences contribute to extreme gradient variance, especially at the beginning of training, resulting in instability. We also observe (see \cref{sec:stability}) that our proposed approach with curriculum results in more stable training dynamics, thus enabling more efficient training with larger batch sizes and learning rates.
+
+\begin{table}[t]
+    \input{tables/curriculum_results}
+    \vspace{-5mm}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Scaling}\label{sec:scaling}
+\label{sec:model-scaling}\label{sec:dclm}
+
+\begin{figure}[t!]
+    % Minipage for Figure
+    \begin{minipage}{0.58\textwidth}
+         \input{tables/rwv2}
+         \vspace{-3mm}
+         \captionof{table}{Comparing baseline training with DD on an alternative pretraining dataset and model sizes.}\label{tab:rwv2}
+    \end{minipage}
+    \hfill
+    % Minipage for Tables
+    \begin{minipage}{0.36\textwidth}
+        \vspace{-1.5mm}
+        \centering
+        % Table 2
+
+        % Table 1
+        \resizebox{\linewidth}{!}{
+            \begin{tabular}{cc|cc}
+            \toprule[1.5pt]
+                \multirow{2}{*}{\bf Method}& \multirow{2}{*}{\bf $f_b$} & {\bf Regular}& {\bf MDQA} \\
+                 & & {\bf Avg.} & {\bf Avg.} \\
+            \midrule[1pt]
+                \multirow{2}{*}{Baseline-8k}& 10k& \cellcolor{gray!25}51.3 & \cellcolor{gray!25}19.0\\
+                &100k&\cellcolor{gray!25}51.5&\cellcolor{gray!25}{\bf 24.4}\\
+                \midrule
+                \multirow{2}{*}{DD$_{\ge256}$}& 10k& \cellcolor{gray!25}53.8 &\cellcolor{gray!25} 20.1\\
+                &100k&\cellcolor{gray!25}53.8&\cellcolor{gray!25}{\bf 24.9}\\
+                \bottomrule[1pt]
+            \end{tabular}
+        }
+        \vspace{-3mm}
+        \captionof{table}{Effect of RoPE base frequency, $f_b$, in pretraining.}\label{tab:rotary_freq}
+    \end{minipage}
+\end{figure}
+
+\paragraph{Dataset scaling} In \cref{fig:data-scaling}, we show the performance of models trained with $2^{34}, 2^{35}, 2^{36}, 2^{37},$ and $2^{38}$ total tokens using DD and baseline. We use the “$\ge 256$” mixture and “Grow-Linear” curriculum with 8 cycles for DD, and a fixed target sequence length 8192 for the baseline. Results show $>2\times$ data efficiency: our proposed method reaches the same accuracy as the baseline using less than half the tokens.
+
+\vspace*{-10pt}
+\paragraph{Model scaling}
+We report results on OpenLM-1B, -3B, and -7B trained from scratch for a total of $2^{37}$ tokens in \cref{fig:model-scaling}. We compare baseline training with a fixed target sequence length 8192 and VSL training with a $DD_{\ge 256}$ mixture and the "Grow-Linear" curriculum with 8 cycles. Training with DD results in significant accuracy gains and reductions in training wall-clock time at different scales.
+
+
+\vspace*{-10pt}
+\paragraph{Alternative dataset} We demonstrate the efficacy of our proposed method on another large-scale dataset, \revisionred{DataComp-LM~\citep{li2024datacomp}}. 
+We train models with different numbers of parameters: OpenLM-160M, -410M, and -1B, for a total of 137B tokens. We compare the baseline with a $DD_{\ge 256}$ mixture trained with the "Grow-P2" curriculum with 8 cycles. Results are reported in \cref{tab:rwv2}, demonstrating significant accuracy and training efficiency gains. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Comparison with state-of-the-art}\label{sec:sota}
+We compare our proposed method, data decomposition, with other approaches for handling various document lengths of pretraining data, including document masking (DM), best-fit sequence packing~\citep{ding2024fewer}, and in-context pretraining (ICLM)~\citep{shi2023context}. We describe the details of our implementation of the best-fit packing in \cref{sec:packing_detail}. For ICLM, we use the official implementation\footnote{\url{https://github.com/swj0419/in-context-pretraining}} applied to the RefinedWeb dataset. The results are shown in Table~\ref{tab:baseline}.
+
+\revisionred{Pre-training context length is an important factor in determining a model’s long-context performance. We empirically validate this in the results shown in \cref{fig:length-accuracy}, where models trained on longer sequences perform better on multi-document QA. Our proposed method has an average context length (as defined in \cref{eqn:avg_context}) of 1,344 for the RefinedWeb dataset, compared to 930 for the baseline (see \cref{fig:position_dist}) and 1,064 when packing~\citep{ding2024fewer} is applied. This explains why the dataset decomposition mixture, even without any length-based curriculum (the first row in \cref{tab:curriculum}), outperforms Baseline-8k-DM and Pack-8k+DM (second and third rows in \cref{tab:baseline}). Here, DM refers to applying document masking during training to avoid cross-document attention.}
+
+\revisionred{Document masking improves the baseline on regular evaluations from $51.5$ to $52.4$ by preventing cross-document attention. However, \citet{xiong2023effective} demonstrate that including concatenated unrelated documents can still enhance long-context metrics compared to training solely with shorter sequences. Therefore, DM experiences a slight decline in long-context evaluations, dropping from $27.5$ to $27.1$. Baseline-8k multi-document QA performance is even slightly better than our proposed dataset decomposition mixture when used \emph{without} length-based curriculum (the first row in \cref{tab:curriculum}).}
+
+\revisionred{In-context pre-training LMs (ICLM)~\citep{shi2023context} proposes document sorting based on content similarity. Although the benefits of ICLM with large-scale Common Crawl data (used in our experiments) are marginal in regular evaluation, we observe that ICLM results in slightly better multi-document QA performance than Baseline-8k when 30 documents are in the context compared with Baseline-8k (22.0\% vs. 20.5\%). The average long-context metric boosts from $27.5$ for Baseline-8k to $28.7$ for ICLM. However, the similarity finding step proposed by ICLM is resource-intensive at scale\footnote{Processing 400B tokens with the official repository required over a week using 96 CPUs and 16 GPUs.}.}
+
+\revisionred{Finally, as shown in in \cref{tab:curriculum} our proposed cyclic length-based curriculum, for example, Grow-P2 with 8 cycles, results in a significant improvement in the model’s long-context capability. Our proposed method avoids cross-document attention to unrelated content, maintains coherent long sequences, and benefits from a length-based curriculum, effectively improving performance in both regular and long-context evaluations compared to all baselines. We further summarize long-context performance of different methods discussed above in \cref{tab:summary}.}
+
+\begin{table}[t]
+    \input{tables/baseline_results}
+\end{table}

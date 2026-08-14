@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What data enters each stage</title>
+<style>
+  :root {
+    --ink: #102338;
+    --muted: #5b6e82;
+    --line: #d9e2ea;
+    --paper: #f6f8fa;
+    --white: #fff;
+    --code: #00a7d8;
+    --agentic: #7b61ff;
+    --reason: #24b36b;
+    --long: #e05f6e;
+    --indic: #5a44c8;
+    --stem: #d99a13;
+    --web: #7d90a5;
+    --hot: #c0455a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+  }
+  main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 20px 64px;
+  }
+  h1 { font-size: 28px; letter-spacing: -0.03em; margin: 0 0 6px; }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0 0 28px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 36px 0 10px; }
+  .rule { height: 1px; background: var(--line); border: 0; margin: 8px 0 16px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 780px) { .two { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 16px 14px;
+  }
+  .card b.k { display: block; font-size: 16px; margin-bottom: 6px; }
+  .wrong { border-color: #f3c0c8; background: #fff8f8; }
+  .right { border-color: #b7eccf; }
+  .tiny { font-size: 13px; color: var(--muted); }
+  .bar {
+    display: flex; height: 28px; border-radius: 6px; overflow: hidden;
+    font: 700 11px/28px Inter, sans-serif; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.18);
+  }
+  .bar > i { display: block; text-align: center; font-style: normal; }
+  .life {
+    display: grid;
+    grid-template-columns: 5.6fr 0.5fr 0.35fr 0.35fr 0.35fr 0.25fr;
+    gap: 6px;
+    align-items: stretch;
+  }
+  @media (max-width: 780px) {
+    .life { grid-template-columns: 1fr 1fr; }
+  }
+  .stg {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 10px 12px;
+    min-height: 118px;
+  }
+  .stg.pre { border-color: #9fd8ea; background: #f3fbfe; }
+  .stg.ann { border-color: #d4c9ff; background: #f7f4ff; }
+  .stg.later { opacity: 0.92; }
+  .stg .n { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+  .stg h3 { margin: 2px 0 6px; font-size: 15px; }
+  .stg ul { margin: 0; padding: 0 0 0 14px; font-size: 12.5px; color: var(--ink); }
+  .stg .tok { margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: #eef3f7; }
+  tr:last-child td { border-bottom: 0; }
+  .chip { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #fff; }
+  .c-web { background: var(--web); }
+  .c-code { background: var(--code); }
+  .c-agentic { background: var(--agentic); }
+  .c-reason { background: var(--reason); }
+  .c-long { background: var(--long); }
+  .c-indic { background: var(--indic); }
+  .c-stem { background: var(--stem); }
+  .hold { color: var(--indic); font-weight: 700; }
+  .spend { color: var(--hot); font-weight: 700; }
+  .mask { color: #8a5c06; }
+  .note { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  .mixrow { display: grid; grid-template-columns: 110px 1fr 46px; gap: 8px; align-items: center; margin: 5px 0; font-size: 12.5px; }
+  .track { height: 10px; background: #e8eef3; border-radius: 99px; overflow: hidden; }
+  .track > i { display: block; height: 100%; border-radius: 99px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+  .legend b { color: var(--ink); }
+</style>
+</head>
+<body>
+<main>
+  <h1>What data goes into each stage</h1>
+  <p class="lede">There are two stage lists. The lifecycle is the whole V5 run. The curriculum is only the diet <i>inside</i> pretraining plus the anneal. Session 5 decides both. Later stages do not eat the same pile.</p>
+
+  <h2>The mistake</h2>
+  <hr class="rule">
+  <div class="two">
+    <div class="card wrong">
+      <b class="k">Wrong</b>
+      One mixed corpus. Pour it into pretrain, then SFT, then reasoning, then preference.
+      <div class="tiny">Same documents. Different stage names. The model never learns a new objective.</div>
+    </div>
+    <div class="card right">
+      <b class="k">Right</b>
+      Each stage gets a different <i>shape</i> of example and a different loss. Pretrain gets documents. Anneal gets the reserved best documents. SFT gets (instruction, response). Reasoning gets long traces, then a verifier. Preference gets chosen/rejected pairs.
+    </div>
+  </div>
+
+  <h2>1. Lifecycle — the whole run</h2>
+  <hr class="rule">
+  <div class="life">
+    <div class="stg pre">
+      <div class="n">Stage 1 · ~95% of tokens</div>
+      <h3>Pretrain</h3>
+      <ul>
+        <li>Raw documents: web, code, STEM, Indic</li>
+        <li>Some short reasoning, some packed long-ctx</li>
+        <li>Cheap function-call format only</li>
+      </ul>
+      <div class="tok">Loss: every token · next-token CE</div>
+    </div>
+    <div class="stg ann">
+      <div class="n">Stage 2 · ~2%</div>
+      <h3>Anneal</h3>
+      <ul>
+        <li>Held-back Tier A</li>
+        <li>Verified Indic</li>
+        <li>Long agent trajectories</li>
+        <li>Long reasoning traces</li>
+      </ul>
+      <div class="tok">Same CE · best data · low LR</div>
+    </div>
+    <div class="stg later">
+      <div class="n">Stage 3 · &lt;1%</div>
+      <h3>SFT</h3>
+      <ul>
+        <li>(instruction, response)</li>
+        <li>Not the web crawl</li>
+      </ul>
+      <div class="tok">Loss: response only</div>
+    </div>
+    <div class="stg later">
+      <div class="n">Stage 4 · &lt;1%</div>
+      <h3>Reasoning</h3>
+      <ul>
+        <li>Long CoT traces first</li>
+        <li>Then RLVR: prompt + verifier</li>
+      </ul>
+      <div class="tok">Then: reward only, no CE</div>
+    </div>
+    <div class="stg later">
+      <div class="n">Stage 5 · &lt;1%</div>
+      <h3>Preference</h3>
+      <ul>
+        <li>chosen vs rejected</li>
+      </ul>
+      <div class="tok">DPO · not documents</div>
+    </div>
+    <div class="stg later">
+      <div class="n">Stage 6</div>
+      <h3>Serve</h3>
+      <ul>
+        <li>No data in</li>
+      </ul>
+      <div class="tok">Frozen weights</div>
+    </div>
+  </div>
+  <p class="note">Session 5 writes the recipe for the two wide blocks. Stages 3–5 are reserved now and spent later. Do not dump long CoT or SWE trajectories into stage 1 and call it done.</p>
+
+  <h2>2. Curriculum — diet inside pretrain + anneal</h2>
+  <hr class="rule">
+  <p class="tiny" style="margin-top:-6px">Same document-shaped data. Different mix over time. Web starts fat and thins. Hard / scarce lanes climb. The best tokens appear only at the end because you held them.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>When</th>
+        <th>What you feed</th>
+        <th>What you hold back</th>
+        <th>Mix (web / code / reason / long / indic / stem)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Seed</b><br><span class="tiny">warm start</span></td>
+        <td>Easy general web, basic code, protected Indic floor</td>
+        <td class="hold">Tier A Indic, long trajectories, long traces</td>
+        <td>55 / 15 / 3 / 2 / 15 / 10</td>
+      </tr>
+      <tr>
+        <td><b>General</b><br><span class="tiny">broad base</span></td>
+        <td>More code, still web-heavy, Indic stays on</td>
+        <td class="hold">Same reserve</td>
+        <td>45 / 20 / 6 / 3 / 16 / 10</td>
+      </tr>
+      <tr>
+        <td><b>Reasoning</b><br><span class="tiny">code + logic</span></td>
+        <td>Code + short/medium traces + STEM. Thinking is built here.</td>
+        <td class="hold">Ultra-long traces, best Indic, agent rollouts</td>
+        <td>25 / 28 / 18 / 5 / 14 / 10</td>
+      </tr>
+      <tr>
+        <td><b>Long-context</b><br><span class="tiny">stretch ctx</span></td>
+        <td>Repo-packed 32K+ and book-length sequences</td>
+        <td class="hold">Anneal reserve still locked</td>
+        <td>18 / 30 / 16 / 18 / 12 / 6</td>
+      </tr>
+      <tr>
+        <td><b>Anneal</b><br><span class="tiny">low-LR cool</span></td>
+        <td class="spend">Now spend the reserve: verified Indic, long agent trajectories, long traces</td>
+        <td>—</td>
+        <td>8 / 22 / 20 / 10 / 30 / 10</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">Agentic is missing from that 6-band bar because the curriculum widget folded it into code/reason visually. In the assignment it is a first-class lane: ~2% in the main run (cheap function-call format), ~8% in anneal (long trajectories).</p>
+
+  <h2>3. One lane, two different objects</h2>
+  <hr class="rule">
+  <div class="two">
+    <div class="card">
+      <b class="k">Agentic</b>
+      <div class="tiny">Do not pass the same file to every stage.</div>
+      <p style="margin:10px 0 4px"><span class="chip c-agentic">Pretrain</span> Glaive, xLAM, ToolACE, ToolBench — short calls. Teaches JSON format. Observations masked.</p>
+      <p style="margin:8px 0 4px"><span class="chip c-agentic">Anneal</span> SWE-Gym, SWE-smith, OpenHands — long plan / fail / recover traces. Tier A. Held until now.</p>
+      <p style="margin:8px 0 0"><span class="chip c-agentic">SFT / later</span> Full assistant trajectories again, response-masked. Not the 0.63B unique pile dumped twice.</p>
+    </div>
+    <div class="card">
+      <b class="k">Reasoning</b>
+      <div class="tiny">A distribution of lengths, then a different objective.</div>
+      <p style="margin:10px 0 4px"><span class="chip c-reason">Pretrain</span> Short and medium traces mixed in at 6%. Structure only.</p>
+      <p style="margin:8px 0 4px"><span class="chip c-reason">Anneal</span> Long traces reserved from OpenThoughts / OpenR1 / AON.</p>
+      <p style="margin:8px 0 0"><span class="chip c-reason">Stage 4</span> First long-CoT SFT (problem grey, trace green). Then RLVR: prompt + verifier, <i>no token loss</i>.</p>
+    </div>
+  </div>
+
+  <h2>4. Main-run budget you actually pass in</h2>
+  <hr class="rule">
+  <div class="card">
+    <div class="tiny">2T pretrain preset · composer default. Demand vs unique supply.</div>
+    <div class="mixrow"><span><span class="chip c-web">Web</span> 34%</span><div class="track"><i style="width:34%;background:var(--web)"></i></div><span>0.68T</span></div>
+    <div class="mixrow"><span><span class="chip c-code">Code</span> 24%</span><div class="track"><i style="width:24%;background:var(--code)"></i></div><span>0.48T</span></div>
+    <div class="mixrow"><span><span class="chip c-indic">Indic</span> 16%</span><div class="track"><i style="width:16%;background:var(--indic)"></i></div><span>0.32T</span></div>
+    <div class="mixrow"><span><span class="chip c-stem">STEM</span> 12%</span><div class="track"><i style="width:12%;background:var(--stem)"></i></div><span>0.24T</span></div>
+    <div class="mixrow"><span><span class="chip c-reason">Reason</span> 6%</span><div class="track"><i style="width:6%;background:var(--reason)"></i></div><span>0.12T</span></div>
+    <div class="mixrow"><span><span class="chip c-long">Long</span> 6%</span><div class="track"><i style="width:6%;background:var(--long)"></i></div><span>0.12T</span></div>
+    <div class="mixrow"><span><span class="chip c-agentic">Agent</span> 2%</span><div class="track"><i style="width:2%;background:var(--agentic)"></i></div><span>40B</span></div>
+    <div class="legend">
+      <span>Covered: web, code, STEM</span>
+      <span>Repeat ~1.2×: Indic, long-ctx, reason</span>
+      <span><b>Must synthesize: agentic 40B demand / 0.63B unique</b></span>
+    </div>
+  </div>
+
+  <h2>5. What never enters the loss</h2>
+  <hr class="rule">
+  <table>
+    <thead><tr><th>Stage</th><th>Green — train this</th><th class="mask">Grey — pass in, do not imitate</th></tr></thead>
+    <tbody>
+      <tr><td>Pretrain / anneal</td><td>Every document token</td><td>—</td></tr>
+      <tr><td>Agent trajectory</td><td>Plan, tool-call JSON, recovery, final answer</td><td class="mask">User text, tool observations, test output</td></tr>
+      <tr><td>SFT</td><td>Assistant response</td><td class="mask">The prompt</td></tr>
+      <tr><td>Reasoning SFT</td><td>Chain-of-thought + answer</td><td class="mask">The problem</td></tr>
+      <tr><td>RLVR</td><td>Nothing token-wise — verifier +1 / 0</td><td class="mask">The whole prompt</td></tr>
+      <tr><td>Preference</td><td>Push chosen up</td><td class="mask">Prompt + rejected (pushed down)</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

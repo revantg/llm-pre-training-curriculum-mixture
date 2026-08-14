@@ -1,0 +1,30 @@
+\section{Related works}
+
+\begin{wrapfigure}[11]{r}{0.5\textwidth}
+\vspace{-5mm}
+        \resizebox{0.99\linewidth}{!}{
+            \begin{tabular}{C{2cm}|C{1.5cm}C{1.2cm}C{2.1cm}C{0.7cm}C{1.4cm}}
+                \toprule[1.5pt]
+                {\bf Method} &  {\bf Doc Masking}&  {\bf Average Context} &  {\bf Docs in a Sequence} &  {\bf Curr.}&  {\bf MDQA-30 (\%)} \\
+                \midrule[1.25pt]
+                Baseline & \cmark & 930 & Mult-random & \xmark & 16.0\\
+                \midrule
+                Pack-8k+DM~\citep{ding2024fewer} & \cmark & 1064 & Mult-packing & \xmark & 16.9\\
+                \midrule
+                DD-Uniform & \xmark & 1344 & Single & \xmark & 19.6\\
+                \midrule
+                Baseline & \xmark & 4096 & Mult-random & \xmark & 20.5\\
+                \midrule
+                ICLM~\citep{shi2023context} & \xmark & 4096 & Mult-semantic & \xmark & 22.0\\
+                \midrule
+                {\bf DD-Grow-P2} & N/A & 1344 & Single & \cmark & {\bf 24.6}\\
+                \bottomrule[1.5pt]
+            \end{tabular}}
+         \captionof{table}{\revisionred{Summary of long-context performance for different methods from \cref{tab:curriculum} and \cref{tab:baseline}.}}\label{tab:summary}
+\end{wrapfigure}
+
+Recent works have raised concerns regarding cross-document attention. For example, Llama-3~\citep{llama3}, ICLM~\citep{shi2023context}, and \cite{ding2024fewer}, which we discussed in \cref{sec:sota}. Similarly, \cite{krell2021efficient} discuss challenges with the baseline concat-and-chunk approach and propose an approximate bin-packing algorithm.
+
+Related to our study on sequence length bias, \cite{varivs2021sequence} shows the importance of train-vs-test time distribution shift from a sequence length perspective on a string editing task. \cite{anil2022exploring,zhou2024transformers,kazemnejad2024impact,liu2023scaling} highlight the challenge of generalizing to lengths beyond what the model has seen during training and discuss the importance of positional encoding. Several works~\citep{mohtashami2024random,zhu2023pose,han2023lm,xiong2023effective,chen2023extending,ntkaware,peng2023yarn,ruoss2023randomized,liu2024world} address enabling LLM inference with long context (see \cite{pawar2024and} for an overview). These approaches are orthogonal to our contribution and can be applied post-pretraining to adapt to longer lengths. \revisionred{GrowLength~\citep{jin2023growlength} proposes accelerating LLM pretraining by progressively growing context length using the baseline sequence formation method, but does not show results on LLMs. Similarly, increasing sequence length has been shown in BERT model training~\citep{nagatsuka2021pre} to improve compute efficiency.}
+
+The idea of dynamic batching has been explored in other domains. In vision, methods like NaViT~\citep{dehghani2024patch,mehta2022cvnets} use images with variable resolutions (a similar concept to context length for LLMs). In seq-to-seq tasks (e.g., automatic speech recognition, text-to-speech, and neural machine translation), the inputs have different lengths. An efficient approach is to sort inputs by their length and form batches of inputs with similar lengths during training (after possible padding). Batchsize is dynamically adjusted inversely proportional to input lengths~\citep{ge2021speed,gonzalez2023batching}. Different from these works, in dataset decomposition, we do not simply put documents with similar lengths into the same bucket. Instead, we decompose each document into multiple subsequences and form multiple buckets. We form batches with different lengths during training by sampling from these buckets using a target mixture and curriculum.

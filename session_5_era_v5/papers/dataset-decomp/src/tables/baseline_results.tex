@@ -1,0 +1,48 @@
+\centering
+    \resizebox{0.99\columnwidth}{!}
+    {
+    \begin{tabular}{c|ccccc|cccccc|C{1cm}C{1cm}}
+    \toprule[1.5pt]
+         &
+         \multicolumn{5}{c|}{\bf Regular}&
+         \multicolumn{6}{c|}{\bf Long Context}&
+          \multirow{3}{1cm}{\centering\textbf{Step Time (ms)}}&
+          \multirow{3}{1cm}{\centering\textbf{Data Prep. Cost}}\\
+          
+            \multirow{2}{*}{\bf Method}&\multirow{2}{*}{\bf CSR}&\multirow{2}{*}{\bf LU}&\multirow{2}{*}{\bf RC}&\multirow{2}{*}{\bf WK}&\multirow{2}{*}{\bf Avg.}&
+            \multicolumn{3}{c}{\bf MDQA}&
+             \multirow{2}{*}{\bf TOEFL} & \multirow{2}{*}{\bf QuALITY}& \multirow{2}{*}{\bf Avg.} &&
+             \\
+             \cmidrule(lr){7-9}
+             &&&&&&{\bf 10}&{\bf 20}&{\bf 30}&&&&&\\
+             
+              \midrule[1pt]
+              Baseline-8k& \underline{60.6}&62.5&41.5&41.3&\cellcolor{gray!25}51.5&
+              \underline{29.0}&\underline{23.8}&\underline{20.5}& 26.2&32.0& \cellcolor{gray!25}27.5 &
+              304 & \$ \\
+               % \midrule
+              Baseline-8k+DM& 60.2&\underline{64.1}&42.8&\underline{41.8}&\cellcolor{gray!25}52.4&
+              24.4&20.0&16.0&\underline{29.2}&32.0 &\cellcolor{gray!25}27.1&
+              304 & \$ \\
+              %  \midrule
+              % % Pack-8k~\citep{ding2024fewer}& \underline{60.9}&62.7&40.8&41.2&20.2&15.8&14.8&27.2&33.5&51.5&16.9& \$\$ & \$\$ \\
+              % \midrule
+              Pack-8k+DM~\citep{ding2024fewer}& 60.3&64.0&44.6&\underline{41.8}&\cellcolor{gray!25}\underline{52.7}&
+              25.6&19.8&16.9&\underline{29.2}&33.1&\cellcolor{gray!25}27.7&
+              304 & \$\$ \\
+               % \midrule
+               ICLM~\citep{shi2023context}& \underline{60.6}&62.1&\underline{44.7}&40.0&\cellcolor{gray!25}51.7&
+              26.7&20.0&22.0&28.7&{\bf 34.6}&\cellcolor{gray!25}\underline{28.7}&
+              304 & \$\$\$ \\
+              % \midrule
+              {\bf DD (ours)}& {\bf 62.8}&{\bf65.2}&{\bf45.3}&{\bf44.2}&\cellcolor{gray!25}{\bf54.4}&
+              {\bf32.3}&{\bf26.9}&{\bf24.6}&{\bf 30.7}&\underline{34.2}&\cellcolor{gray!25}{\bf 30.9}& {\bf 244} & \$ \\
+              \bottomrule[1pt]
+    \end{tabular}
+        }
+    \vspace{1mm}
+    \caption{Comparison with baseline and state-of-the-art methods.
+All models are trained with the same hyperparameters, RoPE with $f_b=100k$, and for $103$B tokens. DM denotes training with document masking. DD uses the "Grow-P2" curriculum with 8 cycles. Dataset preparation cost is symbolic to compare methods and does not reflect the wall-clock time.
+}
+\vspace{-7mm}
+    \label{tab:baseline}

@@ -1,0 +1,307 @@
+\begin{thebibliography}{35}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bisk et~al.(2020)Bisk, Zellers, Gao, Choi, et~al.]{bisk2020piqa}
+Yonatan Bisk, Rowan Zellers, Jianfeng Gao, Yejin Choi, et~al.
+\newblock Piqa: Reasoning about physical commonsense in natural language.
+\newblock In \emph{Proceedings of the AAAI conference on artificial
+  intelligence}, volume~34, pp.\  7432--7439, 2020.
+
+\bibitem[Chen et~al.(2021)Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards,
+  Burda, Joseph, Brockman, et~al.]{chen2021evaluating}
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de~Oliveira
+  Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
+  Brockman, et~al.
+\newblock Evaluating large language models trained on code.
+\newblock \emph{arXiv preprint arXiv:2107.03374}, 2021.
+
+\bibitem[Chen et~al.(2024)Chen, Liang, Huang, Real, Wang, Pham, Dong, Luong,
+  Hsieh, Lu, et~al.]{chen2024symbolic}
+Xiangning Chen, Chen Liang, Da~Huang, Esteban Real, Kaiyuan Wang, Hieu Pham,
+  Xuanyi Dong, Thang Luong, Cho-Jui Hsieh, Yifeng Lu, et~al.
+\newblock Symbolic discovery of optimization algorithms.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Clark et~al.(2019)Clark, Lee, Chang, Kwiatkowski, Collins, and
+  Toutanova]{clark2019boolq}
+Christopher Clark, Kenton Lee, Ming{-}Wei Chang, Tom Kwiatkowski, Michael
+  Collins, and Kristina Toutanova.
+\newblock Boolq: Exploring the surprising difficulty of natural yes/no
+  questions.
+\newblock In Jill Burstein, Christy Doran, and Thamar Solorio (eds.),
+  \emph{Proceedings of the 2019 Conference of the North American Chapter of the
+  Association for Computational Linguistics: Human Language Technologies,
+  {NAACL-HLT} 2019, Minneapolis, MN, USA, June 2-7, 2019, Volume 1 (Long and
+  Short Papers)}, pp.\  2924--2936. Association for Computational Linguistics,
+  2019.
+\newblock \doi{10.18653/V1/N19-1300}.
+\newblock URL \url{https://doi.org/10.18653/v1/n19-1300}.
+
+\bibitem[Clark et~al.(2018)Clark, Cowhey, Etzioni, Khot, Sabharwal, Schoenick,
+  and Tafjord]{clark2018think}
+Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa
+  Schoenick, and Oyvind Tafjord.
+\newblock Think you have solved question answering? try arc, the ai2 reasoning
+  challenge.
+\newblock \emph{arXiv preprint arXiv:1803.05457}, 2018.
+
+\bibitem[Cobbe et~al.(2021)Cobbe, Kosaraju, Bavarian, Chen, Jun, Kaiser,
+  Plappert, Tworek, Hilton, Nakano, et~al.]{cobbe2021training}
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz
+  Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano,
+  et~al.
+\newblock Training verifiers to solve math word problems.
+\newblock \emph{arXiv preprint arXiv:2110.14168}, 2021.
+
+\bibitem[Computer(2023)]{together2023redpajama}
+Together Computer.
+\newblock Redpajama: an open dataset for training large language models, 2023.
+\newblock URL \url{https://github.com/togethercomputer/RedPajama-Data}.
+
+\bibitem[Geng \& Liu(2023)Geng and Liu]{openlm2023openllama}
+Xinyang Geng and Hao Liu.
+\newblock Openllama: An open reproduction of llama, May 2023.
+\newblock URL \url{https://github.com/openlm-research/open_llama}.
+
+\bibitem[Hendrycks et~al.(2020)Hendrycks, Burns, Basart, Zou, Mazeika, Song,
+  and Steinhardt]{hendrycks2020measuring}
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn
+  Song, and Jacob Steinhardt.
+\newblock Measuring massive multitask language understanding.
+\newblock \emph{arXiv preprint arXiv:2009.03300}, 2020.
+
+\bibitem[Jiang et~al.(2023)Jiang, Sablayrolles, Mensch, Bamford, Chaplot,
+  Casas, Bressand, Lengyel, Lample, Saulnier, et~al.]{jiang2023mistral}
+Albert~Q Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford,
+  Devendra~Singh Chaplot, Diego de~las Casas, Florian Bressand, Gianna Lengyel,
+  Guillaume Lample, Lucile Saulnier, et~al.
+\newblock Mistral 7b.
+\newblock \emph{arXiv preprint arXiv:2310.06825}, 2023.
+
+\bibitem[Jiang et~al.(2024)Jiang, Sablayrolles, Roux, Mensch, Savary, Bamford,
+  Chaplot, Casas, Hanna, Bressand, et~al.]{jiang2024mixtral}
+Albert~Q Jiang, Alexandre Sablayrolles, Antoine Roux, Arthur Mensch, Blanche
+  Savary, Chris Bamford, Devendra~Singh Chaplot, Diego de~las Casas, Emma~Bou
+  Hanna, Florian Bressand, et~al.
+\newblock Mixtral of experts.
+\newblock \emph{arXiv preprint arXiv:2401.04088}, 2024.
+
+\bibitem[Joshi et~al.(2017)Joshi, Choi, Weld, and
+  Zettlemoyer]{joshi2017triviaqa}
+Mandar Joshi, Eunsol Choi, Daniel~S. Weld, and Luke Zettlemoyer.
+\newblock Triviaqa: {A} large scale distantly supervised challenge dataset for
+  reading comprehension.
+\newblock In Regina Barzilay and Min{-}Yen Kan (eds.), \emph{Proceedings of the
+  55th Annual Meeting of the Association for Computational Linguistics, {ACL}
+  2017, Vancouver, Canada, July 30 - August 4, Volume 1: Long Papers}, pp.\
+  1601--1611. Association for Computational Linguistics, 2017.
+\newblock \doi{10.18653/V1/P17-1147}.
+\newblock URL \url{https://doi.org/10.18653/v1/P17-1147}.
+
+\bibitem[Levesque et~al.(2012)Levesque, Davis, and
+  Morgenstern]{levesque2012winograd}
+Hector Levesque, Ernest Davis, and Leora Morgenstern.
+\newblock The winograd schema challenge.
+\newblock In \emph{Thirteenth international conference on the principles of
+  knowledge representation and reasoning}, 2012.
+
+\bibitem[Mihaylov et~al.(2018)Mihaylov, Clark, Khot, and
+  Sabharwal]{mihaylov2018can}
+Todor Mihaylov, Peter Clark, Tushar Khot, and Ashish Sabharwal.
+\newblock Can a suit of armor conduct electricity? a new dataset for open book
+  question answering.
+\newblock \emph{arXiv preprint arXiv:1809.02789}, 2018.
+
+\bibitem[MosaicML et~al.(2023)]{mosaicml2023mpt}
+MosaicML et~al.
+\newblock Introducing mpt-7b: A new standard for open-source, commercially
+  usable llms, 2023.
+\newblock \emph{URL www. mosaicml. com/blog/mpt-7b. Accessed}, pp.\  05--05,
+  2023.
+
+\bibitem[Paperno et~al.(2016)Paperno, Kruszewski, Lazaridou, Pham, Bernardi,
+  Pezzelle, Baroni, Boleda, and Fern{\'{a}}ndez]{paperno2016lambada}
+Denis Paperno, Germ{\'{a}}n Kruszewski, Angeliki Lazaridou, Quan~Ngoc Pham,
+  Raffaella Bernardi, Sandro Pezzelle, Marco Baroni, Gemma Boleda, and Raquel
+  Fern{\'{a}}ndez.
+\newblock The {LAMBADA} dataset: Word prediction requiring a broad discourse
+  context.
+\newblock In \emph{Proceedings of the 54th Annual Meeting of the Association
+  for Computational Linguistics, {ACL} 2016, August 7-12, 2016, Berlin,
+  Germany, Volume 1: Long Papers}. The Association for Computer Linguistics,
+  2016.
+\newblock \doi{10.18653/V1/P16-1144}.
+\newblock URL \url{https://doi.org/10.18653/v1/p16-1144}.
+
+\bibitem[Patel et~al.(2021)Patel, Bhattamishra, and Goyal]{patel2021svamp}
+Arkil Patel, Satwik Bhattamishra, and Navin Goyal.
+\newblock Are {NLP} models really able to solve simple math word problems?
+\newblock In Kristina Toutanova, Anna Rumshisky, Luke Zettlemoyer, Dilek
+  Hakkani{-}T{\"{u}}r, Iz~Beltagy, Steven Bethard, Ryan Cotterell, Tanmoy
+  Chakraborty, and Yichao Zhou (eds.), \emph{Proceedings of the 2021 Conference
+  of the North American Chapter of the Association for Computational
+  Linguistics: Human Language Technologies, {NAACL-HLT} 2021, Online, June
+  6-11, 2021}, pp.\  2080--2094. Association for Computational Linguistics,
+  2021.
+\newblock \doi{10.18653/V1/2021.NAACL-MAIN.168}.
+\newblock URL \url{https://doi.org/10.18653/v1/2021.naacl-main.168}.
+
+\bibitem[Penedo et~al.(2023)Penedo, Malartic, Hesslow, Cojocaru, Cappelli,
+  Alobeidli, Pannier, Almazrouei, and Launay]{penedo2023refinedweb}
+Guilherme Penedo, Quentin Malartic, Daniel Hesslow, Ruxandra Cojocaru,
+  Alessandro Cappelli, Hamza Alobeidli, Baptiste Pannier, Ebtesam Almazrouei,
+  and Julien Launay.
+\newblock The refinedweb dataset for falcon llm: outperforming curated corpora
+  with web data, and web data only.
+\newblock \emph{arXiv preprint arXiv:2306.01116}, 2023.
+
+\bibitem[Press et~al.(2022)Press, Smith, and Lewis]{press2022train}
+Ofir Press, Noah Smith, and Mike Lewis.
+\newblock Train short, test long: Attention with linear biases enables input
+  length extrapolation.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+\newblock URL \url{https://openreview.net/forum?id=R8sQPpGCv0}.
+
+\bibitem[Rajpurkar et~al.(2016)Rajpurkar, Zhang, Lopyrev, and
+  Liang]{rajpurkar2016squad}
+Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang.
+\newblock Squad: 100, 000+ questions for machine comprehension of text.
+\newblock In Jian Su, Xavier Carreras, and Kevin Duh (eds.), \emph{Proceedings
+  of the 2016 Conference on Empirical Methods in Natural Language Processing,
+  {EMNLP} 2016, Austin, Texas, USA, November 1-4, 2016}, pp.\  2383--2392. The
+  Association for Computational Linguistics, 2016.
+\newblock \doi{10.18653/V1/D16-1264}.
+\newblock URL \url{https://doi.org/10.18653/v1/d16-1264}.
+
+\bibitem[Reddy et~al.(2019)Reddy, Chen, and Manning]{reddy2019coqa}
+Siva Reddy, Danqi Chen, and Christopher~D. Manning.
+\newblock Coqa: {A} conversational question answering challenge.
+\newblock \emph{Trans. Assoc. Comput. Linguistics}, 7:\penalty0 249--266, 2019.
+\newblock \doi{10.1162/TACL\_A\_00266}.
+\newblock URL \url{https://doi.org/10.1162/tacl\_a\_00266}.
+
+\bibitem[Roemmele et~al.(2011)Roemmele, Bejan, and Gordon]{roemmele2011choice}
+Melissa Roemmele, Cosmin~Adrian Bejan, and Andrew~S Gordon.
+\newblock Choice of plausible alternatives: An evaluation of commonsense causal
+  reasoning.
+\newblock In \emph{2011 AAAI Spring Symposium Series}, 2011.
+
+\bibitem[Sakaguchi et~al.(2021)Sakaguchi, Bras, Bhagavatula, and
+  Choi]{sakaguchi2021winogrande}
+Keisuke Sakaguchi, Ronan~Le Bras, Chandra Bhagavatula, and Yejin Choi.
+\newblock Winogrande: An adversarial winograd schema challenge at scale.
+\newblock \emph{Communications of the ACM}, 64\penalty0 (9):\penalty0 99--106,
+  2021.
+
+\bibitem[Sap et~al.(2019)Sap, Rashkin, Chen, LeBras, and
+  Choi]{sap2019socialiqa}
+Maarten Sap, Hannah Rashkin, Derek Chen, Ronan LeBras, and Yejin Choi.
+\newblock Socialiqa: Commonsense reasoning about social interactions.
+\newblock \emph{arXiv preprint arXiv:1904.09728}, 2019.
+
+\bibitem[Soldaini et~al.(2023)Soldaini, Kinney, Bhagia, Schwenk, Atkinson,
+  Authur, Bogin, Chandu, Dumas, Elazar, Hofmann, Jha, Kumar, Lucy, Lyu,
+  Magnusson, Morrison, Muennighoff, Naik, Nam, Peters, Ravichander, Richardson,
+  Shen, Strubell, Subramani, Tafjord, Walsh, Hajishirzi, Smith, Zettlemoyer,
+  Beltagy, Groeneveld, Dodge, and Lo]{soldaini2023dolma}
+Luca Soldaini, Rodney Kinney, Akshita Bhagia, Dustin Schwenk, David Atkinson,
+  Russell Authur, Ben Bogin, Khyathi Chandu, Jennifer Dumas, Yanai Elazar,
+  Valentin Hofmann, Ananya~Harsh Jha, Sachin Kumar, Li~Lucy, Xinxi Lyu, Ian
+  Magnusson, Jacob Morrison, Niklas Muennighoff, Aakanksha Naik, Crystal Nam,
+  Matthew~E. Peters, Abhilasha Ravichander, Kyle Richardson, Zejiang Shen, Emma
+  Strubell, Nishant Subramani, Oyvind Tafjord, Evan~Pete Walsh, Hannaneh
+  Hajishirzi, Noah~A. Smith, Luke Zettlemoyer, Iz~Beltagy, Dirk Groeneveld,
+  Jesse Dodge, and Kyle Lo.
+\newblock {Dolma: An Open Corpus of Three Trillion Tokens for Language Model
+  Pretraining Research}.
+\newblock \emph{arXiv preprint}, 2023.
+
+\bibitem[Srivastava et~al.(2022)Srivastava, Rastogi, Rao, Shoeb, Abid, Fisch,
+  Brown, Santoro, Gupta, Garriga-Alonso, et~al.]{srivastava2022beyond}
+Aarohi Srivastava, Abhinav Rastogi, Abhishek Rao, Abu Awal~Md Shoeb, Abubakar
+  Abid, Adam Fisch, Adam~R Brown, Adam Santoro, Aditya Gupta, Adri{\`a}
+  Garriga-Alonso, et~al.
+\newblock Beyond the imitation game: Quantifying and extrapolating the
+  capabilities of language models.
+\newblock \emph{arXiv preprint arXiv:2206.04615}, 2022.
+
+\bibitem[Talmor et~al.(2018)Talmor, Herzig, Lourie, and
+  Berant]{talmor2018commonsenseqa}
+Alon Talmor, Jonathan Herzig, Nicholas Lourie, and Jonathan Berant.
+\newblock Commonsenseqa: A question answering challenge targeting commonsense
+  knowledge.
+\newblock \emph{arXiv preprint arXiv:1811.00937}, 2018.
+
+\bibitem[Team et~al.(2024)Team, Mesnard, Hardin, Dadashi, Bhupatiraju, Pathak,
+  Sifre, Rivi{\`e}re, Kale, Love, et~al.]{team2024gemma}
+Gemma Team, Thomas Mesnard, Cassidy Hardin, Robert Dadashi, Surya Bhupatiraju,
+  Shreya Pathak, Laurent Sifre, Morgane Rivi{\`e}re, Mihir~Sanjay Kale,
+  Juliette Love, et~al.
+\newblock Gemma: Open models based on gemini research and technology.
+\newblock \emph{arXiv preprint arXiv:2403.08295}, 2024.
+
+\bibitem[Touvron et~al.(2023)Touvron, Martin, Stone, Albert, Almahairi, Babaei,
+  Bashlykov, Batra, Bhargava, Bhosale, et~al.]{touvron2023llama}
+Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine
+  Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale,
+  et~al.
+\newblock Llama 2: Open foundation and fine-tuned chat models.
+\newblock \emph{arXiv preprint arXiv:2307.09288}, 2023.
+
+\bibitem[Wei et~al.(2022)Wei, Tay, Bommasani, Raffel, Zoph, Borgeaud, Yogatama,
+  Bosma, Zhou, Metzler, Chi, Hashimoto, Vinyals, Liang, Dean, and
+  Fedus]{wei2022emergent}
+Jason Wei, Yi~Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian
+  Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, Ed~H.
+  Chi, Tatsunori Hashimoto, Oriol Vinyals, Percy Liang, Jeff Dean, and William
+  Fedus.
+\newblock Emergent abilities of large language models.
+\newblock \emph{Transactions on Machine Learning Research}, 2022.
+\newblock ISSN 2835-8856.
+\newblock URL \url{https://openreview.net/forum?id=yzkSU5zdwD}.
+\newblock Survey Certification.
+
+\bibitem[Wolfe et~al.(2022)Wolfe, Tunstall, and von Platen]{wolfe22jeopardy}
+Thom Wolfe, Lewis Tunstall, and Patrick von Platen.
+\newblock Jeopardy dataset on hugging face hub.
+\newblock \url{https://huggingface.co/datasets/jeopardy}, 2022.
+
+\bibitem[Xie et~al.(2024)Xie, Pham, Dong, Du, Liu, Lu, Liang, Le, Ma, and
+  Yu]{xie2024doremi}
+Sang~Michael Xie, Hieu Pham, Xuanyi Dong, Nan Du, Hanxiao Liu, Yifeng Lu,
+  Percy~S Liang, Quoc~V Le, Tengyu Ma, and Adams~Wei Yu.
+\newblock Doremi: Optimizing data mixtures speeds up language model
+  pretraining.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Zellers et~al.(2019)Zellers, Holtzman, Bisk, Farhadi, and
+  Choi]{zellers2019hellaswag}
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi.
+\newblock Hellaswag: Can a machine really finish your sentence?
+\newblock In Anna Korhonen, David~R. Traum, and Llu{\'{\i}}s M{\`{a}}rquez
+  (eds.), \emph{Proceedings of the 57th Conference of the Association for
+  Computational Linguistics, {ACL} 2019, Florence, Italy, July 28- August 2,
+  2019, Volume 1: Long Papers}, pp.\  4791--4800. Association for Computational
+  Linguistics, 2019.
+\newblock \doi{10.18653/V1/P19-1472}.
+\newblock URL \url{https://doi.org/10.18653/v1/p19-1472}.
+
+\bibitem[Zhai et~al.(2022)Zhai, Kolesnikov, Houlsby, and
+  Beyer]{zhai2022scaling}
+Xiaohua Zhai, Alexander Kolesnikov, Neil Houlsby, and Lucas Beyer.
+\newblock Scaling vision transformers.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision
+  and pattern recognition}, pp.\  12104--12113, 2022.
+
+\bibitem[Zhong et~al.(2023)Zhong, Cui, Guo, Liang, Lu, Wang, Saied, Chen, and
+  Duan]{zhong2023agieval}
+Wanjun Zhong, Ruixiang Cui, Yiduo Guo, Yaobo Liang, Shuai Lu, Yanlin Wang, Amin
+  Saied, Weizhu Chen, and Nan Duan.
+\newblock Agieval: A human-centric benchmark for evaluating foundation models.
+\newblock \emph{arXiv preprint arXiv:2304.06364}, 2023.
+
+\end{thebibliography}

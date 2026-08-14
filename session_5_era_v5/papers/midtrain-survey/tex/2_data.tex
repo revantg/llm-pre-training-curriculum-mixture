@@ -1,0 +1,420 @@
+\section{Possible Theory Behind Mid-Training}
+The core rationale for mid-training is to shift the model's learning dynamics from memorization to abstraction. As the model approaches the capacity limits of broad generalization from large-scale general or medium-quality data, high-quality samples enable further gains by sharpening attention to structured reasoning, factuality, and instruction following. Below, we outline several theoretical foundations for this approach.
+
+
+% \begin{table*}[h]
+% \centering
+% \scriptsize
+% \renewcommand{\arraystretch}{1.2}
+% \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+% \caption{Consolidated overview of state-of-the-art models that disclose their mid-training datasets.}
+% \label{tab:open_sourced_ds}
+
+% \begin{adjustbox}{width=\textwidth}
+% \begin{tabularx}{\textwidth}{@{} l L{3cm} L{2.5cm} L{3cm} L{3cm} L{3cm} @{}}
+% \toprule
+% \textbf{Model} & \textbf{HQ Web Data} & \textbf{Code} & \textbf{Math} & \textbf{Instruction\& QA Style} & \textbf{Synthetic Data} \\
+% \midrule
+% \textbf{MiniCPM}\mbox{\cite{hu2024minicpm}} & CommonCrawl\_Chn; Dolma~\cite{soldaini2024dolma}; C4~\cite{C4dataset}; Pile~\cite{gao2020pile}; Wikipedia~\cite{wikidump}; Arxiv~\cite{clement2019usearxivdataset}; BaiduBaike & Stack~\cite{Kocetkov2022TheStack} & OpenWebMath~\cite{paster2023openwebmath} & SlimOrca~\cite{SlimOrca}; OssInstruct~\cite{wei2024magicoder}; UltraChat~\cite{ding2023enhancing}; EvolInstruct~\cite{surge2024openbezoar}; Stack Exchange QA & \textemdash \\
+% % \midrule
+% \textbf{Zamba-v1}\mbox{\cite{glorioso2024zamba}} & Pile~\cite{gao2020pile}; C4~\cite{C4dataset}; PeS2o~\cite{peS2o}; Arxiv; RefinedWeb~\cite{penedo2023refinedweb} & EvolInstructCode\cite{luo2023wizardcoder} & StackMathQA~\cite{stackmathqa2024} & OpenOrca~\cite{OpenOrca} & Cosmopedia~\cite{benallal2024cosmopedia} \\
+% % \midrule
+% \textbf{MAP-Neo}\mbox{\cite{Zhang2024MAPNeoHC}} & Matrix~\cite{Zhang2024MAPNeoHC}; US-PD-Books~\cite{US-PD-Books} & Matrix~\cite{Zhang2024MAPNeoHC}; Stack V2~\cite{lozhkov2024starcoder} & Matrix~\cite{Zhang2024MAPNeoHC}; AutoMathText~\cite{zhang2025autonomous}; OpenWebMath~\cite{paster2023openwebmath} & Matrix~\cite{Zhang2024MAPNeoHC}; BioInstrutQA~\cite{BioInstructQA}; SMolInstruct~\cite{yu2024llasmol}; Agent-FLAN~\cite{chen2024agent} & Matrix~\cite{Zhang2024MAPNeoHC}; Cosmopedia~\cite{benallal2024cosmopedia} \\
+% % \midrule
+% \textbf{OLMo-2}\mbox{\cite{olmo20242}} & 
+% Dolmino-Mix-1124~\cite{olmo20242} (DCLM-Baseline~\cite{NEURIPS2024_19e4ea30}; PeS2o-Dolma1.7~\cite{soldaini2024dolma}; Wiki-Dolma1.7~\cite{soldaini2024dolma}) & Dolmino-Mix-1124~\cite{olmo20242} (CodeSearchNet-OWMfilter~\cite{husain2019codesearchnet}) & Dolmino-Mix-1124~\cite{olmo20242} (Metamath-OWMfilter~\cite{yu2023metamath}; GSM8K-trainsplit~\cite{cobbe2021gsm8k}) & Dolmino-Mix-1124~\cite{olmo20242} (Flan-Dolma1.7~\cite{soldaini2024dolma}; StackExchange-RedPajamaV1~\cite{together2023redpajama}) & Dolmino-Mix-1124~\cite{olmo20242} (TuleMath; Dolmino SynthMath; TinyGSM-MIND; MathCoder2-synthetic)\\
+% % \midrule
+% \textbf{SmolLM2}\mbox{\cite{allal2025smollm2}} & DCLM-Baseline~\cite{NEURIPS2024_19e4ea30}; FineWeb-Edu~\cite{penedo2024fineweb} & Stack-Edu~\cite{allal2025smollm2} & InfiWebMath-3+~\cite{han2024infimmwebmath40badvancingmultimodalpretraining}; FineMath 4+~\cite{allal2025smollm2}; OpenWebMath~\cite{paster2023openwebmath}; AugGSM8K~\cite{li2023mugglemath} & \textemdash & Cosmopedia v2~\cite{benallal2024smollmcorpus} \\
+% \bottomrule
+% \end{tabularx}
+% \end{adjustbox}
+% \end{table*}
+
+\begin{table*}[h]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\caption{Consolidated overview of state-of-the-art models that disclose their mid-training datasets.}
+\label{tab:open_sourced_ds}
+
+\begin{adjustbox}{width=\textwidth}
+\begin{tabularx}{\textwidth}{@{} l L{3cm} L{2.5cm} L{3cm} L{3cm} L{3cm} @{}}
+\toprule
+\textbf{Model} & \textbf{HQ Web Data} & \textbf{Code} & \textbf{Math} & \textbf{Instruction\& QA Style} & \textbf{Synthetic Data} \\
+\midrule
+\textbf{MiniCPM}\mbox{\cite{hu2024minicpm}} & CommonCrawl\_Chn; Dolma~\mbox{\cite{soldaini2024dolma}}; C4~\mbox{\cite{C4dataset}}; Pile~\mbox{\cite{gao2020pile}}; Wikipedia~\mbox{\cite{wikidump}}; Arxiv~\mbox{\cite{clement2019usearxivdataset}}; BaiduBaike & Stack~\mbox{\cite{Kocetkov2022TheStack}} & OpenWebMath~\mbox{\cite{paster2023openwebmath}} & SlimOrca~\mbox{\cite{SlimOrca}}; OssInstruct~\mbox{\cite{wei2024magicoder}}; UltraChat~\mbox{\cite{ding2023enhancing}}; EvolInstruct~\mbox{\cite{surge2024openbezoar}}; Stack Exchange QA & \textemdash \\
+% \midrule
+\textbf{Zamba-v1}\mbox{\cite{glorioso2024zamba}} & Pile~\mbox{\cite{gao2020pile}}; C4~\mbox{\cite{C4dataset}}; PeS2o~\mbox{\cite{peS2o}}; Arxiv; RefinedWeb~\mbox{\cite{penedo2023refinedweb}} & EvolInstructCode\mbox{\cite{luo2023wizardcoder}} & StackMathQA~\mbox{\cite{stackmathqa2024}} & OpenOrca~\mbox{\cite{OpenOrca}} & Cosmopedia~\mbox{\cite{benallal2024cosmopedia}} \\
+% \midrule
+\textbf{MAP-Neo}\mbox{\cite{Zhang2024MAPNeoHC}} & Matrix~\mbox{\cite{Zhang2024MAPNeoHC}}; US-PD-Books~\mbox{\cite{US-PD-Books}} & Matrix~\mbox{\cite{Zhang2024MAPNeoHC}}; Stack V2~\mbox{\cite{lozhkov2024starcoder}} & Matrix~\mbox{\cite{Zhang2024MAPNeoHC}}; AutoMathText~\mbox{\cite{zhang2025autonomous}}; OpenWebMath~\mbox{\cite{paster2023openwebmath}} & Matrix~\mbox{\cite{Zhang2024MAPNeoHC}}; BioInstrutQA~\mbox{\cite{BioInstructQA}}; SMolInstruct~\mbox{\cite{yu2024llasmol}}; Agent-FLAN~\mbox{\cite{chen2024agent}} & Matrix~\mbox{\cite{Zhang2024MAPNeoHC}}; Cosmopedia~\mbox{\cite{benallal2024cosmopedia}} \\
+% \midrule
+\textbf{OLMo-2}\mbox{\cite{olmo20242}} & 
+Dolmino-Mix-1124~\mbox{\cite{olmo20242}} (DCLM-Baseline~\mbox{\cite{NEURIPS2024_19e4ea30}}; PeS2o-Dolma1.7~\mbox{\cite{soldaini2024dolma}}; Wiki-Dolma1.7~\mbox{\cite{soldaini2024dolma}}) & Dolmino-Mix-1124~\mbox{\cite{olmo20242}} (CodeSearchNet-OWMfilter~\mbox{\cite{husain2019codesearchnet}}) & Dolmino-Mix-1124~\mbox{\cite{olmo20242}} (Metamath-OWMfilter~\mbox{\cite{yu2023metamath}}; GSM8K-trainsplit~\mbox{\cite{cobbe2021gsm8k}}) & Dolmino-Mix-1124~\mbox{\cite{olmo20242}} (Flan-Dolma1.7~\mbox{\cite{soldaini2024dolma}}; StackExchange-RedPajamaV1~\mbox{\cite{together2023redpajama}}) & Dolmino-Mix-1124~\mbox{\cite{olmo20242}} (TuleMath; Dolmino SynthMath; TinyGSM-MIND; MathCoder2-synthetic)\\
+% \midrule
+\textbf{SmolLM2}\mbox{\cite{allal2025smollm2}} & DCLM-Baseline~\mbox{\cite{NEURIPS2024_19e4ea30}}; FineWeb-Edu~\mbox{\cite{penedo2024fineweb}} & Stack-Edu~\mbox{\cite{allal2025smollm2}} & InfiWebMath-3+~\mbox{\cite{han2024infimmwebmath40badvancingmultimodalpretraining}}; FineMath 4+~\mbox{\cite{allal2025smollm2}}; OpenWebMath~\mbox{\cite{paster2023openwebmath}}; AugGSM8K~\mbox{\cite{li2023mugglemath}} & \textemdash & Cosmopedia v2~\mbox{\cite{benallal2024smollmcorpus}} \\
+\bottomrule
+\end{tabularx}
+\end{adjustbox}
+\end{table*}
+
+
+\noindent\textbf{Gradient Noise Scale:} 
+% Prior work shows that the gradient noise scale (GNS) reflects the amount of useful signal per update step~\cite{mccandlish2018empirical}. Intuitively, higher-quality data is expected to induce larger gradient variance across examples, which can manifest as a higher GNS, whereas redundant or noisy data may reduce gradient diversity. Higher GNS enables models to traverse sharper minima in the loss landscape and avoid overfitting to low-quality plateaus, consistent with findings that gradient noise can help models escape sharp minima and improve generalization~\cite{neelakantan2015adding, wang2021eliminating}. Empirically, this has been observed to increase the effectiveness of optimization during late training stages, where signal sparsity can otherwise stall convergence, and recent work further shows that improving signal-to-noise characteristics in the gradient can mitigate overfitting on noisy or low-quality data~\cite{meng2023per}.
+Prior work shows that the gradient noise scale (GNS) reflects the amount of useful signal per update step~\cite{mccandlish2018empirical}. Higher-quality data tends to induce greater gradient variance, yielding a higher GNS, whereas redundant or noisy data reduces diversity. A larger GNS helps models escape sharp minima and avoid overfitting to low-quality plateaus~\cite{neelakantan2015adding, wang2021eliminating}. Empirically, this improves optimization in late training stages, where signal sparsity may stall convergence, and recent work shows that enhancing gradient signal-to-noise can further mitigate overfitting on noisy data~\cite{meng2023per}.
+
+\noindent\textbf{Information Bottleneck:} 
+% From the perspective of the information bottleneck theory, the model during mid-training compresses its internal representation by retaining only the most relevant features for downstream tasks. High-quality data provides clearer, less entropic supervision signals, which help the model identify semantically rich structures and discard spurious correlations learned earlier in training. This mechanism helps transform large-scale memorization into usable abstraction.
+In the information bottleneck (IB) framework, representation learning in neural networks can be interpreted as a process of compressing internal states while retaining task-relevant information~\cite{tishby2015deep}. During the learning rate annealing phase of training, the model progressively reduces reliance on noisy or redundant features. The model's representations may be viewed as increasingly emphasizing those features most predictive for downstream objectives~\cite{alemi2016deep}. In this view, high-quality supervision signals provide clearer, lower-entropy guidance that facilitates the identification of semantically meaningful structures and the attenuation of spurious correlations~\cite{izmailov2022feature}. Recent extensions of the IB principle to supervised settings further highlight how such compression can transform large-scale memorization into more abstract, generalizable representations~\cite{weingarten2025supervised}.
+
+\noindent\textbf{Curriculum Learning:} 
+% Learning rate annealing naturally aligns with the principles of curriculum learning. Early pretraining exposes the model to diverse and noisy corpora for generalization. As training progresses, the data distribution can be gradually shifted toward more challenging and informative examples—exactly the role of learning rate annealing. This structured progression helps optimize learning efficiency and reinforces complex skills such as multi-step reasoning and code generation~\cite{nair2024curriculum}.
+Learning rate annealing naturally aligns with the principles of curriculum learning. Early pretraining exposes the model to diverse and noisy corpora for generalization, after which the data distribution can be gradually shifted toward more challenging and informative examples—exactly the role of curriculum-style scheduling~\cite{nair2024curriculum, chaudhry2024data}. This structured progression helps optimize learning efficiency and has been shown to reinforce complex skills such as multi-step reasoning and code generation~\cite{wang2025dump, jia2022sample}.
+
+
+
+\section{Data Distributions}
+\label{sec:data}
+% In this section, we study the question "why use high quality data" from three different theory perspectives, and then we will survey datasets and distributions used in the annealing of the state-of-the-art models. 
+In this section, we will study the mid-training dataset distribution and quality in the state-of-the-art LLM approaches.
+
+
+\subsection{Type of Commonly Used Mid-Training Data}
+The mid-training stage in LLM pretraining represents a critical phase where data quality becomes increasingly prioritized to refine model capabilities, improve alignment, and optimize performance on downstream tasks. Across state-of-the-art LLMs, several distinct categories of data are commonly employed during mid-training. These can be broadly grouped into the following types:
+
+
+
+\noindent\textbf{High-Quality Filtered Web Data:}
+% Models such as MiniCPM, Hunyuan-Large, Llama3, SmolLM2, OLMo-2, and Phi4 extensively utilize curated subsets of web-scale corpora. 
+Models~\cite{hu2024minicpm, sun2024hunyuan, Dubey2024TheL3, allal2025smollm2, olmo20242, abdin2024phi} extensively utilize curated subsets of web-scale corpora. 
+These subsets are meticulously filtered based on rigorous criteria including content quality, topic diversity, low toxicity, educational value, and minimal redundancy. In contrast to datasets used during initial pretraining stages, these refined datasets often undergo comprehensive filtering processes involving heuristic-based rules or learned scoring mechanisms to ensure selection of the most informative and high-quality samples.
+% Representative datasets include general web-scale corpora such as CommonCrawl, C4~\cite{C4dataset}, Wikipedia~\cite{wikidump}, Dolma~\cite{soldaini2024dolma}, RedPajama-Data-V2, Cultrax, RefinedWeb~\cite{penedo2023refinedweb} (600B tokens), SlimPajam and Matrix~\cite{Zhang2024MAPNeoHC} (4.69T tokens). Further specialized filtering has yielded higher-quality subsets such as FineWeb-Edu~\cite{penedo2024fineweb} (1.3T tokens), Ultra-FineWeb (1.12T tokens), DCLM-baseline~\cite{NEURIPS2024_19e4ea30} (3.8T tokens), peS2o~\cite{peS2o} ($\sim$45B tokens).
+Representative datasets include CommonCrawl, C4~\cite{C4dataset}, Wikipedia~\cite{wikidump}, Dolma~\cite{soldaini2024dolma}, RedPajama-Data-V2~\cite{together2023redpajama}, Culturax~\cite{nguyen2023culturax}, RefinedWeb~\cite{penedo2023refinedweb}, SlimPajama~\cite{shen2023slimpajama} and Matrix~\cite{Zhang2024MAPNeoHC}. Further specialized filtering has yielded higher-quality subsets such as FineWeb-Edu~\cite{penedo2024fineweb}, Ultra-FineWeb, DCLM-baseline~\cite{NEURIPS2024_19e4ea30}, peS2o~\cite{peS2o}.
+
+% Many models such as (MiniCPM, Hunyuan-Large, Llama3, SmolLM2, OLMo-2, Phi4) utilize a curated subset of web-scale corpora, where documents are filtered based on criteria such as quality, topical diversity, toxicity, educational value and low redundancy. Compared to early-stage pretraining data, these datasets are significantly more refined, often passing multiple heuristics or learned scoring mechanisms to identify high-quality samples.
+
+% Related datasets: CommonCrawl, C4, Wikipedia, Dolma, RedPajama-Data-V2, Cultrax, Refined-Web, SlimPajam.
+
+% Related filtered datasets: FineWeb-Edu, Ultra-FineWeb (1.12T), DCLM-baseline (3.71T tokens), peS2o (from Dolma 1.7, 58.6B), Wikipedia\&Wikibooks (from Dolma 1.7, 3.7B), 
+
+\noindent\textbf{Code and Mathematical Content:}
+% Code and mathematics data significantly enhance symbolic reasoning and program synthesis capabilities in models such as AFM, SmolLM2, MAP-Neo, MiniCPM, Minimax-m1, SmolLM2, and Qwen3.
+Code and math data significantly enhance symbolic reasoning and program synthesis capabilities in mid-training stages~\cite{gunter2024apple, allal2025smollm2, Zhang2024MAPNeoHC, hu2024minicpm, chen2025minimax, yang2025qwen3, yang2025qwen3}.
+Incorporating structured content from open-source repositories, curated coding benchmarks, and mathematical question-answer pairs or derivations enriches the model's ability to handle complex logic and technical reasoning.
+% Representative datasets include Stack v1~\cite{Kocetkov2022TheStack} ($\sim$200B tokens), Stack v2~\cite{lozhkov2024starcoder} ($\sim$900B tokens). More specifically filtered datasets include StackMathQA, OpenWebMath~\cite{paster2023openwebmath} (12B tokens), InfiMM-WebMath (40B tokens), FineMath~\cite{hu2024minicpm} (54B tokens focusing on math and reasoning through classifer-based filtering), FineMath4+~\cite{hu2024minicpm} (10B tokens), FineMath3+~\cite{hu2024minicpm}
+% (34B tokens), InfiWebMath~\cite{han2024infimmwebmath40badvancingmultimodalpretraining} (40B tokens), Infi-WebMath4+~\cite{hu2024minicpm} (8.5B tokens), Infi-WebMath3+~\cite{hu2024minicpm} (20.5B tokens), Stack-Edu~\cite{allal2025smollm2} (125B tokens, a filtered variant of StarCoder2Data), RefineCode~\cite{huang2024opencoder} (960B tokens), and EvolInstructCode~\cite{luo2023wizardcoder}.
+Representative datasets include Stack v1~\cite{Kocetkov2022TheStack}, Stack v2~\cite{lozhkov2024starcoder}. More specifically filtered datasets include StackMathQA, OpenWebMath~\cite{paster2023openwebmath}, InfiMM-WebMath~\cite{han2024infimm}, FineMath~\cite{hu2024minicpm}, FineMath4+~\cite{hu2024minicpm}, FineMath3+~\cite{hu2024minicpm}, InfiWebMath~\cite{han2024infimmwebmath40badvancingmultimodalpretraining} , Infi-WebMath4+~\cite{hu2024minicpm}, Infi-WebMath3+~\cite{hu2024minicpm}, Stack-Edu~\cite{allal2025smollm2}, RefineCode~\cite{huang2024opencoder}, and EvolInstructCode~\cite{luo2023wizardcoder}.
+% Code and math-heavy data play a prominent role in the mid-training stage for models like AFM, SmolLM2, MAP-Neo and X(MiniCPM, Minimax-m1, SmolLM2, Qwen3). The inclusion of such structured content improves the model's symbolic reasoning and program synthesis capabilities. Datasets often include open-source repositories, curated coding benchmarks, and mathematical question-answer pairs or derivations.
+
+% Related datasets: Stack v1, Stack v2, StarCoderData, StarCoder2Data, 
+% Related filtered dataset: OpenWebMath (12B tokens), InfiMM-WebMath (40B tokens), FineMath (using Llama-3.1-70B-Instruct), Stack-Edu (125B token, a filtered variant of StarCoder2Data filtered by Llama3-70B-Instruct), RefineCode (960B tokens, proposed by opencoder)
+
+\noindent\textbf{Instruction-Tuned and QA-Style Data:}
+% Instruction-following data is increasingly prevalent during the annealing stage, prominently utilized by models including Nemotron-4, MAP-Neo, MiniCPM, Hunyuan-Large, Minimax-m1, Pangu Pro MoE, OLMo-2, and Phi4. 
+Instruction-following and QA-style data is increasingly prevalent during the mid-training~\cite{adler2024nemotron, hu2024minicpm, abdin2024phi, Zhang2024MAPNeoHC, sun2024hunyuan, olmo20242, chen2025minimax, tang2025pangu}. 
+Such datasets typically comprise synthetic or curated question-answer pairs, instruction-response prompts, and alignment-tuning corpora. This type of data aims to enhance the model’s understanding of human intent, improve the consistency of the response, and strengthen the reasoning ability of the models~\cite{abdin2024phi}.
+% Representative datasets include Ultrachat~\cite{ding2023enhancing} (1.5M multi-turn samples), EvolInstruct~\cite{surge2024openbezoar} (2K samples), OssInstruct~\cite{wei2024magicoder} (75K samples), ShareGPT4, StackExchangeQA, and FLAN~\cite{longpre2023flan} (15M samples), OpenOrca~\cite{OpenOrca} (4.2M samples), SMolInstruct~\cite{yu2024llasmol} (3M samples).
+Representative datasets include Ultrachat~\cite{ding2023enhancing}, EvolInstruct~\cite{surge2024openbezoar}, OssInstruct~\cite{wei2024magicoder}, StackExchangeQA~\cite{olmo20242}, and FLAN~\cite{longpre2023flan}, OpenOrca~\cite{OpenOrca}, SMolInstruct~\cite{yu2024llasmol}.
+% Instruction-following data is increasingly prevalent during mid-training, as seen in Nemotron-4, MAP-Neo and (MiniCPM, Hunyuan-Large, Minimax-m1, Pangu Pro MoE, OLMo-2, Phi4 ). These examples typically include synthetic or curated question-answer pairs, instruction-response prompts, and alignment-tuning corpora. The goal is to nudge the model closer to human intent understanding and response consistency.
+
+% Related datasets: Ultrachat, EvolInstruct, OssInstruct, ShareGPT4, StackExchangeQA, FLAN (from Dolma 1.7, 17B)
+
+\noindent\textbf{Synthetic Textbooks and Knowledge-Dense Data:}
+Synthetic textbook-style and knowledge-dense data significantly enhance LLMs by providing high-quality educational content~\cite{abdin2024phi, allal2025smollm2, glorioso2024zamba, hu2024minicpm, sun2024hunyuan, gunter2024apple, olmo20242, yang2025qwen3}, particularly in low-resource domains such as math, coding, and multilingual contexts. These synthetic datasets are typically derived from knowledge graphs or generated using advanced LLMs by utilizing high-quality seeds sourced from multiple domains~\cite{abdin2024phi}. The synthetic data enrich the models with factual, explanatory, and pedagogically structured information. Such data strengthens the factual grounding and expands the world knowledge of models, improving their general reasoning and explanatory capabilities. 
+% Models leveraging this data include Phi, SmolLM2, Zamba-v1, MiniCPM, Hunyuan-Large, AFM, OLMo-2, and Qwen3. 
+% Models leveraging this data include~\cite{abdin2024phi, allal2025smollm2, glorioso2024zamba, hu2024minicpm, sun2024hunyuan, gunter2024apple, olmo20242, yang2025qwen3}. 
+% Representative datasets include TuluMath (230M tokens), Dolmino SynthMath (28.7M tokens), TinyGSM-MIND (6.48B tokens), MathCoder2 Synthetic (3.87B tokens), Cosmopedia~\cite{benallal2024cosmopedia} (25B tokens), Cosmopedia v2~\cite{benallal2024smollmcorpus} (28B tokens), OpenHermes-2.5 (1M samples).
+Representative datasets include TuluMath~\cite{olmo20242}, Dolmino SynthMath~\cite{olmo20242}, TinyGSM-MIND~\cite{olmo20242}, MathCoder2 Synthetic~\cite{olmo20242}, Cosmopedia~\cite{benallal2024cosmopedia}, Cosmopedia v2~\cite{benallal2024smollmcorpus}, OpenHermes-2.5.
+
+\noindent\textbf{Long-context Data:}
+% For models that support extended context lengths, such as Qwen3, MiniMax-M1, Hunyuan-Large and X (Qwen3), the annealing stage may incorporate long-context documents or long-form Q\&A designed to span tens or hundreds of thousands of tokens. 
+For models that support extended context lengths~\cite{yang2025qwen3, chen2025minimax, sun2024hunyuan, abdin2024phi}, the mid-training stage may incorporate long-context documents or long-form Q\&A designed to span thousands of tokens. 
+These long-context data are either filtered from existing training corpus~\cite{sun2024hunyuan, abdin2024phi, allal2025smollm2, gao2024train} or obtained from data synthesis~\cite{abdin2024phi}. These samples improve the model’s memory, coherence, and reasoning across document-scale inputs.
+Related datasets used to extract long-context data: DCLM~\cite{NEURIPS2024_19e4ea30}, FineWeb-Edu~\cite{penedo2024fineweb}, Dolma~\cite{soldaini2024dolma}
+
+
+
+\noindent\textbf{Reasoning and CoT Data:}
+Using reasoning data during mid-training has become a trend~\cite{tang2025pangu, yang2025qwen3}. Reasoning data, such as CoT annotations, provides explicit demonstrations of how to decompose complex problems into smaller steps, helping the model learn structured and interpretable reasoning patterns rather than relying only on surface-level cues. CoT reasoning data gives strong performance on math or logic tasks~\cite{sprague2024cot}. Such data is generally obtained from synthetic generation~\cite{abdin2024phi3, abdin2024phi} or through web data filtering. 
+% Introducing a proportion of reasoning data in the mid-training phase can help the model gradually strengthen its multi-step inference ability, improve robustness on reasoning-intensive tasks, and enhance the interpretability of its outputs, while still maintaining balanced performance on general instruction-following benchmarks.
+
+
+% \textbf{Fill-in-Middle (FIM) Data:} Deepseek~\cite{DeepSeekAI2024DeepSeekV3TR, zhu2024deepseek} observes that the FIM strategy does not compromise the next-token prediction capability while enabling the model to accurately predict middle text based on contextual cues. 
+\noindent\textbf{Fill-in-Middle (FIM) Data:} Deepseek~\cite{DeepSeekAI2024DeepSeekV3TR, zhu2024deepseek} observes that the FIM strategy does not compromise the next-token prediction capability while enabling the model to accurately predict middle text based on contextual cues. Within the mid-training stage, FIM data is particularly beneficial: it enforces bi-directional contextual reasoning, strengthens long-range dependency modeling, and improves robustness under fragmented inputs. At the same time, FIM increases data efficiency by allowing multiple span-prediction opportunities from a single sample, making it well-suited for late-stage training where high-quality data is scarce. Similar observations have been made in code-pretrained models such as StarCoder~\cite{li2023starcoder} and CodeT5+~\cite{wang2023codet5+}, where infilling objectives significantly enhance both data utilization and downstream generalization.
+
+Table.~\ref{tab:open_sourced_ds} offers a consolidated overview of state-of-the-art models that disclose their mid-training datasets, serving as a resource for the research community.
+
+% 6. Curriculum and Capability-Guided Data:
+
+
+
+
+
+% \begin{table*}[h]
+% \centering
+% \scriptsize
+% \renewcommand{\arraystretch}{1.2}
+% \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+% \caption{Summary of LLM pretraining strategies, token amounts, and annealing data configurations.}
+% \begin{adjustbox}{width=\textwidth}
+% \begin{tabularx}{\textwidth}{@{} l c L{6cm} L{8cm} @{}}
+% \toprule
+% \textbf{Model} & \textbf{\# Stages} & \textbf{Stages with Token Amounts} & \textbf{Annealing Data Description} \\
+% \midrule
+% Nemotron-4~\cite{adler2024nemotron} & 2 & General (8T) $\rightarrow$ Annealing (1T) & Reweighted pre-training tokens emphasizing high-quality sources; added QA-style alignment and upweighted weak domains \\
+% \addlinespace
+% MiniCPM~\cite{hu2024minicpm} & 2 & General (1T) $\rightarrow$ Annealing (20B) & Diverse and high-quality knowledge, SFT-style data \\
+% \addlinespace
+% Phi-4~\cite{abdin2024phi} & 2 & General (10T) $\rightarrow$ Annealing (?) $\rightarrow$ Long-context (250B) & Mix of synthetic data and highly filtered reasoning web content; Long-context phase uses 30\% curated long-context data and 70\% recall from pretraining. \\
+% \addlinespace
+% Deepseek-V3~\cite{DeepSeekAI2024DeepSeekV3TR} & 3 & General (14.8T) $\rightarrow$ Long-context 32k (60B) $\rightarrow$ Long-context 128k (60B) & Context extension only; no specific annealing \\
+% \addlinespace
+% Zamba-v1~\cite{glorioso2024zamba} & 2 & General (950B) $\rightarrow$ Annealing (1T) & 60\% original pretraining data and 40\% curated math/code/instruction/synthetic datasets \\
+% \addlinespace
+% MAP-Neo~\cite{Zhang2024MAPNeoHC} & 2 & General (4.5T) $\rightarrow$ Annealing (778B) & 74.5\% English, 17\% code, 8.5\% Chinese; high-quality instructional data \\
+% \addlinespace
+% AFM~\cite{gunter2024apple} & 3 & General (6.3T) $\rightarrow$ Annealing (1T) $\rightarrow$ Long-context (100B) & Downweight low-quality webcrawl and upweight code, math; Long-context phase uses some annealing data and synthetic long-context Q\&A \\
+% \addlinespace
+% LLaMA3-405B~\cite{Dubey2024TheL3} & 3 & General (15T) $\rightarrow$ Long-context (0.8T) $\rightarrow$ Annealing (40B) & Upsample very high-quality sources during annealing \\
+% \addlinespace
+% Granite 3.0~\cite{granite2024granite} & 2 & General (8-10T) $\rightarrow$ Annealing (2T) & Mixed prior and synthetic high-quality data: 45\% Web, 11\% Domain, 10\% Code, 10\% Math, and Instruction, 5\% Multilingual, 5\% Academic, 4\% Technical \\
+% \addlinespace
+% Hunyuan-Large~\cite{sun2024hunyuan} & 3 & General (7T) $\rightarrow$ Annealing ($\sim$0.35T) $\rightarrow$ Long-context (10B) & Top 5\% highest-quality tokens; Long-context phase uses 25\% long-context data from books/code, 75\% previous pretraining data \\
+% \addlinespace
+% Yi-Lightning~\cite{wake2024yi} & 3 & Initial (?) $\rightarrow$ Annealing 1 (?) $\rightarrow$ Annealing 2 (Fast-decay) ($\sim$12.5\%) $\rightarrow$ Long-context (20B) & Phase 1 upsamples high-quality, multilingual reasoning data; Phase 2 further intensifies upsampling and introduces early instruction tuning \\
+% \addlinespace
+% OLMo-2~\cite{olmo20242} & 2 & General (5T) $\rightarrow$ Annealing ($\sim$500B) & Domain-specific high quality data and synthetic data (Dolmino Mix 1124); multiple annealing runs averaged \\
+% \addlinespace
+% MiniMax-M1~\cite{chen2025minimax} & 2 & Continued training on Minimax-Text-01 (7.5T) $\rightarrow$ Long-context (?) & Diverse natural QA pairs, 70\% STEM, code, book, reasoning data\\
+% \addlinespace
+% SmolLM2~\cite{allal2025smollm2} & 5 & General 1 (6T) $\rightarrow$ General 2 (2T) $\rightarrow$ General 3 (2T) $\rightarrow$ Annealing (1T) $\rightarrow$ Long-context (75B) & 4\% Cosmopedia v2, 14\% math, 24\% code, 58\% English web; Long-context phase uses 40\% long-context documents, 60\% previous annealing data \\
+% \addlinespace
+% Pangu Pro MoE~\cite{tang2025pangu} & 3 & General (9.6T) $\rightarrow$ Reasoning (3T) $\rightarrow$ Annealing (0.4T) & Reasoning phase emphasizes complex STEM, coding, and synthetic CoT data; annealing phase includes 20\% instruction-style and 18\% STEM data.\\
+% \addlinespace
+% Qwen3~\cite{yang2025qwen3} & 3 & General (30T) $\rightarrow$ Annealing (5T) $\rightarrow$ Long-context ($\sim$0.5T) & High-quality tokens increasing STEM, coding, reasoning, synthetic content; Long-context phases uses 75\% 16k--32k, 25\% 4k--16k long-context data \\
+% \addlinespace
+% Hunyuan-A13B~\cite{yang2025qwen3} & 4 & General (20T) $\rightarrow$ Annealing (300B) $\rightarrow$ Long-context 32k (?) $\rightarrow$ Long-context 256k (?) & No specific annealing dataset details \\
+% \bottomrule
+% \end{tabularx}
+% \label{tab:llm-pretraining-annealing}
+% \end{adjustbox}
+% \end{table*}
+
+
+\begin{table*}[h]
+\centering
+\scriptsize
+\caption{Structured summary of stages and data distributions employed during mid-training. For each stage, we indicate the number of phases and the total tokens consumed. In the case of the long-context stage, the number of phase reflects how many steps is used to progressively extend the sequence length.}
+\label{fig:data_distribution_in_various_model}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabularx}{\textwidth}{l| lll |*{8}{>{\centering\arraybackslash}X}}
+\toprule
+\textbf{Model} & \multicolumn{3}{c|}{\textbf{Stage Configuration (\# Phases, \# Tokens)}} & \multicolumn{8}{c}{\textbf{Data types (used in annealing \& long-context stages)}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-12}
+& \textbf{General} & \textbf{Annealing} & \textbf{Long-context} & \textbf{HQ Web} & \textbf{Code} & \textbf{Math/ STEM} & \textbf{Instruct \& QA} & \textbf{Synthetic} & \textbf{Reasoning \& CoT} & \textbf{FIM} & \textbf{Long-context} \\
+
+% \textbf{Model} & \textbf{General} & \textbf{Annealing} & \textbf{Long-context} & \textbf{HQ Web} & \textbf{Code} & \textbf{Math} & \textbf{Instruct \& QA} & \textbf{Synthetic} & \textbf{Reasoning \& CoT} & \textbf{FIM} & \textbf{Long-context} \\
+\midrule
+Nemotron-4~\cite{adler2024nemotron} & 1 (8T) & 1 (1T) & - & \ding{51} & \ding{51} & \ding{51}  & \ding{51} &   &   &   &   \\
+MiniCPM~\cite{hu2024minicpm} & 1 (1T) & 1 (20B) & - & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   &   \\
+Phi-4~\cite{abdin2024phi} & 1 (10T) & 1 & 1 (250B) & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &  & \ding{51} \\
+Deepseek-V3~\cite{DeepSeekAI2024DeepSeekV3TR} & 1 (14.8T) & - & 2 (120B) & \ding{51} & \ding{51} & \ding{51} &   &  &   & \ding{51} & \ding{51} \\
+Zamba-v1~\cite{glorioso2024zamba} & 1 (950B) & 1 (1T) & - & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   &   \\
+MAP-Neo~\cite{Zhang2024MAPNeoHC} & 1 (4.5T) & 1 (778B) & - & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   &   \\
+AFM~\cite{gunter2024apple} & 1 (6.3T) & 1 (1T) & 1 (100B) & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   & \ding{51} \\
+LLaMA3-405B~\cite{Dubey2024TheL3} & 1 (15T) & 1 (40B) & 6 (800B) & \ding{51} & \ding{51} & \ding{51} &   &   & \ding{51} &   & \ding{51} \\
+Granite 3.0~\cite{granite2024granite} & 1 (8-10T) & 1 (2T) & - & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   &   \\
+Hunyuan-Large~\cite{sun2024hunyuan} & 1 (7T) & 1 (350B) & 2 (10B) & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   & \ding{51} \\
+Yi-Lightning~\cite{wake2024yi} & 1 & 2 & 3 (20B) & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   & \ding{51} &   & \ding{51} \\
+OLMo-2 13B~\cite{olmo20242} & 1 (5T) & 1 ($\sim$600B) & - & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   \\
+MiniMax-M1~\cite{chen2025minimax} & - & 1 (7.5T)\textsuperscript{*} & 3 (358B) & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   & \ding{51} &   & \ding{51} \\
+SmolLM2~\cite{allal2025smollm2} & 3 (10T) & 1 (1T) & 1 (75B) & \ding{51} & \ding{51} & \ding{51} &   & \ding{51} & \ding{51} &   & \ding{51} \\
+Pangu Pro MoE~\cite{tang2025pangu} & 1 (9.6T) & 2 (3.4T, 32K)$^\dagger$ & - & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   &   \\
+Qwen3~\cite{yang2025qwen3} & 1 (30T) & 1 (5T) & 1 ($\sim$500B) & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} &   & \ding{51}  \\
+Mimo-7B~\cite{xiaomi2025mimo} & 1 (18T) & 1 (4T)  & 2 (2T) & \ding{51} & \ding{51} & \ding{51} &   & \ding{51} & \ding{51} &   & \ding{51} \\
+\bottomrule
+\end{tabularx}
+\end{adjustbox}
+
+\vspace{1mm}
+\begin{minipage}{0.95\linewidth}
+\scriptsize
+\textsuperscript{*} Continued training on Minimax-Text-01. \\
+$^\dagger$ Pangu Pro MoE does not have a specific long-context stage. Instead, it is trained with 32K sequence length during the two annealing stages.
+\end{minipage}
+\end{table*}
+
+
+% \subsection{Impact of high quality dataset}
+% The annealing stage has emerged as a critical opportunity to refine large language models (LLMs) through selective exposure to high-quality data. Unlike earlier phases of pretraining which emphasize coverage and scale, annealing focuses on precision: aligning the model’s learned representation with high-value examples to improve downstream generalization, reasoning, and alignment. In this section, we explore both the theoretical motivations and empirical evidence supporting this design.
+
+% \subsubsection{Experimental Validation}
+% Empirical results across multiple open-source LLMs support the efficacy of annealing with high-quality data:
+
+% \textbf{LLaMA3} adopts an explicit annealing phase in which the data mixture is modified to upsample only the most reliable and instruction-aligned content~\cite{Dubey2024TheL3}. This stage was shown to improve reasoning and coherence, especially under long-context inference (see LLaMA3 data curation pipeline).
+
+% \textbf{MiniCPM} finds that introducing high-quality data at the beginning of the decay stage yields significantly greater benefits than reserving it for supervised fine-tuning (SFT)~\cite{hu2024minicpm}. This insight supports initiating capability specialization directly within pretraining.
+
+% \textbf{SmolLM2} performs ablation studies on different English web subsets, which inform its data curation strategy for the annealing stage~\cite{allal2025smollm2}. The model demonstrates measurable performance gains by filtering low-signal web content in favor of educational, math, and coding sources. Training ablation models on 350B tokens each from FineWeb-Edu~\cite{penedo2024fineweb} and DCLM attained performance shown in Table 1. We find that FineWeb-Edu achieves higher scores on the educational benchmarks MMLU, ARC, and OpenBookQA, while DCLM performs better on HellaSwag and CommonsenseQA. These results align with the datasets’ content: FineWeb-Edu prioritizes educational material, while DCLM captures more diverse, conversational styles.
+
+% \textbf{MiniMax-M1} emphasizes the importance of reducing redundancy and repetition during annealing~\cite{chen2025minimax}. The model applies semantic deduplication and uses heuristic-quality scoring to prioritize question-answer and STEM-style data, achieving improved long-context and reasoning robustness.
+
+% \textbf{Deepseek} performs ablation studies on using instruction data during the annealing stage versus incorporating it only during the SFT stage~\cite{bi2024deepseek}. They experimented with adding 5 million instruction samples into the final 10\% of the pretraining phase and observed improved benchmark performance. However, the gains were nearly identical to those achieved by adding the same data during SFT. This suggests that while annealing-stage instruction data can strengthen the base model, it offers limited additional benefit compared to SFT-only usage. DeepSeek ultimately chose not to include instruction data in the pretraining phase.
+
+% \textbf{Phi4} indicates that their experience from previous models showed that question-answer data contributed significantly to various capabilities, such
+% as mathematical reasoning and academic performance. Our ablation studies showed that organic questions are substantially more effective than synthetic questions. 
+
+% For long context data, phi4 also conducts the ablation studies on data sources that are inherently long context and artificially created long context data where samples are padded together to fill the sequence. The results show that the former to perform better in longer context tasks.
+
+
+% \textbf{OpenCoder}~\cite{huang2024opencoder} indicates that it is necessary to ensure that the overall data distribution remains similar to the pretraining phase. A significant distribution shift can lead to catastrophic forgetting in the model’s knowledge. Hence, OpenCoder ensures that 84\% of the annealing data comes from the original distribution of its pretraining corpus.
+
+% \textbf{ProLong-8B}~\cite{gao2024train} indicates that 1) code repositories and books are good sources of long-context data, 2) Training only on long data hurts long-context performance, 3) Choosing a high-quality short-context mix is important.
+
+
+% ~\cite{springer2025overtrained} proposes a phenomenon called catastrophic overtraining, indicating that extended pre-training can make models harder to fine-tune. Catastrophic overtraining is the phenomenon where extending pre-training beyond a certain token budget results in a decrease in the model’s performance after subsequent modifications.
+
+% OLMo 2~\cite{olmo20242} conducts experiments to show that 1) domain specific data is helpful even in small proportions. This suggests that it is not strictly necessary to have a large proportion of domain-specific data in the annealing mixture, just that domain-specific data is present.
+
+% OLMo 2~\cite{olmo20242} conducts experiments to show that 2) some duplication is beneficial. We see that one copy of the math yields a GSM* score of 61, two copies yields a score of 66, and four copies yields a score of 65. This suggests that even if there is a scarcity of high-quality domain-specific data, duplicating it a small number of times can still provide some gains.
+
+% OLMo 2~\cite{olmo20242} conducts experiments to show that 3) rewriting can help dramatically. We run a microannealing run on a mixture using an inline-annotated form of TinyGSM and compare it to just the ‘Problem Solving’ MIND rewritten variant of TinyGSM. Relative to the baseline, the code version of TinyGSM degrades GSM* performance, while the rewritten version dramatically improves the performance. This suggests the power of rewriting as a tool to cheaply convert data to a more
+% amenable form for training.
+
+% \cite{charton2024emergent} On three problems of mathematics: the greatest common divisor, modular multiplication, and matrix eigenvalues, we show that for a fixed number of training steps, models trained on smaller sets of repeated examples outperform models trained on larger sets of single-use examples. This high-
+% lights that the benefits of repetition can outweigh those of data diversity. 
+
+% These findings collectively underscore the importance of annealing not merely as a continuation of pretraining, but as a strategically designed specialization phase. It is during this phase that the model's general capabilities are polished and directed, often setting the foundation for successful alignment and instruction tuning in later stages.
+
+
+
+
+
+% "Why use high quality dataset?" 
+
+% \subsubsection{Gradient-Noise-Scale}
+% Because high-quality data has higher gradient noise scale. 
+
+% \subsubsection{Information Bottleneck}
+% According to information bottleneck theory, 
+
+% \subsubsection{Curriculum Learning}
+% In the theory of curriculum learning, we 
+
+% \subsubsection{experimental validation}
+% Llama3 model uses annealing stage to assesses data quality.
+% Llama3 data processing process.
+
+% the effect of repetition: minimax.
+
+% SmolLM2 has conducted english web ablations to curate pre-training data.
+
+% MiniCPM: the results of MiniCPM indicate that the benefits of introducing high-quality data at the beginning of the decay stage are much higher than simply adding it during the SFT phase. Therefore, we recommend that specialization and enhancement of model capabilities should start from the decay phase. (contains the data mixture of annealing stage, see section 6.3)
+
+
+
+\subsection{Mid-training Data Used In Popular Models}
+In this section, we review and compare the mid-training datasets adopted in popular models. To facilitate clarity, Table.\ref{fig:data_distribution_in_various_model} provides a structured summary of the data distributions used during mid-training, along with the number of pre-training stages and total training tokens.
+
+% The Qwen3 models~\cite{yang2025qwen3} are pre-trained through a three-stage process. It is first trained over 30 trillion tokens covering 119 languages and dialects, then further optimized on 5T high-quality tokens at a sequence length of 4K tokens which increases the proportion of STEM, coding, reasoning and synthetic data. For the third stages of long context, Qwen3 is trained on hundreds of billions of tokens, consisting of 75\% 16k–32k and 25\% 4k–16k long-context data.
+The Qwen3 models~\cite{yang2025qwen3} are pre-trained in three stages: first on 30T tokens across 119 languages and dialects, then on 5T high-quality 4K-sequence tokens with increased STEM, coding, reasoning, and synthetic data, and finally on hundreds of billions of tokens for long-context training (75\% 16k–32k, 25\% 4k–16k).
+
+
+% The Phi4 models~\cite{abdin2024phi} are pre-trained on $sim$10T tokens through a two-stage process. Most training tokens (mostly filtered web data) were used in stage 1 of pre-training. Stage 2 was trained on a mixture of synthetic tokens and a much smaller allocation for ultra-filtered and reasoning-heavy web data. Then, the Phi4 models conduct a mid-training of long context training on 75B curated long-context token and 175B recall tokens from the previous stages.
+The Phi4 models~\cite{abdin2024phi} are pre-trained on $\sim$10T tokens in two stages: stage 1 with mostly filtered web data, and stage 2 with a mix of synthetic tokens and a smaller portion of ultra-filtered, reasoning-focused web data. For mid training, the models are further trained on 75B curated long-context tokens and 175B recall tokens from earlier stages.
+
+% The Llama3 405B models~\cite{Dubey2024TheL3} are pre-trained on 15T multilingual tokens. The whole pre-training process consists of three stages: (1) initial, (2) long-context (800B tokens), and (3) annealing (final 40M tokens). The pre-training data mix contains roughly 50\% of general knowledge tokens, 25\% of math and reasoning tokens, 17\% code tokens, 8\% multilingual tokens. During the annealing, the data mixture is adjusted to upsample data sources of very high quality. 
+The Llama3 405B models~\cite{Dubey2024TheL3} are pre-trained on 15T multilingual tokens across three stages: 1) initial, 2) long-context (800B tokens), and 3) annealing (final 40M tokens). The data mix comprises 50\% general knowledge, 17\% code, 25\% math/reasoning, and 8\% multilingual tokens, with the annealing stage upsampling the highest-quality sources.
+
+The Apple Foundation Model (AFM)~\cite{gunter2024apple} consists of three stages: (1) pre-training stage on 6.3T tokens with a sequence length of 4k, (2) annealing stage on 1T tokens with a sequence length of 8k, which downweights low-quality webcrawl and upweight code and math data, (3) long context stage on 100B tokens with a sequence length of 32k, using the data mixture from the annealing stage, augmented with synthetic long-context Q\&A data.
+
+The Deepseek-V3 models~\cite{DeepSeekAI2024DeepSeekV3TR} are first pre-trained on 14.8T diverse and high-quality tokens. After that, Deepseek-V3 performs two context extension stages, first trained on 60B tokens with a sequence length of 32K and then trained on 60B tokens with a sequence length of 128K.
+
+% The SmolLM2 models~\cite{allal2025smollm2} are trained on 11T tokens, employing three pre-training stages, one annealing stage and one context length extension stage. For the first pre-training stage, the model is trained on 6T high-quality and curated tokens. They adopted 90\% web data and 10\% code data. The web data consists of 60\% FineWeb-Edu~\cite{penedo2024fineweb} and 40\% DCLM ratio for web data. For the second pre-training stage, SmolLM2 is trained on 2T tokens with a mixture of 75\% English web data, 20\% code data, and 5\% math data. For the third pre-training stage, the model is trained on the 2T tokens with a mixture of 74\% English web data, 16\% code data, and 10\% math data. For the fourth annealing stage, the model is trained on 1T high quality tokens with a mixture of 4\% synthetic textbook data (Cosmopedia v2), 14\% math data, 24\% code data, and 58\% english web data. To support long-context extension, SmolLM2 extended the context length from 2k to 8k tokens for 75B tokens. The data mixture contains 40\% long-context documents, while the remaining 60\% followed the stage 4 mixture.
+The SmolLM2 models~\cite{allal2025smollm2} are trained on 11T tokens across three pre-training stages, one annealing stage, and one context extension stage. Stage 1 uses 6T curated tokens (90\% web, 10\% code; web split into 60\% FineWeb-Edu~\cite{penedo2024fineweb} and 40\% DCLM). Stage 2 trains on 2T tokens (75\% web, 20\% code, 5\% math), and Stage 3 on 2T tokens (74\% web, 16\% code, 10\% math). The annealing stage adds 1T high-quality tokens (58\% web, 24\% code, 14\% math, 4\% synthetic textbooks). Finally, long-context training extends context length from 2k to 8k tokens over 75B tokens, with 40\% long documents and 60\% from the Stage 4 mixture.
+
+% The Nemotron-4 models~\cite{adler2024nemotron} are trained on 9T tokens for pre-training, with 8T tokens used in general pretraining and the last 1T in annealing. The pre-train data mixture consists of 70\% English, 15\% multilingual, and 15\% code data. 
+The Nemotron-4 models~\cite{adler2024nemotron} are pre-trained on 9T tokens, with 8T for general pretraining and 1T for mid-training. The data mix includes 70\% English, 15\% multilingual, and 15\% code.
+In the mid-training phase, two distinct data distributions are employed~\cite{parmar2024nemotron}. The first distribution, which makes up the majority of this phase, consists of tokens already seen during pretraining but reweighted to emphasize higher-quality sources. 
+% The second distribution introduces a small number of QA-style alignment examples to help the model improve its ability to answer such queries in downstream tasks. Additionally, data sources from areas where the model previously showed lower accuracy are up-weighted.
+The second distribution introduces a smaller portion QA-style alignment examples and up-weights domains where the model underperforms.
+
+% The OLMo 2 models~\cite{olmo20242} adopt a 2-stage process for pre-training. For the first stage of general pre-training, the model is trained on $\sim$5T tokens (primarily web-based data). For the second stage of annealing, the model is trained on the Dolmino Mix 1124 dataset, which is smaller but contains higher-quality data and synthetic data targeted at improving weak model capabilities. To better leverage this high-quality data and improve generalization, they repeat annealing stage multiple times with different random data orders and average the resulting models. For the 7B model, it performs three runs of 50B tokens each and average the results. For the 13B model, it runs three times for 100B tokens and a fourth time for 300B tokens, then averages all four models.
+The OLMo 2 models~\cite{olmo20242} adopt a two-stage pre-training process. The first stage uses $\sim$5T tokens of primarily web data. The second mid-training stage employs the Dolmino Mix 1124 dataset, which is smaller but higher-quality and includes synthetic data for strengthening weak capabilities. To maximize generalization, OLMo 2 repeats mid-training with different random orders and averages the resulting models. The 7B model trains three runs of 50B tokens each, while the 13B model performs three runs of 100B tokens plus one of 300B tokens, averaging across all.
+
+% The Yi-Lightning model~\cite{wake2024yi} adopts a three-stage approach (initial pre-training, annealing, and fast-decay training stage). The initial pre-training stage emphasizes data diversity to establish robust foundational capabilities across diverse domains. The annealing phase shifts data distribution and gradually upsamples high-quality data, with a focus on complex reasoning and low-resource multilingual support. The final fast-decay stage, accounting for 12.5\% of total tokens, boosts high-quality data emphasis and incorporates early instruction-tuning adaptation. After the three pre-training stage, the model is further trained on 20B training tokens to develop robust long-context capabilities.
+The Yi-Lightning model~\cite{wake2024yi} follows a three-stage training paradigm: an initial pre-training stage emphasizing data diversity for broad foundational capabilities; an annealing stage that gradually upsamples high-quality data with emphasis on complex reasoning and low-resource multilingual support; and a fast-decay stage (12.5\% of total tokens) that further strengthens high-quality data usage and introduces early instruction-tuning adaptation. After these three stages, the model undergoes an additional 20B-token training phase to enhance long-context performance.
+
+% The Zamba-v1~\cite{glorioso2024zamba} is pre-trained in two phases. It is first trained on 950B tokens from open web datasets. During the annealing stage, Zamba-v1 is trained over a dataset composed of 60\% original pretraining data and 40\% high-quality annealing data. The annealing set included over 100 curated datasets spanning math (e.g., StackMathQA), code (e.g., EvolInstructCode), instruction tuning (e.g., OpenOrca), and synthetic examples from stronger language models. Most datasets were trained for one epoch, with selected high-quality subsets receiving two. 
+The Zamba-v1 model~\cite{glorioso2024zamba} is pre-trained in two phases: an initial stage on 950B open web tokens, followed by a mid-training stage with a mixture of 60\% pretraining data and 40\% high-quality datasets. The mid-training set spans over 100 curated sources, including math (StackMathQA), code (EvolInstructCode), instruction tuning (OpenOrca), and synthetic data from stronger models. Most datasets were trained for one epoch, while select high-quality subsets were upsampled for two.
+
+% For MiniMax-M1 model~\cite{chen2025minimax}, they continue training on Minimax-Text-01 model with an additional 7.5T tokens using optimized data quality and mixture to improve reasoning and long-context capabilities while maintaining diversity. They refine web and PDF parsing and apply enhanced cleaning and semantic deduplication to prioritize natural QA pairs from diverse sources while avoiding synthetic data. STEM, code, book, and reasoning-related content make up 70\% of the dataset.  Training proceeds with a constant learning rate of 8e-5 for 2.5T tokens, followed by decay to 8e-6 over 5T tokens. For long-context extension, we adopt a four-stage approach, gradually increasing the context window from 32K to 1M tokens to avoid instability caused by mismatched optimization between early and late layers in lightning attention architectures.
+For the MiniMax-M1 model~\cite{chen2025minimax}, training continues from Minimax-Text-01 with an additional 7.5T tokens using optimized mixtures to enhance reasoning and long-context capabilities while preserving diversity. Data quality is improved through refined web/PDF parsing, enhanced cleaning, and semantic de-duplication, prioritizing natural QA pairs over synthetic data. STEM, code, books, and reasoning-related content constitute 70\% of the corpus. Training uses a constant learning rate of 8e-5 for 2.5T tokens, then decays to 8e-6 over 5T. Long-context extension follows a four-stage schedule, expanding the window from 32K to 1M tokens to ensure stability in lightning attention.
+
+% The pre-training of Pangu Pro MoE~\cite{tang2025pangu} follows a three-phase structure inspired by cognitive development: a general phase (9.6T tokens) to build foundational knowledge and language skills, a reasoning phase (3T) to enhance complex reasoning through high-quality STEM, code, and synthetic CoT data, and an annealing phase (0.4T) to refine behavior and transition into instruction tuning. During the reasoning phase, they designed synthetic short and long CoT difficult samples and extended sequence lengths (32K) to improve alignment with long CoT tasks, while leveraging more reasoning-focused data than prior models. The annealing phase increases instruction-style data to 20\% and advanced STEM content to 18\%, applying curriculum-based sampling and ablation studies with a 7B proxy model to optimize data strategies. 
+The pre-training of Pangu Pro MoE~\cite{tang2025pangu} follows a three-phase process inspired by cognitive development: a general phase (9.6T tokens) for foundational knowledge, a reasoning phase (3T) to strengthen complex reasoning with high-quality STEM, code, and synthetic CoT data, and an annealing phase (0.4T) to refine behavior and transition into instruction tuning. In the reasoning phase, synthetic short- and long-form CoT samples and extended contexts (32K) are introduced to align with long reasoning tasks. The annealing stage increases instruction-style data (20\%) and advanced STEM content (18\%), using curriculum-based sampling and ablation with a 7B proxy to optimize data strategies.
+
+The Hunyuan-Large model~\cite{sun2024hunyuan} is pre-trained on 7T tokens, which contains nearly 1.5T tokens of high-quality and diverse synthetic data. During the learning rate annealing phase, the model is trained on 5\% of the highest-quality pre-training tokens, which plays a pivotal role in augmenting the model's performance. After the learning rate annealing phase, Hunyuan-Large is trained on longer sequences to enable its longer-context capability (up to 256K tokens). The training corpus during long-text phase is consists of 25\% natural long-context data obtained from books and codes and 75\% normal length pre-training data, inspired by~\cite{gao2024train}.
+
+The Hunyuan-A13B model~\cite{yang2025qwen3} is pre-trained on 20T tokens. Then in midt-traininig, it implemented a fast annealing stage on 300B tokens. Following the annealing phase, Hunyuan-A13B progressed through two long-context stages to expand its context length to 32k tokens, then to 256K tokens.
+
+The MiniCPM model~\cite{hu2024minicpm} is trained by a two-stage pre-training strategy. During the general pre-training phase, MiniCPM uses 1T coarse-quality pre-training data, which is abundant and can support continuous training when provided with more computational resources. During the mid-training phase, the model is trained on 20B tokens using a mixture of the pre-training data and high-quality knowledge \& ability-oriented SFT data.
+
+% The MAP-Neo model~\cite{Zhang2024MAPNeoHC} is pre-trained in two phases. In the general pre-training stage, the model is trained on 4.5T generic text tokens (60\% English, 15\% code, 25\% Chinese) to develop its general text generation capability. In the annealing phase, the model is trained on 778B high-quality tokens (74.5\% English, 17\% code, 8.5\% Chinese), which primarily consists of high-quality instruction data. The proportion of code increases from 15\% to 17\%. The deliberate enrichment of the dataset with a higher ratio of code, coupled with instructional inputs, ensures a more robust and versatile model, adept at tackling complex coding tasks as well as understanding and generating professional responses in different fields.
+The MAP-Neo model~\cite{Zhang2024MAPNeoHC} is pre-trained in two phases. In the general stage, it uses 4.5T tokens (60\% English, 25\% Chinese, 15\% code) to build general text generation ability. The mid-training phase adds 778B high-quality tokens (74.5\% English, 8.5\% Chinese, 17\% code), with a greater emphasis on instructional and coding data. This enrichment improves robustness and equips the model for complex coding tasks as well as professional domain-specific responses.
+
+% The Granite 3.0 models~\cite{granite2024granite} are trained with a two-stage pre-training stage. In the first general pre-training stage, the dense and MoE models are trained on 10T and 8T tokens respectively. Stage 1 training data consists of unstructured multilingual language data from 5\% Web,
+% 11\% Domain, 10\% Code, 10\% Math, 10\% Instruction, 5\% Multilingual, 5\% Academic and 4\% Technical. In stage 2, we train on a mixture of 2T tokens of data. Some of the data sources for stage 2 are the same as the stage 1 data sources, mixed with a small amount of high-quality open-source and synthetic corpora with permissive licenses. 
+The Granite 3.0 models~\cite{granite2024granite} follow a two-stage pre-training setup. In Stage 1, dense and MoE variants are trained on 10T and 8T tokens, respectively, using a mixture of 5\% Web, 11\% Domain, 10\% Code, 10\% Math, 10\% Instruction, 5\% Multilingual, 5\% Academic and 4\% Technical. Stage 2 adds 2T tokens drawn partly from Stage 1 sources, supplemented with high-quality open-source and synthetic corpora under permissive licenses.
+
+MiMo-7B~\cite{xiaomi2025mimo} uses a 3-stage pre-training strategy trained on 25T tokens: Stage 1 (General) focuses on high-quality natural data by removing low-value content and upsampling professional domains. Stage 2 (Annealing) increases mathematics and code data to about 70\% to strengthen specialized skills. Stage 3 (Long-context) incorporates around 10\% synthetic data for tasks like math, code, and creative writing, while extending the context length from 8K to 32K tokens, then to 64K tokens, to improve complex task performance.
+
+
+\subsection{Insights For Mid-Training Data}
+% \textbf{Upsampling high-quality, instruction-aligned, and educational content consistently improves reasoning and coherence.}
+% Several models, including LLaMA3 and MiniCPM, emphasize the importance of emphasizing high-quality, instruction-following data during annealing. LLaMA3 explicitly adjusts its data mixture to upsample only the most reliable, instruction-aligned content, significantly improving reasoning and coherence, especially in long-context inference. Annealing with a high emphasis on mathematics and coding leaves general-domain perplexity unchanged, while simultaneously enhancing performance on targeted tasks; hence, the modified data mixture is retained in LLaMA3’s final checkpoints. Similarly, MiniCPM demonstrates that introducing high-quality data early in the decay phase yields greater performance gains than reserving it for supervised fine-tuning, suggesting that capability specialization should begin during pretraining.
+% \textbf{Selecting high-quality content improves model performance.}
+% In contrast to the early stages of pretraining, which prioritize scale and coverage, the annealing phase emphasizes data quality. By aligning the model’s learned representations with carefully curated high-quality data, annealing enhances downstream generalization, reasoning, and alignment. Ablation studies in \cite{Su2024NemotronCCTC, wang2025ultra, penedo2024fineweb} consistently demonstrate that models trained on filtered, high-quality corpora outperform those trained on unfiltered data. Moreover, although there are many available high-quality public dataset, each dataset has distinct strengths. For example, FineWeb-Edu~\cite{penedo2024fineweb} excels on academic benchmarks such as MMLU and ARC, whereas DCLM~\cite{NEURIPS2024_19e4ea30} performs better on commonsense and reasoning tasks. Hence, strategically combining complementary datasets is crucial for maximizing model performance across diverse domains.
+\textbf{Selecting high-quality content improves model performance.}
+Unlike early pre-training, which prioritizes scale and coverage, the mid-training phase emphasizes quality. Curated datasets align model representations with reasoning, generalization, and alignment objectives. Ablation studies confirm that filtered corpora consistently outperform unfiltered ones~\cite{Su2024NemotronCCTC, wang2025ultra, penedo2024fineweb}. Different datasets, however, have complementary strengths—for instance, FineWeb-Edu excels on academic benchmarks such as MMLU and ARC, while DCLM performs better on commonsense and reasoning tasks~\cite{penedo2024fineweb, NEURIPS2024_19e4ea30}. Thus, combining diverse high-quality sources is critical for broad performance gains.
+
+\noindent\textbf{Prioritizing educational, coding, and math data boosts performance on reasoning and STEM benchmarks.} SmolLM2~\cite{allal2025smollm2} has conducted extensive ablation studies to refine their mid-training mixtures. SmolLM2 demonstrates consistent gains by replacing low-signal web text with structured educational, math, and coding data, indicating that high-quality, domain-focused corpora provide stronger supervision signals during late-stage training. MiniMax-M1 complements this approach by introducing semantic deduplication and heuristic scoring to prioritize question-answer pairs and STEM-oriented data, thereby enhancing reasoning accuracy and improving long-context generalization. Together, these findings highlight the value of systematically curating high-utility data sources in mid-training to maximize both efficiency and downstream task performance.
+
+% \noindent\textbf{The role of instruction-style data during annealing remains uncertain, with models reporting both benefits and limitations.}
+% Upsampling high-quality, instruction-aligned, and educational content is shown to consistently improve reasoning and coherence, as evidenced by models like LLaMA3~\cite{Dubey2024TheL3} and MiniCPM~\cite{hu2024minicpm}. LLaMA3 selectively amplifies reliable, instruction-following data during annealing, enhancing performance on reasoning-intensive tasks, particularly under long-context conditions, without harming general-domain perplexity. MiniCPM further demonstrates that incorporating high-quality data early in the annealing phase yields greater returns than postponing it to supervised fine-tuning, indicating that capability specialization can begin during pretraining. However, other studies raise doubts about the marginal utility of instruction data at this stage. Deepseek~\cite{bi2024deepseek} finds that adding 5 million instruction samples near the end of pretraining yields similar benefits to applying them during SFT, suggesting diminishing returns for instruction-style data beyond fine-tuning. This divergence highlights an ongoing debate: while instruction-aligned data can strengthen core reasoning abilities, its optimal placement within the training pipeline remains unclear.
+
+\noindent\textbf{The role of instruction-style data during mid-training remains uncertain, with models reporting both benefits and limitations.}
+Upsampling high-quality instruction and educational content often improves reasoning and coherence~\cite{Dubey2024TheL3, hu2024minicpm}. LLaMA3~\cite{Dubey2024TheL3} amplifies reliable instruction-following data to boost long-context reasoning without harming general perplexity, while MiniCPM~\cite{hu2024minicpm} shows that introducing such data earlier in mid-training is more effective than deferring it to fine-tuning. However, Deepseek~\cite{bi2024deepseek} reports that adding 5M instruction samples late in pretraining provides gains comparable to SFT, suggesting diminishing returns. This divergence underscores an open question: instruction data can aid reasoning, but its optimal placement in the training pipeline remains unresolved.
+
+
+\noindent\textbf{Long-context capabilities benefit from careful data source selection, not just sequence length.}
+ProLong-8B~\cite{gao2024train} and Phi-4~\cite{abdin2024phi} investigate strategies for long-context optimization. Both find that training solely on long data can hurt performance, and a balanced mixture with high-quality short-context data is critical. Phi-4 shows that naturally long-form content outperforms artificially concatenated data in long-context reasoning. Books and code repositories are highlighted as effective long-context sources.
+
+
+\noindent\textbf{Domain-specific data is impactful even in small proportions.}
+OLMo 2~\cite{olmo20242} finds that even a small fraction of domain-specific data (e.g., math and coding) within the mid-training mix can produce disproportionate performance gains. This underscores the quality-over-quantity principle at this stage, where carefully selected high-utility domains provide strong supervision signals, enhance reasoning ability, and improve transfer to specialized downstream tasks without requiring large-scale rebalancing of the corpus.
+
+
+% \textbf{Synthetic data}
+% The broad usage of synthetic data improves the quality and diversity
+% of training data, which enables the model to learn richer representations effectively and generalize better to unseen data~\cite{sun2024hunyuan}.
+
+\noindent\textbf{Synthetic data substantially enhances training efficiency and generalization.}
+The broad usage of synthetic data improves both the quality and diversity of the training corpus, enabling models to acquire richer representations and generalize more effectively to unseen data~\cite{sun2024hunyuan}. Beyond simple data augmentation, synthetic corpora can be tailored to emphasize underrepresented domains, complex reasoning, or structured formats, thereby compensating for limitations in naturally collected text. This makes synthetic data particularly valuable in the mid-training stage, where curated, high-signal samples amplify learning efficiency and reinforce specialized capabilities without requiring large-scale raw corpus expansion.
+
+% \textbf{Reasoning data}
+% FineMath4+ achieves a 2x improvement on GSM8K and a 6x improvement on MATH compared to InfiMM-WebMath, demonstrating the importance of retaining high-quality mathematical content with reasoning~\cite{allal2025smollm2}.
+\noindent\textbf{Reasoning-oriented data is critical for strengthening mathematical and logical capabilities.}
+FineMath4+ achieves a 2x improvement on GSM8K and a 6x improvement on MATH compared to InfiMM-WebMath, underscoring the importance of preserving high-quality math corpora with step-by-step reasoning~\cite{allal2025smollm2}. Such data provides explicit demonstrations of problem decomposition and logical inference, allowing models to internalize structured reasoning patterns rather than relying solely on surface heuristics. Incorporating reasoning data during mid-training thus amplifies gains in mathematical problem-solving and enhances generalization to broader reasoning benchmarks.
+
+\noindent\textbf{Moderate repetition and rewriting of high-quality data can substitute for scale.}
+OLMo 2~\cite{olmo20242} and related studies explore the role of repetition and rewriting. Repeating high-value data (e.g., math examples) a few times yields performance gains, with diminishing returns beyond a certain point. Additionally, rewriting tasks into more amenable formats (e.g., inline annotations or simplified prompts) dramatically improves performance over structurally similar but unrewritten variants. Charton et al.\ further validate that models trained on smaller repeated datasets can outperform those trained on larger, unrepeated datasets, especially in mathematical reasoning.
+
+\noindent\textbf{Maintaining distributional continuity prevents catastrophic forgetting.}
+OpenCoder~\cite{huang2024opencoder} highlights the risk of distributional shift during mid-training, where a mismatch between mid-training and pretraining corpora can lead to catastrophic forgetting and degraded generalization. To address this, OpenCoder retains 84\% of its mid-training data from the original pretraining distribution, ensuring continuity while gradually introducing higher-quality subsets. This strategy stabilizes knowledge retention and preserves broad capabilities, showing the importance of balancing innovation in data selection with consistency in distributional coverage.
+
+\noindent\textbf{Overtraining beyond a critical token budget may degrade downstream tunability.}
+A recent study~\cite{springer2025overtrained} on catastrophic overtraining warns that excessive pretraining reduces a model’s adaptability during subsequent fine-tuning, as representations may become overspecialized and less flexible. This highlights the importance of defining careful token budgets and stopping criteria during mid-training to balance knowledge consolidation with downstream tunability.
+
+Collectively, these insights position mid-training not as a mere continuation of pretraining, but as a targeted specialization phase.
+It is during mid-training that models are strategically refined, leveraging focused, high-quality, and instruction-rich data to enhance core reasoning, coherence, and long-context understanding. These refinements often lay the groundwork for successful instruction tuning and alignment in downstream stages.
