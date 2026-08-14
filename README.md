@@ -4,7 +4,7 @@ Design artifact for **TSAI ERA V5, Session 5: Data Mixtures and Curriculum**.
 
 The deliverable is a written specification that decides how a ~120B model's fixed token budget is split across capability lanes, in what order those tokens are served, what is held back for the final anneal, and which of those numbers survive contact with the actual token supply.
 
-**Primary deliverable → [`session_5_era_v5/SOLUTION_v3.md`](session_5_era_v5/SOLUTION_v3.md)**
+**Primary deliverable → [`session_5_era_v5/SOLUTION.md`](session_5_era_v5/SOLUTION.md)**
 **Evidence base → [`session_5_era_v5/papers/EVIDENCE_MAP.md`](session_5_era_v5/papers/EVIDENCE_MAP.md)**
 
 ---
@@ -58,13 +58,13 @@ Two consequences shaped this repo. **E9** means the honest failure mode is over-
 
 | Lane | Share | Demand | Unique supply | Ratio | Verdict |
 |---|---|---|---|---|---|
-| General web | 33.9% | 677B | 4.50T | 0.15× | covered |
-| Code | 24.0% | 479B | 1.10T | 0.44× | covered |
-| Indic | 15.8% | 316B | 276B | 1.14× | repeat |
-| STEM / math | 11.5% | 229B | 250B | 0.92× | covered |
+| General web | 33.85% | 677B | 4.50T | 0.15× | covered |
+| Code | 23.95% | 479B | 1.10T → **362B** eff. | 0.44× → **1.32×** | **repeat** |
+| Indic | 15.80% | 316B | 276B | 1.14× | repeat |
+| STEM / math | 11.45% | 229B | 250B | 0.92× | repeat |
 | Reasoning traces | 8.5% | 170B | 85B | 2.00× | repeat |
-| Long-context (curated) | 4.5% | 89B | 100B | 0.89× | covered |
-| **Agentic** | **2.0%** | **40B** | **0.63B** | **63.5×** | **must generate** |
+| Long-context (curated) | 4.45% | 89B | 100B | 0.89× | repeat |
+| **Agentic** | **2.00%** | **40B** | **0.627B** | **63.8×** (73.4× whole-plan) | **must generate** |
 
 ### Indic tiers (share of the Indic lane)
 
@@ -79,9 +79,9 @@ Two consequences shaped this repo. **E9** means the honest failure mode is over-
 
 ### Curriculum
 
-Seed 200B → General 700B → Reasoning 600B → Long-context 500B → **anneal 80B**, with a 20B blended warmup at each of the five seams. The anneal is 60% original-distribution ballast + 40% reserved best data, giving a 19.5% mixture shift.
+Seed 200B → General 700B → Reasoning 600B → Long-context 500B → **anneal 80B**, with a 20B blended warmup at each of the **four** seams (five stages have four boundaries). The anneal is **62.5% original-distribution ballast + 37.5% reserved**, giving a **17.64% mixture shift** — 44.9% gentler than the course preset pair's own 32.0%. Like-for-like the anneal is 80/2080 = **3.85% of total tokens, exactly OpenCoder's ratio**.
 
-**Protected floor:** 8% of every iteration's *accepted* tokens for Indic + agentic + reasoning — real tokens only, enforced per length-bucket, per cycle, and inside the anneal mixture as well as the main run.
+**Protected floor:** **per lane — Indic 5.5% and agentic 2.0%** of trained tokens (7.5% together), enforced per length-bucket, per cycle, and inside the anneal as well as the main run. Reasoning is *excluded*: widget 3 marks it `scarce:false` and it scores **0.818** under the English proxy — third, above web — so it is never rejected, and an aggregate floor would have been satisfiable with zero agentic tokens. The real-token clause is scoped to supply: it binds for Indic (110B against a 113.9B real pool = 0.96 epochs) and **cannot** bind for agentic (40B against 0.627B = 63.8 epochs).
 
 ---
 
@@ -101,15 +101,15 @@ The method was **backwards from the benchmarks, then forwards through the supply
 
 ### The two deviations from the course preset, and what forced them
 
-**Long-context 6% → 4.5%.** Long-context capability is a *threshold*, not a gradient: multi-document QA sits near zero until pretraining sequences exceed the eval context, then jumps and flattens. Raising the 8192-token share from 9.4% to 25% moved the metric by 0.2 points — noise. Meanwhile natural web already supplies ~9.4% of tokens at exactly 8192 if you decompose documents instead of concatenating and chunking them. So most of the capability is a **packing decision**, not a lane purchase. Cutting the curated lane to 4.5% makes it *covered* at 0.89× instead of repeating, and the curated slice keeps its distinct job: multi-document reasoning, which web spans do not provide.
+**Long-context 6% → 4.5%.** Long-context capability is a *threshold*, not a gradient: multi-document QA sits near zero until pretraining sequences exceed the eval context, then jumps and flattens. Raising the 8192-token share from 9.4% to 25% moved the metric by 0.2 points — noise. Meanwhile natural web already supplies ~9.4% of tokens at exactly 8192 if you decompose documents instead of concatenating and chunking them. So most of the capability is a **packing decision**, not a lane purchase: effective ≥4k exposure is **354B = 17.7% of the run**, which clears the course's 8% funding rule by 2.2× even though the lane does not. Excluding the code contribution it is still 12.2%. Cutting the curated lane to 4.5% makes it *covered* at 0.89× instead of repeating, and the curated slice keeps its distinct job: multi-document reasoning, which web spans do not provide.
 
-**Reasoning 6% → 8.5%.** A controllable reasoning-effort dial requires a *distribution* of trace lengths, not one slot. 8.5% is 170B against 85B unique — 2.0× repeat, inside the measured ceiling. The budget came from the long-context reduction.
+**Reasoning 6% → 8.5%.** Widget 1's `WEIGHTED_MIN = 8` makes the course's 6% an unfunded lane that cannot move AIME, GPQA, HLE or BBH; 8.0% is the threshold and we take 8.5% for margin. The lane is 170B against 85.1B — but only **7.1B of that is trace-shaped** (long-CoT 4.6B); the other 78B is AON academic prose. The four length bands partition a **28.4B trace budget**, not the whole lane. Funding: long-context releases 1.55pp and the remaining **0.95pp (19B)** comes from STEM, Indic, web and code.
 
 **Anneal 2% → 4.0%.** Published terminal fast-decay legs cluster at 1–5% of a run. The nearest sweep never measured below 50B absolute tokens; our 80B sits inside its measured band, whereas 40B would sit below every point anyone has run.
 
 ### The number we did not fix, and why that is deliberate
 
-The agentic lane demands 40B tokens against **0.63B unique** — a 63.5× gap. There is no honest repetition story and no rephrasing story, because rephrasing needs a source document and we do not have 40B tokens of real trajectories to rewrite. The spec therefore states the full arithmetic in the open: **~94% of that lane is generated**, the generation program is environment-grounded and verifier-filtered rather than invented, and a kill criterion drops the lane to 0.5% if a 1B/3B proxy fails to beat a format-data-only baseline. E9 penalises handing a large share to an empty lane *quietly*; the response is to do the opposite of quietly.
+The agentic lane demands 40B tokens against **0.627B unique** — a 63.8× gap in the main run, **73.4× across the whole plan**. There is no honest repetition story and no rephrasing story, because rephrasing needs a source document and we do not have 40B tokens of real trajectories to rewrite. The spec therefore states the full arithmetic in the open: **91.4% of that lane is generated** (3.971B real of 46.0B), the generation program is environment-grounded and verifier-filtered rather than invented, and the defensible band on our own cited ceilings is **0.125–0.376%**, so 2.00% is 5–16× outside it. 2% is not ours to lower: widget 1 hard-codes `{key:"agentic", floor:2}`. If the 3B proxy fails to beat a format-data-only baseline. E9 penalises handing a large share to an empty lane *quietly*; the response is to do the opposite of quietly.
 
 ---
 
@@ -122,7 +122,7 @@ Every brief lives in [`session_5_era_v5/papers/<slug>/brief.md`](session_5_era_v
 | Paper | Scale actually tested | What it backs |
 |---|---|---|
 | CLIMB `2504.13161` | ≤1B, 40B–400B, English | Mixture *search* beats hand-set weights; cheap proxies rank mixtures; searched mixes are sparse and will zero any lane absent from the objective |
-| Two-Phase `2412.15285` | 8B/25B, 1T–15T | Order alone is worth +3.4 avg at identical weights; organic epoch ceilings (6 / 8); web quality gating (64% Low → zeroing lifts MMLU 42.94→56.10) |
+| Two-Phase `2412.15285` | 8B/25B, 1T–15T | Order alone is worth **+1.74 absolute** avg at identical weights (52.86 vs 51.12; the commonly-quoted “+3.4” is that gain as a *relative* percentage); organic epoch ceilings (6 / 8); web quality gating (64% Low → zeroing lifts MMLU 42.94→56.10) |
 | OpenCoder `2411.04905` | 1.5B/8B, 2.5T + 100B anneal | File-level > repo-level dedup; a ~4% high-quality anneal with 84% distribution continuity; popularity filters hurt |
 | Demystifying Synthetic `2510.01631` | 100M–3B, ≤200B | Safe synthetic ratios *by type*: rephrase ~30%, invented ≤3%; an 8B generator beats a 70B one |
 | Model Collapse `2404.05090` | theory + small GPT-2 | Closed self-training loops collapse almost surely; a real-data floor in every generation bounds the drift |
@@ -151,7 +151,8 @@ The specification was put through a red-team pass whose only job was to break it
 
 ```
 session_5_era_v5/
-├── SOLUTION_v3.md              # primary deliverable: the V5 mixture + curriculum spec
+├── SOLUTION.md                 # primary deliverable: the V5 mixture + curriculum spec
+├── SOLUTION_v3.md              # earlier iteration, kept for the audit trail
 ├── PRETRAINING_SOLUTION_v2.md  # prior iteration, kept for the audit trail
 ├── papers/
 │   ├── EVIDENCE_MAP.md         # cross-paper synthesis against the 7 assignment items
