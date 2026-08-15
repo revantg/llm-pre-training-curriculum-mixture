@@ -1,3 +1,14 @@
+> # SUPERSEDED — DO NOT GRADE THIS FILE
+>
+> This is **v2**, an intermediate iteration retained only as an audit trail.
+> first full draft; superseded before any adversarial review.
+>
+> **The deliverable is [`../SOLUTION.md`](../SOLUTION.md).**
+> Numbers here are known to be stale and several were retracted. See
+> [`iterations/README.md`](README.md) for what changed and why.
+
+---
+
 # V5 Pretraining Mixture & Curriculum — v2 (Pretraining + Anneal Only)
 
 **Scope:** Main pretraining run + anneal/mid-training decay leg of that same run (same next-token CE, low LR, curated reserve). SFT/RLVR/DPO out of scope. Model ~120B, Main **2T**, Anneal **+80B (4%)**, OPUS keep ~40% (~6× effective).

@@ -1,3 +1,14 @@
+> # SUPERSEDED — DO NOT GRADE THIS FILE
+>
+> This is **v3**, an intermediate iteration retained only as an audit trail.
+> scored 307 / 310 / 345 by three independent red-team passes.
+>
+> **The deliverable is [`../SOLUTION.md`](../SOLUTION.md).**
+> Numbers here are known to be stale and several were retracted. See
+> [`iterations/README.md`](README.md) for what changed and why.
+
+---
+
 # V5 Data Mixture & Curriculum Specification
 
 **Scope:** main pretraining run + the anneal (mid-training decay leg of the same run, same next-token CE objective). SFT / RLVR / preference are out of scope.

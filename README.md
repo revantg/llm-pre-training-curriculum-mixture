@@ -152,9 +152,14 @@ The specification was put through a red-team pass whose only job was to break it
 
 ```
 session_5_era_v5/
-├── SOLUTION.md                 # primary deliverable: the V5 mixture + curriculum spec
-├── SOLUTION_v3.md              # earlier iteration, kept for the audit trail
-├── PRETRAINING_SOLUTION_v2.md  # prior iteration, kept for the audit trail
+├── SOLUTION.md                 # THE DELIVERABLE: the V5 mixture + curriculum spec
+├── BANDS_AND_PROXY.md          # band definitions + proxy protocol detail
+├── iterations/                 # superseded drafts, audit trail only - see its README
+│   ├── README.md               # what each scored, and which numbers were retracted
+│   ├── SOLUTION_v5.md          # 438/500; retains the retracted 0.83x figure
+│   ├── SOLUTION_v4.md          # closed the v3 fatals; also retains 0.83x
+│   ├── SOLUTION_v3.md          # 307/310/345 across three red-team passes
+│   └── PRETRAINING_SOLUTION_v2.md
 ├── papers/
 │   ├── EVIDENCE_MAP.md         # cross-paper synthesis against the 7 assignment items
 │   └── <slug>/brief.md         # per-paper teaching brief with citable numbers
@@ -167,8 +172,11 @@ session_5_era_v5/
 └── manifest.json               # export inventory with SHA-256 checksums
 
 transcripts/                    # working-session transcripts (Git LFS)
-├── session-019ffd64.jsonl
-└── session-019ffd64.html
+├── README.md                   # why there are two HTML exports, and what each covers
+├── session-019ffd64.jsonl      # source of truth, plain JSONL
+├── session-019ffd64.html       # current export, through the final commit
+├── session-019ffd64-part1-early.html   # fuller early output; neither is a superset
+└── session-019ffd64/           # per-subagent transcripts, one per paper read
 ```
 
 ## 7. Transcripts are Git LFS objects
@@ -178,7 +186,7 @@ The full working session — every tool call, paper read and revision that produ
 | File | Size | Format |
 |---|---|---|
 | `session-019ffd64.jsonl` | ~5 MB | raw session log, one JSON object per event |
-| `session-019ffd64.html` | ~44 MB | rendered, browsable conversation |
+| `session-019ffd64.html` | ~23 MB | rendered, browsable conversation |
 
 Both are tracked through **Git LFS**, configured in [`.gitattributes`](.gitattributes) *before* the files were first staged. Only a pointer — object id and size — is versioned in git; the conversation text itself never enters git objects. Diffs, `git log -p` and `git grep` therefore stay clean and the repo stays clonable without pulling 47 MB of transcript.
 

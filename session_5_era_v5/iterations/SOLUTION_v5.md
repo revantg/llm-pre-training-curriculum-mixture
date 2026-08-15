@@ -1,3 +1,14 @@
+> # SUPERSEDED — DO NOT GRADE THIS FILE
+>
+> This is **v5**, an intermediate iteration retained only as an audit trail.
+> scored 438/500; **still contains the retracted 0.83x Chinchilla folklore**.
+>
+> **The deliverable is [`../SOLUTION.md`](../SOLUTION.md).**
+> Numbers here are known to be stale and several were retracted. See
+> [`iterations/README.md`](README.md) for what changed and why.
+
+---
+
 # V5 Data Mixture and Curriculum Specification
 
 **Scope.** Main pretraining run plus the anneal — the decay leg of the same run, same next-token CE objective. SFT, RLVR and preference training are out of scope.
