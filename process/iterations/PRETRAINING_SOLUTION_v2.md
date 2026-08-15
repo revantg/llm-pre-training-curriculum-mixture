@@ -3,7 +3,7 @@
 > This is **v2**, an intermediate iteration retained only as an audit trail.
 > first full draft; superseded before any adversarial review.
 >
-> **The deliverable is [`../SOLUTION.md`](../SOLUTION.md).**
+> **The deliverable is [`submission/SUBMISSION.md`](../../submission/SUBMISSION.md).**
 > Numbers here are known to be stale and several were retracted. See
 > [`iterations/README.md`](README.md) for what changed and why.
 

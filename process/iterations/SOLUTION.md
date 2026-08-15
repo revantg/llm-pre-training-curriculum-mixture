@@ -2,7 +2,7 @@
 >
 > This is the long-form working spec (52.4 KB), retained as an audit trail.
 >
-> **The deliverable is [`../SUBMISSION.md`](../SUBMISSION.md).**
+> **The deliverable is [`submission/SUBMISSION.md`](../../submission/SUBMISSION.md).**
 > A four-reviewer audit scored it 355-395/500 and found 17 FATALs, including a 250B STEM supply figure the itemised inventory does not support (the true value is 146B), a double-counted 60B in long-context, and two contradictory synthetic totals (130.7B vs 116.0B; the correct provenance-split value is 151.1B). `SUBMISSION.md` corrects all of them and is 38% shorter. Audit reports: [`review/criteria-audit/`](../review/criteria-audit/).
 
 ---

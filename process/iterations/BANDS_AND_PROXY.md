@@ -2,7 +2,7 @@
 >
 > This companion file is withdrawn.
 >
-> **The deliverable is [`../SUBMISSION.md`](../SUBMISSION.md).**
+> **The deliverable is [`submission/SUBMISSION.md`](../../submission/SUBMISSION.md).**
 > It contradicted the deliverable on six numbers — the reasoning-length budget (25.5/51.0/59.5/34.0B vs the correct 4.26/8.52/9.94/5.68B), the H3 threshold and arm counts, the H2 refute action, the H4 comparison and the mixture shift (19.5% vs 17.64%) — while the README advertised it as current. Its surviving content is now inside `SUBMISSION.md` sections 10, 11 and 13.
 
 ---

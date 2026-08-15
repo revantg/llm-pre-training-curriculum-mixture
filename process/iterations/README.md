@@ -1,6 +1,6 @@
 # Superseded iterations — audit trail only
 
-**None of these files is the deliverable.** That is [`../SOLUTION.md`](../SOLUTION.md).
+**None of these files is the deliverable.** That is [`submission/SUBMISSION.md`](../../submission/SUBMISSION.md).
 
 They are kept so the revision history is inspectable: what was claimed, what a reviewer broke, and what replaced it.
 
@@ -21,4 +21,4 @@ They are kept so the revision history is inspectable: what was claimed, what a r
 | Multilingual probes | MMLU at 1B | MMLU moved to 3B+; XCOPA and TyDiQA-GoldP added at 1B |
 | Indic tier C | defended as "inside the 6-epoch ceiling" | that defence **withdrawn**; cut to 4% after NVIDIA found N=1 > N=2 > N=4 |
 
-Read these only to check that the revision history is honest. Grade `../SOLUTION.md`.
+Read these only to check that the revision history is honest. Grade `submission/SUBMISSION.md`.
