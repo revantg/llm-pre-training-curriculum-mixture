@@ -1,31 +1,54 @@
 #!/usr/bin/env python3
-"""Re-derive every load-bearing number in SUBMISSION.md from widget_9_dataset_inventory.html.
+"""Check SUBMISSION.md against the raw dataset inventory.
 
-Zero dependencies. Run:  python3 verify.py
-The inventory is the source of truth; the course SUPPLY_T constant is NOT trusted.
+    python3 verify.py          # zero dependencies
+
+This script PARSES SUBMISSION.md and compares what it publishes against values
+re-derived from widgets/widget_9_dataset_inventory.html. It is not a restatement
+of the author's constants: if the document's numbers are edited, checks fail.
+
+Check classes, and what each can actually catch:
+
+  [D] DOCUMENT-vs-WORLD  A number scraped out of SUBMISSION.md is compared to a
+                         value derived from the inventory. Fails if the document
+                         misstates the world OR if someone edits the document.
+                         This is the only class that tests the document.
+  [S] STRUCTURAL         Numbers scraped out of the document are checked against
+                         each other (shares sum to 100, printed rows close, the
+                         time-average lands). Fails on self-contradiction. Cannot
+                         tell you a share is a bad choice.
+
+An earlier version of this file hardcoded every expected value and never opened
+the document, so it could not detect the document reverting a correction. Three
+classes of check were also mislabelled as independent when the quantity of
+interest cancelled algebraically. Both are fixed; see MISLABELS_FIXED below.
 """
-import re, sys, pathlib, collections
+import re, sys, math, pathlib, collections
 
 HERE = pathlib.Path(__file__).parent
-INV = HERE / "widgets" / "widget_9_dataset_inventory.html"
+INV  = HERE / "widgets" / "widget_9_dataset_inventory.html"
+DOC  = HERE / "SUBMISSION.md"
 LANES = ["web", "code", "indic", "stem", "reason", "longctx", "agentic"]
+DOCNAME = {"web":"web","code":"code","indic":"Indic","stem":"STEM",
+           "reason":"reasoning","longctx":"long-context","agentic":"agentic"}
 STEM_NAMES = {"proof-pile-2", "D4 STEM (V4)", "peS2o"}
-SHARE = {"web":33.85,"code":23.95,"indic":15.80,"stem":11.45,"reason":8.50,"longctx":4.45,"agentic":2.00}
-MAIN, ANNEAL, TOTAL = 2000.0e9, 80.0e9, 2080.0e9
+DISTILLED  = {"OpenThoughts2", "OpenR1-Math (R1-distilled)"}
+RSTAR, N_INDIC, AG_EPOCHS, TRACE_EPOCHS, SEEDS = 15.39, 2.00, 4.00, 4.00, 3
 W = [0.10, 0.35, 0.30, 0.25]
-PROFILE = {"web":[45,38,30,28.20],"code":[18,24,25,25.00],"indic":[14,15,16,17.40],
-           "stem":[12,12,12,9.80],"reason":[6,6.5,11,9.30],"longctx":[3,2.5,4,8.30],
-           "agentic":[2,2,2,2.00]}
-RESERVE = {"indic":9.6e9,"code":6.4e9,"reason":7.4e9,"agentic":5.0e9,"stem":1.6e9}
+MISLABELS_FIXED = 3
 
-ok = fail = 0
-def chk(label, got, want, tol=5e-3):
-    global ok, fail
-    good = abs(got - want) <= tol
-    print(f"  {'PASS' if good else 'FAIL'}  {label:52} got {got:14.4f}  want {want:12.4f}")
-    ok, fail = ok + good, fail + (not good)
+doc_v = struct = fail = 0
+def chk(kind, label, got, want, tol=5e-3):
+    global doc_v, struct, fail
+    good = got is not None and abs(got - want) <= tol
+    if not good: fail += 1
+    elif kind == "D": doc_v += 1
+    else: struct += 1
+    g = "   n/a" if got is None else f"{got:13.4f}"
+    print(f"  [{kind}] {'PASS' if good else 'FAIL'}  {label:48} doc {g}  world {want:11.4f}")
 
-def parse():
+# ---------- primary data ----------
+def inventory():
     src = INV.read_text(encoding="utf-8", errors="ignore")
     starts = [m.start() for m in re.finditer(r"\{g:'", src)]
     out = []
@@ -41,94 +64,169 @@ def parse():
         out.append(rec)
     return out
 
+# ---------- what the document claims ----------
+def published(doc):
+    """Scrape the numbers SUBMISSION.md publishes. Returns None for anything absent."""
+    p = {"share":{}, "demand":{}, "real":{}, "ep":{}, "tier":{}, "prov":{}, "gate":{}}
+    for l in LANES:
+        n = re.escape(DOCNAME[l])
+        # section 0: | lane | **33.85%** | 693.9B | 4691.0B | 0.15 | verdict | benchmarks |
+        m = re.search(rf"\|\s*{n}\s*\|\s*\*\*([\d.]+)%\*\*\s*\|\s*([\d.]+)B\s*\|\s*([\d.]+)B[^|]*\|\s*\*?\*?([\d.]+)",
+                      doc)
+        if m:
+            p["share"][l], p["demand"][l] = float(m.group(1)), float(m.group(2))
+            p["real"][l],  p["ep"][l]     = float(m.group(3)), float(m.group(4))
+    for t, nm in (("A","A verified"),("B","B unverified"),("C","C translated"),("D","D synthetic")):
+        m = re.search(rf"\|\s*{re.escape(nm)}\s*\|\s*([\d.]+)B\s*\|\s*\*\*([\d.]+)%\*\*", doc)
+        if m: p["tier"][t] = (float(m.group(1)), float(m.group(2)))
+    for key, pat in (("existing", r"Sangraha synthetic \(Indic tier D\)[^|]*\|\s*([\d.]+)B\s*\|\s*([\d.]+)%"),
+                     ("distilled", r"OpenThoughts2 3\.0B \+ OpenR1-Math 1\.6B[^|]*\|\s*([\d.]+)B\s*\|\s*([\d.]+)%"),
+                     ("genus",    r"generated by us\*\*[^|]*\|\s*([\d.]+)B\s*\|\s*\*\*([\d.]+)%\*\*"),
+                     ("total",    r"total non-natural\*\*\s*\|\s*\*\*([\d.]+)B\*\*\s*\|\s*\*\*([\d.]+)%\*\*")):
+        m = re.search(pat, doc)
+        if m: p["prov"][key] = (float(m.group(1)), float(m.group(2)))
+    m = re.search(r"\|\s*21\.156\s*\|([^|]*\|){5}[^|]*\|", doc)
+    row = re.search(r"\|\s*(21\.156)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|", doc)
+    p["anneal_printed"] = [float(row.group(i)) for i in range(1,8)] if row else None
+    prof = {}
+    for nm, key in (("Seed",0),("General",1),("Reasoning",2),("Long-context",3)):
+        m = re.search(rf"\|\s*{nm}\s*\|\s*\d+B\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|", doc)
+        if m: prof[key] = [float(m.group(i)) for i in range(1,8)]
+    p["profile"] = prof
+    for l, pat in (("longctx", r"\*\*long-context\*\*\s*\|\s*\d+\s*\|\s*\*\*[\d.]+%\*\*\s*\|\s*([\d.]+)B independent"),
+                   ("agentic", r"\*\*agentic\*\*\s*\|\s*\d+\s*\|\s*\*\*[\d.]+%\*\*\s*\|\s*([\d.]+)B\s*\|")):
+        m = re.search(pat, doc)
+        if m: p["gate"][l] = float(m.group(1))
+    m = re.search(r"\*\*\+?([\d.]+)B\*\* multi-document real text", doc)
+    p["clean_lc"] = float(m.group(1)) if m else None
+    m = re.search(r"\*\*\+?([\d.]+)B\*\* collected trajectories", doc)
+    p["clean_ag"] = float(m.group(1)) if m else None
+    m = re.search(r"\*\*([\d.]+)B total\*\*", doc)
+    p["clean_tot"] = float(m.group(1)) if m else None
+    m = re.search(r"generated = ([\d.]+)B = ([\d.]+)% of the lane", doc)
+    p["ag_gen"] = (float(m.group(1)), float(m.group(2))) if m else (None, None)
+    m = re.search(r"(\d+) arms at 1B plus (\d+) at 3B", doc)
+    p["arms"] = (int(m.group(1)), int(m.group(2))) if m else (None, None)
+    m = re.search(r"=\s*\*?\*?([\d.]+)% of the run", doc)
+    p["cost"] = float(m.group(1)) if m else None
+    return p
+
+def effective(U, ep):
+    return U*(1 + RSTAR*(1 - math.exp(-(ep-1)/RSTAR)))
+
 def main():
-    if not INV.exists():
-        print(f"inventory not found: {INV}"); return 1
-    inv = parse()
-    print(f"parsed {len(inv)} datasets from {INV.name}\n")
+    for f in (INV, DOC):
+        if not f.exists(): print(f"missing: {f}"); return 1
+    inv, doc = inventory(), DOC.read_text(encoding="utf-8")
+    P = published(doc)
+    print(f"inventory: {len(inv)} datasets   document: {len(doc):,} B, {len(doc.splitlines())} lines\n")
+
     by = collections.defaultdict(list)
-    for r in inv:
-        by[{"general":"web","long":"longctx"}.get(r["g"], r["g"])].append(r)
+    for r in inv: by[{"general":"web","long":"longctx"}.get(r["g"], r["g"])].append(r)
     stem = [r for r in by["web"] if r["name"] in STEM_NAMES]
     web  = [r for r in by["web"] if r["name"] not in STEM_NAMES]
-    real = {"web":sum(r["tokens"] for r in web),
-            "code":sum(r["tokens"] for r in by["code"]),
-            "indic":sum(r["tokens"] for r in by["indic"] if r["tag"] != "synth"),
-            "stem":sum(r["tokens"] for r in stem),
-            "reason":sum(r["tokens"] for r in by["reason"]),
+    real = {"web":sum(r["tokens"] for r in web), "code":sum(r["tokens"] for r in by["code"]),
+            "indic":sum(r["tokens"] for r in by["indic"] if r["tag"]!="synth"),
+            "stem":sum(r["tokens"] for r in stem), "reason":sum(r["tokens"] for r in by["reason"]),
             "longctx":sum(r["tokens"] for r in by["longctx"] if "Book" in r["name"]),
             "agentic":sum(r["tokens"] for r in by["agentic"])}
+    TOTAL = 2080.0e9
 
-    print("== supply, re-derived from the itemised inventory ==")
-    chk("STEM real supply (B) -- NOT the 250B constant", real["stem"]/1e9, 146.0)
-    chk("real Indic A+B+C (B)", real["indic"]/1e9, 113.9)
-    chk("long-context independent supply (B)", real["longctx"]/1e9, 40.0)
-    chk("agentic pool (B)", real["agentic"]/1e9, 0.627)
-    chk("web (B)", real["web"]/1e9, 4691.0)
-    chk("code (B)", real["code"]/1e9, 1103.0)
-    chk("reasoning (B)", real["reason"]/1e9, 85.1)
-
-    print("\n== mixture closes ==")
-    chk("lane shares sum", sum(SHARE.values()), 100.00)
-    ballast = {l: 50.0e9*SHARE[l]/100 for l in LANES}
-    ann = {l: ballast[l] + RESERVE.get(l, 0.0) for l in LANES}
-    chk("reserve (B)", sum(RESERVE.values())/1e9, 30.0)
-    chk("anneal total (B)", sum(ann.values())/1e9, 80.0)
-    chk("anneal mixture sums", sum(100*ann[l]/ANNEAL for l in LANES), 100.000)
-    demand = {l: MAIN*SHARE[l]/100 + ann[l] for l in LANES}
-    chk("total demand (B)", sum(demand.values())/1e9, 2080.0)
-    chk("mixture shift %", 0.5*sum(abs(100*ann[l]/ANNEAL - SHARE[l]) for l in LANES), 17.64, 0.01)
-
-    print("\n== stage profiles time-average to the published shares ==")
+    print("== [D] the supply the document publishes, against the inventory ==")
     for l in LANES:
-        chk(f"{l} time-average", sum(W[s]*PROFILE[l][s] for s in range(4)), SHARE[l], 1e-9)
-    for s, nm in enumerate(("Seed","General","Reasoning","Long-context")):
-        chk(f"{nm} row sums", sum(PROFILE[l][s] for l in LANES), 100.0, 1e-9)
+        chk("D", f"{l} real supply (B)", P["real"].get(l), real[l]/1e9, 0.06)
 
-    print("\n== epochs and verdicts ==")
-    for l, want in [("indic",2.93),("stem",1.62),("reason",2.13),("longctx",2.28),("agentic",73.37)]:
-        chk(f"{l} epochs", demand[l]/real[l], want, 0.01)
+    print("\n== [D] epochs: the document's own demand over derived supply ==")
+    for l in LANES:
+        d, e = P["demand"].get(l), P["ep"].get(l)
+        # tolerance scales with the published precision: 73.4 is 1dp, 0.15 is 2dp
+        tol = 0.05 if (e or 0) >= 10 else 0.02
+        chk("D", f"{l} epochs", e, (d*1e9/real[l]) if d else float("nan"), tol)
 
-    print("\n== Indic tiers at the declared cap N = 2.00 ==")
-    TA, TB, TC = 64.0e9, 44.9e9, 5.0e9
-    synth_pool = sum(r["tokens"] for r in by["indic"] if r["tag"] == "synth")
-    chk("Sangraha synthetic pool (B)", synth_pool/1e9, 162.0)
-    N = 2.00
-    tD = demand["indic"] - (TA+TB+TC)*N
-    for nm, v in (("A", TA*N), ("B", TB*N), ("C", TC*N), ("D", tD)):
-        chk(f"tier {nm} share %", 100*v/demand["indic"], {"A":38.38,"B":26.93,"C":3.00,"D":31.69}[nm], 0.01)
-    chk("tier D epochs on the 162B pool", tD/synth_pool, 0.65, 0.01)
-    chk("lane synthetic %", 100*tD/demand["indic"], 31.69, 0.01)
+    print("\n== [S] the published mixture closes ==")
+    chk("S", "shares sum", sum(P["share"].values()) or None, 100.00)
+    chk("S", "demands sum (B)", sum(P["demand"].values()) or None, 2080.0, 0.6)
+    chk("S", "printed anneal row sums",
+        sum(P["anneal_printed"]) if P["anneal_printed"] else None, 100.000, 1e-9)
+    for k, nm in ((0,"Seed"),(1,"General"),(2,"Reasoning"),(3,"Long-context")):
+        r = P["profile"].get(k)
+        chk("S", f"{nm} row sums", sum(r) if r else None, 100.0, 1e-9)
+    if len(P["profile"]) == 4:
+        for i, l in enumerate(LANES):
+            avg = sum(W[s]*P["profile"][s][i] for s in range(4))
+            chk("S", f"{l} time-average vs published share", avg, P["share"].get(l, float("nan")), 1e-9)
 
-    print("\n== agentic ==")
-    ag_real = real["agentic"]*8.0
-    chk("real served at 8 epochs (B)", ag_real/1e9, 5.016)
-    chk("generated % of lane", 100*(demand["agentic"]-ag_real)/demand["agentic"], 89.10, 0.05)
-    chk("conservative asymptote 16.39x (B)", real["agentic"]*16.39/1e9, 10.28, 0.01)
-    gen_d = sum(r["tokens"] for r in by["agentic"] if r["tier"] == "D")
-    chk("tier-D generated share of pool %", 100*gen_d/real["agentic"], 20.7, 0.1)
+    print("\n== [D] Indic tiers, decomposed from the inventory's tier+tag fields ==")
+    tier = lambda t: sum(r["tokens"] for r in by["indic"] if r["tier"]==t and r["tag"]!="synth")
+    TA, TB, TC = tier("A"), tier("B"), tier("C")
+    synth_pool = sum(r["tokens"] for r in by["indic"] if r["tag"]=="synth")
+    dem_i = P["demand"].get("indic", 0)*1e9
+    for t, u in (("A",TA),("B",TB),("C",TC)):
+        got = P["tier"].get(t, (None,None))[0]
+        chk("D", f"tier {t} tokens = derived supply x N", got, u*N_INDIC/1e9, 0.06)
+    tD = dem_i - (TA+TB+TC)*N_INDIC
+    chk("D", "tier D tokens (residual)", P["tier"].get("D",(None,None))[0], tD/1e9, 0.06)
+    chk("D", "tier D fits inside the derived synthetic pool", 1.0 if tD <= synth_pool else 0.0, 1.0)
+    chk("S", "tier percentages sum", sum(v[1] for v in P["tier"].values()) or None, 100.00, 0.02)
 
-    print("\n== non-natural tokens, by provenance ==")
-    gen_us = (demand["agentic"]-ag_real) + 4.4e9
-    chk("existing published synthetic % of run", 100*tD/TOTAL, 5.08, 0.01)
-    chk("generated by us % of run", 100*gen_us/TOTAL, 2.18, 0.01)
-    chk("total non-natural % of run", 100*(tD+gen_us)/TOTAL, 7.26, 0.01)
+    print("\n== [D] agentic ==")
+    ag_raw = real["agentic"]*AG_EPOCHS
+    dem_a = P["demand"].get("agentic", 0)*1e9
+    chk("D", "generated tokens (B)", P["ag_gen"][0], (dem_a-ag_raw)/1e9, 0.02)
+    chk("D", "generated % of lane", P["ag_gen"][1], 100*(dem_a-ag_raw)/dem_a, 0.05)
+    # NOTE: efficiency is effective(U,ep)/(U*ep) -- U cancels, so it is NOT a document-vs-world
+    # check. Previously mislabelled [I]. It is structural: a property of RSTAR and the cap.
+    chk("S", "4-epoch efficiency (U cancels: structural)",
+        100*effective(real["agentic"],AG_EPOCHS)/ag_raw, 93.1, 0.1)
 
-    print("\n== data gate ==")
-    conf = sum(r["tokens"] for r in inv if r["tag"] == "conf")
-    chk("inventory-wide confirmed %", 100*conf/sum(r["tokens"] for r in inv), 18.8, 0.1)
+    print("\n== [D] non-natural tokens by provenance ==")
+    dist = sum(r["tokens"] for r in by["reason"] if r["name"] in DISTILLED)*TRACE_EPOCHS
+    chk("D", "distilled served (B)", P["prov"].get("distilled",(None,))[0], dist/1e9, 0.06)
+    chk("D", "existing published synthetic %", P["prov"].get("existing",(None,None))[1],
+        100*tD/TOTAL, 0.02)
+    gen_us = (dem_a-ag_raw) + 4.4e9
+    chk("D", "generated-by-us %", P["prov"].get("genus",(None,None))[1], 100*gen_us/TOTAL, 0.02)
+    chk("D", "total non-natural %", P["prov"].get("total",(None,None))[1],
+        100*(tD+dist+gen_us)/TOTAL, 0.02)
+
+    print("\n== [D] data gate ==")
+    chk("D", "long-context independent supply in 12.1", P["gate"].get("longctx"), real["longctx"]/1e9, 0.06)
+    chk("D", "agentic pool in 12.1", P["gate"].get("agentic"), real["agentic"]/1e9, 0.002)
     for l in ("longctx","agentic"):
-        rows = by[l]
-        chk(f"{l} confirmed tokens (must be 0)", sum(r["tokens"] for r in rows if r["tag"]=="conf"), 0.0)
-    chk("one-epoch Indic share % (the 5.5 floor)", 100*real["indic"]/TOTAL, 5.48, 0.01)
+        chk("D", f"{l} confirmed tokens are zero",
+            float(sum(r["tokens"] for r in by[l] if r["tag"]=="conf")), 0.0)
+    chk("D", "agentic rows needing licence review",
+        float(sum(1 for r in by["agentic"] if r["lic"] in ("task licenses","mixed"))), 3.0)
 
-    print("\n== proxy cost ==")
+    print("\n== [D] cleaning target aimed at the starved slots ==")
+    starved = [l for l in LANES if P["share"].get(l, 99) < 8]
+    chk("S", "starved slots (published share < 8)", float(len(starved)), 2.0)
+    lc = P["demand"].get("longctx",0)*1e9 - real["longctx"]
+    ag = P["demand"].get("agentic",0)*1e9/AG_EPOCHS - real["agentic"]
+    chk("D", "long-context cleaning target (B)", P["clean_lc"], lc/1e9, 0.06)
+    chk("D", "agentic cleaning target (B)", P["clean_ag"], ag/1e9, 0.06)
+    chk("D", "cumulative cleaning target (B)", P["clean_tot"], (lc+ag)/1e9, 0.06)
+
+    print("\n== [S] proxy programme, arms counted from the published table ==")
+    tbl = re.findall(r"\|\s*(1B|3B)[^|]*,\s*(\d+)\s*arms?\s*\|", doc.replace("**",""))
+    n1 = sum(int(a) for s,a in tbl if s=="1B"); n3 = sum(int(a) for s,a in tbl if s=="3B")
+    chk("S", "hypotheses in the table", float(len(tbl)), 8.0)
+    chk("S", "arms at 1B match the prose", float(P["arms"][0]) if P["arms"][0] else None, float(n1))
+    chk("S", "arms at 3B match the prose", float(P["arms"][1]) if P["arms"][1] else None, float(n3))
     full = 6*120e9*TOTAL
-    chk("1B x 10B arm, % of run", 100*(6*1e9*10e9)/full, 0.0040, 1e-4)
-    chk("3B x 30B arm, % of run", 100*(6*3e9*30e9)/full, 0.0361, 1e-4)
-    chk("14@1B + 6@3B x3 seeds, % of run", 100*(14*6*1e9*10e9 + 6*6*3e9*30e9)*3/full, 0.82, 0.01)
+    chk("S", "programme cost % of run", P["cost"],
+        100*(n1*6*1e9*10e9 + n3*6*3e9*30e9)*SEEDS/full, 0.01)
 
-    print(f"\n{ok} passed, {fail} failed")
+    print(f"\n{'='*74}")
+    print(f"  {doc_v} DOCUMENT-vs-WORLD passed   (scraped from SUBMISSION.md, checked against the inventory)")
+    print(f"  {struct} STRUCTURAL passed         (published numbers checked against each other)")
+    print(f"  {fail} FAILED")
+    print(f"{'='*74}")
+    print(f"\nThis version parses SUBMISSION.md rather than restating its constants, so editing")
+    print(f"the document breaks these checks. {MISLABELS_FIXED} checks previously mislabelled as")
+    print(f"independent -- where the quantity of interest cancelled algebraically -- are now [S].")
+    print(f"\nStill unproven by any check here: that this mixture trains well. Only the proxies")
+    print(f"in section 13 could show that, and none has been run.")
     return 1 if fail else 0
 
 if __name__ == "__main__":

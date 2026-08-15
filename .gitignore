@@ -1,18 +1,16 @@
-# marimo notebook scratch
-__marimo__/
-.marimo.toml
-
-# python
-__pycache__/
-*.pyc
-.venv/
-.ipynb_checkpoints/
-
-# agent scratch / local state
-.omp/sessions/
-*.tmp
-*.log
 
 # OS
+# agent scratch / local state
+# marimo notebook scratch
+# python
+*.log
+*.pyc
+*.tmp
 .DS_Store
+.ipynb_checkpoints/
+.marimo.toml
+.omp/sessions/
+.venv/
 Thumbs.db
+__marimo__/
+__pycache__/
