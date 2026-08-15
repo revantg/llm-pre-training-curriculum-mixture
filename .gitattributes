@@ -1,22 +1,26 @@
-# Session transcripts are stored as Git LFS pointers.
-# The conversation text is never written into git objects — only a pointer
-# (oid + size) is versioned, so `git log -p`, `git grep` and diffs stay clean.
-transcripts/**/*.jsonl  filter=lfs diff=lfs merge=lfs -text
-transcripts/**/*.html   filter=lfs diff=lfs merge=lfs -text
-transcripts/**/*.gz     filter=lfs diff=lfs merge=lfs -text
-transcripts/*.jsonl     filter=lfs diff=lfs merge=lfs -text
-transcripts/*.html      filter=lfs diff=lfs merge=lfs -text
-transcripts/*.gz        filter=lfs diff=lfs merge=lfs -text
+# Git LFS. Large or binary payloads are stored as pointers (oid + size) so that
+# `git log -p`, `git grep` and diffs stay readable. Clone light with:
+#   GIT_LFS_SKIP_SMUDGE=1 git clone <url>
 
-# Large course-export payloads (raw video captions + fetched paper PDFs/figures)
-session_5_era_v5/transcripts/*.vtt        filter=lfs diff=lfs merge=lfs -text
-session_5_era_v5/transcripts/*.info.json  filter=lfs diff=lfs merge=lfs -text
-session_5_era_v5/papers/**/*.pdf          filter=lfs diff=lfs merge=lfs -text
-session_5_era_v5/papers/**/*.png          filter=lfs diff=lfs merge=lfs -text
-session_5_era_v5/papers/**/*.tar.gz       filter=lfs diff=lfs merge=lfs -text
-session_5_era_v5/papers/**/*.html         filter=lfs diff=lfs merge=lfs -text
-session_5_era_v5/papers/**/*.txt          filter=lfs diff=lfs merge=lfs -text
+# Working-session transcripts.
+process/transcripts/**/*.jsonl  filter=lfs diff=lfs merge=lfs -text
+process/transcripts/**/*.html   filter=lfs diff=lfs merge=lfs -text
+process/transcripts/**/*.gz     filter=lfs diff=lfs merge=lfs -text
+process/transcripts/*.jsonl     filter=lfs diff=lfs merge=lfs -text
+process/transcripts/*.html      filter=lfs diff=lfs merge=lfs -text
+process/transcripts/*.gz        filter=lfs diff=lfs merge=lfs -text
 
-# Keep markdown/JSON/HTML specs as normal diffable text.
+# Course lecture captions (raw video exports).
+course/captions/*.vtt           filter=lfs diff=lfs merge=lfs -text
+course/captions/*.info.json     filter=lfs diff=lfs merge=lfs -text
+
+# Fetched paper sources: PDFs, figures, arXiv tarballs, HTML renders.
+research/papers/**/*.pdf        filter=lfs diff=lfs merge=lfs -text
+research/papers/**/*.png        filter=lfs diff=lfs merge=lfs -text
+research/papers/**/*.tar.gz     filter=lfs diff=lfs merge=lfs -text
+research/papers/**/*.html       filter=lfs diff=lfs merge=lfs -text
+research/papers/**/*.txt        filter=lfs diff=lfs merge=lfs -text
+
+# Keep specs and data diffable as text.
 *.md    text
 *.json  text
