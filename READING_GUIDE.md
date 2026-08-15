@@ -6,6 +6,35 @@ If you are writing this assignment yourself, the short answer is at the bottom: 
 
 ---
 
+## Tier 0 — prerequisite, not a scoring paper
+
+### 0. Training Compute-Optimal Large Language Models (Chinchilla) — `2203.15556`
+*Hoffmann et al., DeepMind 2022* · **not read for this spec; no brief on disk**
+
+Read this only if you intend to *defend* the constants you quote from `2305.16264`. It changes no number here, and no assignment clause asks for a compute-optimality argument — but it is the functional form everything else is fitted to:
+
+```
+L(N, D) = E + A/N^alpha + B/D^beta
+```
+
+The spec quotes **A = 521, B = 1488, E = 1.87, alpha = beta = 0.3527** from Muennighoff. Those are parameters *of Chinchilla's equation*. You can cite them without reading this paper; you cannot answer "what is B?" without it.
+
+**A cautionary note from our own process.** An earlier draft claimed 2.000T was "0.83x compute-optimal, since Chinchilla-optimal for 120B is about 2.4T." That came from the remembered ~20-tokens-per-parameter heuristic, and the red team correctly flagged it as folklore in a document graded on sourcing. The repair was not to read Chinchilla but to use Muennighoff's **fitted** relation `U_N = 0.051 * U_D`, giving 2.353T and therefore **0.85x**. The heuristic was nearly right (120B x 20 = 2.4T); its provenance was not.
+
+**The limitation is the useful part.** Chinchilla assumes **unique, single-epoch** data — its framework presumes you have enough tokens. That assumption is precisely what fails on a 0.627B agentic pool against 40B of demand, and it is why `2305.16264` had to be written. Reading Chinchilla shows you where this assignment's central problem starts.
+
+**Read:** sections 3-4 and the parametric fit. Skip the Chinchilla-vs-Gopher benchmark tables.
+**Do not read Kaplan et al. `2001.08361`** first — Chinchilla supersedes it, and starting there is a reliable way to absorb the wrong token-to-parameter ratio.
+
+| | |
+|---|---|
+| Changes a number in this spec? | No — `2305.16264` covers the one place it would |
+| Needed to *defend* a number? | Yes — you cite its functional form |
+| Required by any assignment clause? | No |
+| Order | Before Tier 1, if at all. The fourth paper you read, not one of the first three. |
+
+---
+
 ## Tier 1 — the three that decide the shape of your answer
 
 ### 1. Scaling Data-Constrained Language Models — `2305.16264`
@@ -143,7 +172,7 @@ Constrains rather than informs. Fully synthetic self-training collapses almost s
 
 ## If you are writing this yourself
 
-**Read three: Scaling Data-Constrained → Two-Phase → Mid-Training Survey.** That is enough for a good spec. Add OpenCoder and Demystifying Synthetic and it becomes excellent. Everything after that is defence-hardening.
+**Read three: Scaling Data-Constrained → Two-Phase → Mid-Training Survey.** That is enough for a good spec. If you want a fourth, make it **Chinchilla (Tier 0)** — not for a number, but so the constants you quote from the first paper are defensible. Add OpenCoder and Demystifying Synthetic and it becomes excellent. Everything after that is defence-hardening.
 
 **But start at `session_5_era_v5/papers/EVIDENCE_MAP.md`, not the papers.** The 14 briefs are dense rather than summary-level: figures described from pixels, every number with its setting and location, and an explicit list of what each paper is **silent** on. `emnlp596` ships a zero-dependency `verify.py` (36 assertions) so its numbers are re-checkable without trusting the brief.
 
