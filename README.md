@@ -6,6 +6,7 @@ The deliverable is a written specification that decides how a ~120B model's fixe
 
 **Primary deliverable → [`session_5_era_v5/SOLUTION.md`](session_5_era_v5/SOLUTION.md)**
 **Evidence base → [`session_5_era_v5/papers/EVIDENCE_MAP.md`](session_5_era_v5/papers/EVIDENCE_MAP.md)**
+**Which papers to read, and in what order → [`READING_GUIDE.md`](READING_GUIDE.md)**
 
 ---
 
@@ -72,10 +73,10 @@ Two consequences shaped this repo. **E9** means the honest failure mode is over-
 |---|---|---|---|---|
 | A verified native | 40% | 126.4B | 64.0B | 1.98× |
 | B unverified crawl | 30% | 94.8B | 44.9B | 2.11× |
-| C translated / parallel | 8% | 25.3B | 5.0B | 5.06× |
-| D synthetic (rephrase) | 22% | 69.5B | 162.0B | 0.43× |
+| C translated / parallel | 4% | 12.6B | 5.0B | 2.53× |
+| D synthetic (rephrase) | 26% | 82.2B | 162.0B | 0.51× |
 
-78% real / 22% synthetic.
+74% real / 26% synthetic. Tier shares are the output of a declared per-tier epoch cap of N = 2.53, not four hand-picked percentages. Note the honest cost: 15.80% runs real Indic at **2.77 epochs**, against the **1.00 epoch** both disclosed multilingual builds serve — and the course's own `indic ≥ 12` floor makes one-epoch Indic unreachable at any legal share, since that would need 5.70%. Tier shares are the output of a declared per-tier epoch cap of N = 2.53, not four hand-picked percentages.
 
 ### Curriculum
 
@@ -109,7 +110,7 @@ The method was **backwards from the benchmarks, then forwards through the supply
 
 ### The number we did not fix, and why that is deliberate
 
-The agentic lane demands 40B tokens against **0.627B unique** — a 63.8× gap in the main run, **73.4× across the whole plan**. There is no honest repetition story and no rephrasing story, because rephrasing needs a source document and we do not have 40B tokens of real trajectories to rewrite. The spec therefore states the full arithmetic in the open: **91.4% of that lane is generated** (3.971B real of 46.0B), the generation program is environment-grounded and verifier-filtered rather than invented, and the defensible band on our own cited ceilings is **0.125–0.376%**, so 2.00% is 5–16× outside it. 2% is not ours to lower: widget 1 hard-codes `{key:"agentic", floor:2}`. If the 3B proxy fails to beat a format-data-only baseline. E9 penalises handing a large share to an empty lane *quietly*; the response is to do the opposite of quietly.
+The agentic lane demands 40B tokens against **0.627B unique** — a 63.8× gap in the main run, **73.4× across the whole plan** — and under Muennighoff's fitted repetition law a 0.627B pool yields at most **10.28B** effective tokens however often it is repeated, so **≥ 78% of the lane must be generated regardless of epoch count**. There is no honest repetition story and no rephrasing story, because rephrasing needs a source document and we do not have 40B tokens of real trajectories to rewrite. The spec therefore states the full arithmetic in the open: **91.5% of that lane is generated** (3.908B real of 46.0B), the generation program is environment-grounded and verifier-filtered rather than invented, and the defensible band on our own cited ceilings is **0.125–0.376%**, so 2.00% is 5–16× outside it. 2% is not ours to lower: widget 1 hard-codes `{key:"agentic", floor:2}`. If the 3B proxy fails to beat a format-data-only baseline. E9 penalises handing a large share to an empty lane *quietly*; the response is to do the opposite of quietly.
 
 ---
 
