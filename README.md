@@ -1,10 +1,18 @@
-# ERA V5 · Session 5 — Data Mixture & Curriculum
+# ERA V5 — Session 5: pretraining mixture and curriculum
+
+> ## The submission is [`session_5_era_v5/SUBMISSION.md`](session_5_era_v5/SUBMISSION.md)
+>
+> Self-contained, 33 KB. Everything the evaluation criteria ask for is in that one file.
+> Run `python3 session_5_era_v5/verify.py` to re-derive all 50 published numbers from the
+> raw dataset inventory — zero dependencies, currently 50/50 passing.
+>
+> Nothing else in this repo is graded. `iterations/` holds superseded drafts on purpose.
 
 Design artifact for **TSAI ERA V5, Session 5: Data Mixtures and Curriculum**.
 
 The deliverable is a written specification that decides how a ~120B model's fixed token budget is split across capability lanes, in what order those tokens are served, what is held back for the final anneal, and which of those numbers survive contact with the actual token supply.
 
-**Primary deliverable → [`session_5_era_v5/SOLUTION.md`](session_5_era_v5/SOLUTION.md)**
+**Primary deliverable → [`session_5_era_v5/SUBMISSION.md`](session_5_era_v5/SUBMISSION.md)**
 **Evidence base → [`session_5_era_v5/papers/EVIDENCE_MAP.md`](session_5_era_v5/papers/EVIDENCE_MAP.md)**
 **Which papers to read, and in what order → [`READING_GUIDE.md`](READING_GUIDE.md)**
 
@@ -152,10 +160,12 @@ The specification was put through a red-team pass whose only job was to break it
 
 ```
 session_5_era_v5/
-├── SOLUTION.md                 # THE DELIVERABLE: the V5 mixture + curriculum spec
-├── BANDS_AND_PROXY.md          # band definitions + proxy protocol detail
+├── SUBMISSION.md               # >>> THE DELIVERABLE <<<  33 KB, self-contained
+├── verify.py                   # re-derives all 50 published numbers; zero deps
+├── review/criteria-audit/      # four-reviewer adversarial audit of the prior draft
 ├── iterations/                 # superseded drafts, audit trail only - see its README
-│   ├── README.md               # what each scored, and which numbers were retracted
+│   ├── SOLUTION.md             # the 52 KB long-form spec this replaces
+│   ├── BANDS_AND_PROXY.md      # withdrawn: contradicted the spec on six numbers
 │   ├── SOLUTION_v5.md          # 438/500; retains the retracted 0.83x figure
 │   ├── SOLUTION_v4.md          # closed the v3 fatals; also retains 0.83x
 │   ├── SOLUTION_v3.md          # 307/310/345 across three red-team passes
